@@ -1,132 +1,84 @@
-package com.sheffield;
-
+import java.lang.reflect.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Random;
+
+import sheffield.DatabaseConnectionHandler;
 
 public class DatabaseOperations {
-
-    // Insert a new book into the database
-    public void insertBook(Book newBook, Connection connection) throws SQLException {
-        try {
-            // Create an SQL INSERT statement
-            String insertSQL = "INSERT INTO Books (isbn, title, author_name,"+
-            "publication_year, genre, price) VALUES (?, ?, ?, ?, ?, ?)";
-
-            // Prepare and execute the INSERT statement
-            PreparedStatement preparedStatement = connection.prepareStatement(insertSQL);
-            preparedStatement.setString(1, newBook.getIsbn());
-            preparedStatement.setString(2, newBook.getTitle());
-            preparedStatement.setString(3, newBook.getAuthorName());
-            preparedStatement.setInt(4, newBook.getPublicationYear());
-            preparedStatement.setString(5, newBook.getGenre());
-            preparedStatement.setBigDecimal(6, newBook.getPrice());
-
-            int rowsAffected = preparedStatement.executeUpdate();
-            System.out.println(rowsAffected + " row(s) inserted successfully.");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e; // Re-throw the exception to signal an error.
-        }
+    // add operations to select, insert edit ect tables in the database
+    // see lab 3 solutions for inspiration
+    public void operation(){
+        System.out.println("database ;operations class");
     }
 
-    // Get all books from the database
-    public void getAllBooks(Connection connection) throws SQLException {
+    // creates a user object from its id
+    public static User getUser(int id, Connection con) throws SQLException{
         try {
-            String selectSQL = "SELECT * FROM Books";
-            PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            System.out.println("<=================== GET ALL BOOKS ====================>");
+            // execute query
+            String sqlString = "SELECT Email, PasswordHash, Forename, Surname FROM Users WHERE UserID = ?";
+            PreparedStatement statement = con.prepareStatement(sqlString);
+            statement.setInt(1, id);
+            ResultSet resultSet = statement.executeQuery();
+            System.out.println("get user query executed");
+
+            // initialise variables for constucter
+            String email = "";
+            char[] passHash = new char[0];
+            String forename = "";
+            String surname = "";
+
+            // get values for constructor
             while (resultSet.next()) {
-                // Print each book's information in the specified format
-                System.out.println("{" +
-                        "isbn='" + resultSet.getString("isbn") + "'" +
-                        ", title='" + resultSet.getString("title") + "'" +
-                        ", authorName='" + resultSet.getString("author_name") + "'" +
-                        ", publicationYear='" + resultSet.getInt("publication_year") + "'" +
-                        ", genre='" + resultSet.getString("genre") + "'" +
-                        ", price='" + resultSet.getDouble("price") + "'" +
-                        "}");
+                email = resultSet.getString("Email");
+                passHash = resultSet.getString("PasswordHash").toCharArray();
+                forename = resultSet.getString("Forename");
+                surname = resultSet.getString("Surname");
             }
-            System.out.println("<======================================================>");
+
+            User user = new User(id, email, passHash, forename, surname);
+            return user;
+
         } catch (SQLException e) {
             e.printStackTrace();
             throw e;// Re-throw the exception to signal an error.
         }
     }
 
-    // Get a book by ISBN
-    public void getBookByISBN(String isbn, Connection connection) throws SQLException {
+
+    // insert a new user into the database from a user object
+    // sets isStaff and is isManager to 0 by default
+    public static void insertUser(User user, Connection con) throws SQLException{
         try {
-            String selectSQL = "SELECT * FROM Books WHERE isbn=?";
-            PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
-            preparedStatement.setString(1, isbn);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            System.out.println("<==================== BOOK BY ISBN =====================>");
-            if (resultSet.next()) {
-                System.out.println("{" +
-                        "isbn='" + resultSet.getString("isbn") + "'" +
-                        ", title='" + resultSet.getString("title") + "'" +
-                        ", authorName='" + resultSet.getString("author_name") + "'" +
-                        ", publicationYear='" + resultSet.getInt("publication_year") + "'" +
-                        ", genre='" + resultSet.getString("genre") + "'" +
-                        ", price='" + resultSet.getDouble("price") + "'" +
-                        "}");
-            } else {
-                System.out.println("Book with ISBN " + isbn + " not found.");
+            String sqlString = "INSERT INTO Users (UserID, Email, PasswordHash, Forename, Surname) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement statement = con.prepareStatement(sqlString);
+
+            // format attributes into correct data types
+            char[] passwordHashChars = user.getPasswordHash();//convert password has from char list to string
+            String passwordHash = "";
+            for (char c:passwordHashChars) {
+                passwordHash = passwordHash + Character.toString(c);
             }
-            System.out.println("<=======================================================>");
+
+            String forename = user.getPersonalRecord().getforname();
+            String surname = user.getPersonalRecord().getsurname();
+
+            // insert attributes into statement
+            statement.setInt(1, user.getUserID());
+            statement.setString(2, user.getEmail());
+            statement.setString(3, passwordHash);
+            statement.setString(4, forename);
+            statement.setString(5, surname);
+
+            int rowsUpdated = statement.executeUpdate();
+            System.out.println("insert user");
+
         } catch (SQLException e) {
             e.printStackTrace();
             throw e;// Re-throw the exception to signal an error.
         }
     }
 
-    // Update an existing book in the database
-    public void updateBook(Book newBook, Connection connection) throws SQLException {
-        try {
-            String updateSQL = "UPDATE Books SET title=?, author_name=?,"+
-            "publication_year=?, genre=?, price=? WHERE isbn=?";
-            PreparedStatement preparedStatement = connection.prepareStatement(updateSQL);
-
-            preparedStatement.setString(1, newBook.getTitle());
-            preparedStatement.setString(2, newBook.getAuthorName());
-            preparedStatement.setInt(3, newBook.getPublicationYear());
-            preparedStatement.setString(4, newBook.getGenre());
-            preparedStatement.setBigDecimal(5, newBook.getPrice());
-            preparedStatement.setString(6, newBook.getIsbn());
-
-            int rowsAffected = preparedStatement.executeUpdate();
-
-            if (rowsAffected > 0) {
-                System.out.println(rowsAffected + " row(s) updated successfully.");
-            } else {
-                System.out.println("No rows were updated for ISBN: " + newBook.getIsbn());
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;// Re-throw the exception to signal an error.
-        }
-    }
-
-    // Delete a book from the database by ISBN
-    public void deleteBook(String isbn, Connection connection) throws SQLException {
-        try {
-            String deleteSQL = "DELETE FROM Books WHERE isbn=?";
-            PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
-            preparedStatement.setString(1, isbn);
-
-            int rowsAffected = preparedStatement.executeUpdate();
-
-            if (rowsAffected > 0) {
-                System.out.println(rowsAffected + " row(s) deleted successfully.");
-            } else {
-                System.out.println("No rows were deleted for ISBN: " + isbn);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;// Re-throw the exception to signal an error.
-        }
-    }
 }

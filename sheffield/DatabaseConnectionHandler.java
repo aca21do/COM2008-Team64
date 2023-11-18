@@ -1,9 +1,9 @@
 /*
-This is part of the com com.sheffield package used in lab 3
+This is part of the com.sheffield package used in lab 3
  */
 
 
-package com.sheffield;
+package sheffield;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -22,8 +22,10 @@ public class DatabaseConnectionHandler {
         // Load the JDBC driver and open the connection
         try {
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            System.out.println("connection successful");
         } catch (SQLException e) {
             e.printStackTrace();
+            System.out.println("connection failed");
         }
     }
 
