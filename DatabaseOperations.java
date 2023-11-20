@@ -81,4 +81,10 @@ public class DatabaseOperations {
         }
     }
 
+    // from lab 5
+    public String verifyLogin(Connection connection, String username, char[] enteredPassword) {
+        // TODO : Implement this method.
+        return null;
+    }
+
 }
