@@ -160,4 +160,10 @@ public class DatabaseOperations {
         System.out.println("PaymentCard inserted rows : " + cardRowsUpdated);
     }
 
+    // from lab 5
+    public String verifyLogin(Connection connection, String username, char[] enteredPassword) {
+        // TODO : Implement this method.
+        return null;
+    }
+
 }
