@@ -12,10 +12,10 @@ public class User {
             this.forename = fName;
             this.surname = sName;
         }
-        public String getforname(){
+        public String getForename(){
             return this.forename;
         }
-        public String getsurname(){
+        public String getSurname(){
             return this.surname;
         }
     }
@@ -27,7 +27,7 @@ public class User {
     private Address address;
     private boolean isStaff;
     private boolean isManager;
-    private PaymentMethod paymentMethod;
+    private UserHasPayment hasPayment;
 
     private char[] passwordHash;
 
@@ -59,6 +59,10 @@ public class User {
     }
     public boolean getIsManager(){
         return this.isManager;
+    }
+    public UserHasPayment getHasPayment() {return this.hasPayment; }
+    public void setHasPayment(UserHasPayment newHasPayment){
+        this.hasPayment = newHasPayment;
     }
 
 
