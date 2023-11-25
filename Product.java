@@ -32,15 +32,15 @@ public class Product {
         return this.retailPrice;
     }
 
-    public void setRetailPrice (float newRetailPrice) {
-        this.retailPrice = newRetailPrice;
+    public void setRetailPrice (float retailPrice) {
+        this.retailPrice = retailPrice;
     }
 
-    public void Product (String newBrandName, String newProductName,
-                         String newProductCode, float newRetailPrice) {
-        this.brandName = newBrandName;
-        this.productName = newProductName;
-        this.productCode = newProductCode;
-        this.retailPrice = newRetailPrice;
+    public void Product (String brandName, String productName,
+                         String productCode, float retailPrice) {
+        this.brandName = brandName;
+        this.productName = productName;
+        this.productCode = productCode;
+        this.retailPrice = retailPrice;
     }
 }

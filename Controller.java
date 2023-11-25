@@ -1,6 +1,6 @@
 public class Controller extends Part {
-    public void Controller(String newProductCode, String newGaugeCode) {
-        this.productCode = newProductCode;
-        this.gaugeCode = newGaugeCode;
+    public void Controller(String productCode, String gaugeCode) {
+        this.productCode = productCode;
+        this.gaugeCode = gaugeCode;
     }
 }

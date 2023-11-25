@@ -5,13 +5,13 @@ public class RollingStock extends Part {
         return this.eraCode;
     }
 
-    public void setEraCode(String newEraCode) {
-        this.eraCode = newEraCode;
+    public void setEraCode(String eraCode) {
+        this.eraCode = eraCode;
     }
 
-    public void RollingStock(String newProductCode, String newGaugeCode, String newEraCode) {
-        this.productCode = newProductCode;
-        this.gaugeCode = newGaugeCode;
-        this.eraCode = newEraCode;
+    public void RollingStock(String productCode, String gaugeCode, String eraCode) {
+        this.productCode = productCode;
+        this.gaugeCode = gaugeCode;
+        this.eraCode = eraCode;
     }
 }

@@ -5,11 +5,11 @@ public class InventoryItem {
         return this.gaugeCode;
     }
 
-    public void setGaugeCode (String newGaugeCode) {
-        this.gaugeCode = newGaugeCode;
+    public void setGaugeCode (String gaugeCode) {
+        this.gaugeCode = gaugeCode;
     }
 
-    public void InventoryItem(String newGaugeCode) {
-        this.gaugeCode = newGaugeCode;
+    public void InventoryItem(String gaugeCode) {
+        this.gaugeCode = gaugeCode;
     }
 }

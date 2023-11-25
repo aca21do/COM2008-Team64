@@ -5,11 +5,11 @@ public class SetHasPacks {
         return this.quantity;
     }
 
-    public void setQuantity(int newQuantity) {
-        this.quantity = newQuantity;
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
-    public void PackParts(int newQuantity) {
-        this.quantity = newQuantity;
+    public void PackParts(int quantity) {
+        this.quantity = quantity;
     }
 }
