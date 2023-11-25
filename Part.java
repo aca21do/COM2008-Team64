@@ -1,6 +1,6 @@
 import java.lang.constant.Constable;
 
-public class Part {
+public class Part extends Product{
     protected String productCode;
     protected String gaugeCode;
 
