@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 
 public class LoginView extends JFrame {
-    private JTextField usernameField;
+    private JTextField emailField;
     private JPasswordField passwordField;
     public LoginView (Connection connection) throws SQLException {
         // Create the JFrame in the constructor
@@ -26,20 +26,20 @@ public class LoginView extends JFrame {
         // Set a layout manager for the panel (e.g., GridLayout)
         panel.setLayout(new GridLayout(3, 2));
 
-        // Create JLabels for username and password
-        JLabel usernameLabel = new JLabel("Username:");
+        // Create JLabels for email and password
+        JLabel emailLabel = new JLabel("Email:");
         JLabel passwordLabel = new JLabel("Password:");
 
-        // Create JTextFields for entering username and password
-        usernameField = new JTextField(20);
+        // Create JTextFields for entering email and password
+        emailField = new JTextField(20);
         passwordField = new JPasswordField(20);
 
         // Create a JButton for the login action
         JButton loginButton = new JButton("Login");
 
         // Add components to the panel
-        panel.add(usernameLabel);
-        panel.add(usernameField);
+        panel.add(emailLabel);
+        panel.add(emailField);
         panel.add(passwordLabel);
         panel.add(passwordField);
         panel.add(new JLabel());  // Empty label for spacing
@@ -49,12 +49,12 @@ public class LoginView extends JFrame {
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String username = usernameField.getText();
+                String email = emailField.getText();
                 char[] passwordChars = passwordField.getPassword();
-                System.out.println(username);
+                System.out.println(email);
                 System.out.println(new String(passwordChars));
                 DatabaseOperations databaseOperations = new DatabaseOperations();
-                System.out.println(databaseOperations.verifyLogin(connection, username, passwordChars));
+                System.out.println(databaseOperations.verifyLogin(connection, email, passwordChars));
                 // Secure disposal of the password
                 Arrays.fill(passwordChars, '\u0000');
             }
