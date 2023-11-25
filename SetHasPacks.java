@@ -1,4 +1,4 @@
-public class PackParts {
+public class SetHasPacks {
     private int quantity;
 
     public int getQuantity() {
