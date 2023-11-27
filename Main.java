@@ -28,7 +28,8 @@ public class Main {
                 // Open a database connection
                 databaseConnectionHandler.openConnection();
 
-                // Create and initialize the LoanTableDisplay view using the database connection
+                // Create and initial
+                // ize the LoanTableDisplay view using the database connection
                 loginView = new LoginView(databaseConnectionHandler.getConnection());
                 loginView.setVisible(true);
 

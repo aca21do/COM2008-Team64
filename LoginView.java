@@ -17,14 +17,19 @@ public class LoginView extends JFrame {
         // Create the JFrame in the constructor
         this.setTitle("Login Application");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(300, 150);
+        this.setSize(400, 200);
 
         // Create a JPanel to hold the components
         JPanel panel = new JPanel();
         this.add(panel);
 
         // Set a layout manager for the panel (e.g., GridLayout)
-        panel.setLayout(new GridLayout(3, 2));
+        panel.setLayout(new GridLayout(4, 2));
+
+        // Create JButtons for the head using LoggedInHeadView
+        LoggedInHeadView loggedInHeadView = new LoggedInHeadView();
+        JButton accountButton = loggedInHeadView.AccountButton();
+        JButton logoutButton = loggedInHeadView.LogoutButton();
 
         // Create JLabels for email and password
         JLabel emailLabel = new JLabel("Email:");
@@ -36,6 +41,10 @@ public class LoginView extends JFrame {
 
         // Create a JButton for the login action
         JButton loginButton = new JButton("Login");
+
+        // Add head components to the panel
+        panel.add(accountButton);
+        panel.add(logoutButton);
 
         // Add components to the panel
         panel.add(emailLabel);
