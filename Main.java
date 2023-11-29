@@ -12,31 +12,8 @@ public class Main {
         try {
             System.out.println("connecting");
             databaseConnectionHandler.openConnection();
-
-
-            // create a test user to login
-            /*
-            try {
-                User newUser = new User(107, "107", "Mr", "testies");
-                String password = "pass";
-                char[] passChars = password.toCharArray();
-
-                //databaseOperations.insertUser(newUser, databaseConnectionHandler.getConnection());
-                newUser.setPassword(passChars, databaseConnectionHandler.getConnection(), databaseOperations);
-
-
-                //User gotUser = databaseOperations.getUserFromID(69);
-
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-
-             */
-
-
-
-
-        } catch (Throwable e) {
+        }
+        catch (Throwable e) {
             e.printStackTrace();
             System.out.println("connection failed");
         } finally {

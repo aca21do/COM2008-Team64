@@ -64,25 +64,20 @@ public class DatabaseOperations {
     // insert a new user into the database from a user object
     // sets isStaff and is isManager to 0 by default
     public void insertUser(User user, Connection con) throws SQLException{
-        try {
-            String sqlString = "INSERT INTO Users (UserID, Email, PasswordHash) VALUES (?, ?, ?)";
-            PreparedStatement statement = con.prepareStatement(sqlString);
+        String sqlString = "INSERT INTO Users (UserID, Email, PasswordHash) VALUES (?, ?, ?)";
+        PreparedStatement statement = con.prepareStatement(sqlString);
 
-            // format attributes into correct data types
-            char[] passwordHashChars = user.getPasswordHash(con, this);//convert password has from char list to string
-            String passwordHash = new String(passwordHashChars);
+        // format attributes into correct data types
+        char[] passwordHashChars = user.getPasswordHash(con, this);//convert password has from char list to string
+        String passwordHash = new String(passwordHashChars);
 
-            // insert attributes into statement
-            statement.setString(1, user.getUserID());
-            statement.setString(2, user.getEmail());
-            statement.setString(3, passwordHash);
+        // insert attributes into statement
+        statement.setString(1, user.getUserID());
+        statement.setString(2, user.getEmail());
+        statement.setString(3, passwordHash);
 
-            int rowsUpdated = statement.executeUpdate();
-            System.out.println("insert user");
-
-        } catch (SQLException e) {
-            throw new SQLException("Error saving user");// Re-throw the exception to signal an error.
-        }
+        int rowsUpdated = statement.executeUpdate();
+        System.out.println("insert user");
     }
 
     public boolean userIsBlocked(User user, Connection con) throws SQLException {

@@ -102,7 +102,6 @@ public class LoginView extends JFrame {
                     errorMessage = "register success";
                 }
                 catch(SQLException error){
-                    error.printStackTrace();
                     errorMessage = error.getMessage();
                 }
                 finally {
