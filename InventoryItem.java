@@ -1,5 +1,8 @@
 public class InventoryItem {
+
     private String gaugeCode;
+    private Product product;
+
 
     public String getGaugeCode () {
         return this.gaugeCode;
@@ -9,7 +12,16 @@ public class InventoryItem {
         this.gaugeCode = gaugeCode;
     }
 
-    public InventoryItem(String gaugeCode) {
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public InventoryItem(String gaugeCode, Product product) {
         this.gaugeCode = gaugeCode;
+        this.product = product;
     }
 }
