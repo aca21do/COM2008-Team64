@@ -32,7 +32,7 @@ public class OrderLine {
         this.product = product;
     }
 
-    public void OrderLine (double lineCost, int quantity, Product product) {
+    public OrderLine (double lineCost, int quantity, Product product) {
         this.lineCost = lineCost;
         this.quantity = quantity;
         this.product = product;

@@ -1,6 +1,5 @@
 public class TrackPiece extends Part {
-    public void RollingStock(String newProductCode, String newGaugeCode) {
-        this.productCode = newProductCode;
-        this.gaugeCode = newGaugeCode;
+    public TrackPiece(String brandName, String productCode, String gaugeCode, double retailPrice) {
+        super(brandName, productCode, gaugeCode, retailPrice);
     }
 }

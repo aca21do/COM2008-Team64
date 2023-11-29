@@ -9,7 +9,7 @@ public class SetHasPacks {
         this.quantity = quantity;
     }
 
-    public void PackParts(int quantity) {
+    public SetHasPacks(int quantity) {
         this.quantity = quantity;
     }
 }

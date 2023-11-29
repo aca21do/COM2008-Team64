@@ -9,7 +9,7 @@ public class Inventory {
         this.quantity = quantity;
     }
 
-    public void Inventory(int quantity) {
+    public Inventory(int quantity) {
         this.quantity = quantity;
     }
 }

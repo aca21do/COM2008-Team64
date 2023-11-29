@@ -9,7 +9,7 @@ public class InventoryItem {
         this.gaugeCode = gaugeCode;
     }
 
-    public void InventoryItem(String gaugeCode) {
+    public InventoryItem(String gaugeCode) {
         this.gaugeCode = gaugeCode;
     }
 }

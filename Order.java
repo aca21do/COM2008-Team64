@@ -3,6 +3,8 @@ public class Order {
     protected String orderDate;
     protected String orderStatus;
 
+
+
     public String getOrderNumber() {
         return this.orderNumber;
     }
@@ -24,6 +26,11 @@ public class Order {
     }
 
     public void setOrderStatus(String orderStatus) {
+        this.orderStatus = orderStatus;
+    }
+    public Order(String orderNumber, String orderDate, String orderStatus) {
+        this.orderNumber = orderNumber;
+        this.orderDate = orderDate;
         this.orderStatus = orderStatus;
     }
 }

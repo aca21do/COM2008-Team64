@@ -2,7 +2,7 @@ public class Product {
     protected String brandName;
     protected String productName;
     protected String productCode;
-    protected float retailPrice;
+    protected double retailPrice;
 
     public String getBrandName() {
         return this.brandName;
@@ -28,16 +28,16 @@ public class Product {
         this.productCode = newProductCode;
     }
 
-    public float getRetailPrice () {
+    public double getRetailPrice () {
         return this.retailPrice;
     }
 
-    public void setRetailPrice (float retailPrice) {
+    public void setRetailPrice (double retailPrice) {
         this.retailPrice = retailPrice;
     }
 
-    public void Product (String brandName, String productName,
-                         String productCode, float retailPrice) {
+    public Product (String brandName, String productName,
+                         String productCode, double retailPrice) {
         this.brandName = brandName;
         this.productName = productName;
         this.productCode = productCode;

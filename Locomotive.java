@@ -19,11 +19,9 @@ public class Locomotive extends Part {
         this.dccCode = dccCode;
     }
 
-    public void Locomotive(String productCode, String gaugeCode,
-                                String eraCode, String dccCode) {
-        this.productCode = productCode;
-        this.gaugeCode = gaugeCode;
+    public Locomotive(String brandName, String productCode, String gaugeCode, double retailPrice, String eraCode, String dccCode) {
+        super(brandName, productCode, gaugeCode, retailPrice);
         this.eraCode = eraCode;
-        this.dccCode = dccCode;
+        this.dccCode = eraCode;
     }
 }

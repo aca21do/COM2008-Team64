@@ -9,7 +9,7 @@ public class PackParts {
         this.quantity = quantity;
     }
 
-    public void PackParts(int quantity) {
+    public PackParts(int quantity) {
         this.quantity = quantity;
     }
 }

@@ -20,8 +20,7 @@ public class Part extends Product{
         this.gaugeCode = newGaugeCode;
     }
 
-    public void Part(String newProductCode, String newGaugeCode) {
-        this.productCode = newProductCode;
-        this.gaugeCode = newGaugeCode;
+    public Part(String brandName, String productCode, String gaugeCode, double retailPrice) {
+        super(brandName, productCode, gaugeCode, retailPrice);
     }
 }
