@@ -1,14 +1,8 @@
-import java.io.BufferedReader;
 import java.io.CharArrayReader;
-import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.stream.Stream;
+import java.security.SecureRandom;
+import java.sql.*;
+import java.util.Random;
 
 public class DatabaseOperations {
     // add operations to select, insert edit ect tables in the database
@@ -17,33 +11,51 @@ public class DatabaseOperations {
         System.out.println("database ;operations class");
     }
 
+    //------------------------------------------Users-------------------------------------
+    // TODO better exception handling
     // creates a user object from its id
     public User getUserFromID(int id, Connection con) throws SQLException{
         try {
             // execute query
-            String sqlString = "SELECT Email, PasswordHash, Forename, Surname FROM Users WHERE UserID = ?";
+            String sqlString = "SELECT Email, Forename, Surname FROM Users WHERE UserID = ?";
             PreparedStatement statement = con.prepareStatement(sqlString);
             statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
             System.out.println("get user query executed");
 
-            // initialise variables for constucter
-            String email = "";
-            char[] passHash = new char[0];
-            String forename = "";
-            String surname = "";
-
             // get values for constructor
             if (resultSet.next()) {
-                email = resultSet.getString("Email");
-                passHash = resultSet.getString("PasswordHash").toCharArray();
-                forename = resultSet.getString("Forename");
-                surname = resultSet.getString("Surname");
-                User user = new User(id, email, passHash, forename, surname);
+                String email = resultSet.getString("Email");
+                String forename = resultSet.getString("Forename");
+                String surname = resultSet.getString("Surname");
+                User user = new User(id, email,forename, surname);
                 return user;
             } else{
                 return null;
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;// Re-throw the exception to signal an error.
+        }
+    }
+
+    public User getUserFromEmail(String email, Connection con) throws SQLException{
+        try {
+            // execute query to find the id of the user with that email
+            User user = null;
+            String sqlString = "SELECT UserID FROM Users WHERE Email = ?";
+            PreparedStatement statement = con.prepareStatement(sqlString);
+            statement.setString(1, email);
+            ResultSet resultSet = statement.executeQuery();
+
+            // if user found, create a user object from its id
+            if (resultSet.next()) {
+                int id = resultSet.getInt("UserID");
+                user = this.getUserFromID(id, con);
+            }
+
+            return user;// will return null if no user exists
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -60,11 +72,9 @@ public class DatabaseOperations {
             PreparedStatement statement = con.prepareStatement(sqlString);
 
             // format attributes into correct data types
-            char[] passwordHashChars = user.getPasswordHash();//convert password has from char list to string
-            String passwordHash = "";
-            for (char c:passwordHashChars) {
-                passwordHash = passwordHash + Character.toString(c);
-            }
+            char[] passwordHashChars = user.getPasswordHash(con, this);//convert password has from char list to string
+            String passwordHash = new String(passwordHashChars);
+
 
             String forename = user.getPersonalRecord().getForename();
             String surname = user.getPersonalRecord().getSurname();
@@ -85,6 +95,156 @@ public class DatabaseOperations {
         }
     }
 
+    public boolean userIsBlocked(User user, Connection con) throws SQLException {
+        try {
+            String isBlockedString = "SELECT isBlocked FROM Users WHERE UserID = ?";
+            PreparedStatement isBlockedStatement = con.prepareStatement(isBlockedString);
+            isBlockedStatement.setInt(1, user.getUserID());
+            ResultSet isBlockedResultSet = isBlockedStatement.executeQuery();
+
+            boolean isBlocked = true;
+            if (isBlockedResultSet.next()) {
+                isBlocked = isBlockedResultSet.getBoolean("isBlocked");
+            }
+
+            return isBlocked;
+        }
+        catch (SQLException e){
+            throw new SQLException("couldn't verify user");
+        }
+    }
+
+
+    public char[] getUserPassHash(User user, Connection con) throws SQLException {
+        try {
+            String getHashString = "SELECT PasswordHash FROM Users WHERE UserID = ?";
+            PreparedStatement getHashStatement = con.prepareStatement(getHashString);
+            getHashStatement.setInt(1, user.getUserID());
+            ResultSet hashResultSet = getHashStatement.executeQuery();
+
+            char[] hash;
+            if (hashResultSet.next()) {
+                hash = hashResultSet.getString("PasswordHash").toCharArray();
+            } else {
+                hash = new char[0];
+            }
+            System.out.println("got hash from database: " + String.valueOf(hash));
+            return hash;
+        }
+        catch (SQLException e){
+            throw new SQLException("couldn't check password");
+        }
+
+    }
+
+    public char[] getUserPassSalt(User user, Connection con) throws SQLException {
+        try {
+            String getSaltString = "SELECT PasswordSalt FROM Users WHERE UserID = ?";
+            PreparedStatement getSaltStatement = con.prepareStatement(getSaltString);
+            getSaltStatement.setInt(1, user.getUserID());
+            ResultSet saltResultSet = getSaltStatement.executeQuery();
+
+            char[] salt;
+            if (saltResultSet.next()) {
+                salt = saltResultSet.getString("PasswordSalt").toCharArray();
+            } else {
+                salt = new char[0];
+            }
+            System.out.println("got salt from database: " + String.valueOf(salt));
+            return salt;
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            throw new SQLException("couldn't check password");
+        }
+    }
+
+    public void resetLoginAttempts(User user, Connection con) throws SQLException{
+        try {
+            String resetAttemptsStr = "UPDATE Users Set loginAttempts = ? WHERE UserID = ?";
+            PreparedStatement resetAttemptsStatement = con.prepareStatement(resetAttemptsStr);
+            resetAttemptsStatement.setInt(1, 0);
+            resetAttemptsStatement.setInt(2, user.getUserID());
+            resetAttemptsStatement.execute();
+        }
+        catch (SQLException e){
+            throw new SQLException("couldn't reset login attempts");
+        }
+    }
+
+    public int incrementLoginAttempts(User user, Connection con) throws SQLException{
+        try {
+            int attempts;
+            String getAttemptsStr = "Select loginAttempts FROM Users WHERE UserID = ?";
+            PreparedStatement getAttemptsStatement = con.prepareStatement(getAttemptsStr);
+            getAttemptsStatement.setInt(1, user.getUserID());
+            ResultSet getAttemptsResult = getAttemptsStatement.executeQuery();
+
+            if (getAttemptsResult.next()) {
+                attempts = getAttemptsResult.getInt(1);
+                attempts += 1;
+            } else {
+                throw new SQLException("couldn't find user");
+            }
+
+            //update login attempts
+            String resetAttemptsStr = "UPDATE Users Set loginAttempts = ? WHERE UserID = ?";
+            PreparedStatement resetAttemptsStatement = con.prepareStatement(resetAttemptsStr);
+            resetAttemptsStatement.setInt(1, attempts);
+            resetAttemptsStatement.setInt(2, user.getUserID());
+            resetAttemptsStatement.execute();
+
+            //update isblocked
+            if (attempts >= 3){
+                String setBlockedStr = "UPDATE Users Set isBlocked = 1 WHERE UserID = ?";
+                PreparedStatement setBlockedState = con.prepareStatement(setBlockedStr);
+                setBlockedState.setInt(1, user.getUserID());
+                setBlockedState.execute();
+            }
+
+            return attempts;
+        }
+        catch (SQLException e){
+           throw new SQLException("couldn't increment login attempts");
+        }
+    }
+
+    public void setPassword(User user, char[] newPass, Connection con) throws SQLException{
+        //set random salt
+        Random random = new Random();
+        random.nextInt();
+        char[] salt = new char[16];
+        for (int i=0; i<16 ; i++){
+            int randInt = random.nextInt(32,126);
+            salt[i] = (char) randInt;
+        }
+        HashedPasswordGenerator hashGen = new HashedPasswordGenerator(salt);
+
+        // print hash and salt to be stored
+        String hashedPassword = hashGen.hashPassword(newPass);
+        System.out.println("storing new salt: " + String.valueOf(salt));
+        System.out.println("of length - " + salt.length);
+        System.out.println("--");
+        System.out.println("storing new hash: " + hashedPassword);
+        System.out.println("of length - " + hashedPassword.length());
+
+        // store in db
+        try {
+            String setPassStr = "UPDATE Users SET PasswordHash = ?, PasswordSalt = ? WHERE UserID = ?";
+            PreparedStatement setPassStatement = con.prepareStatement(setPassStr);
+            setPassStatement.setString(1, hashedPassword);
+            setPassStatement.setString(2, String.valueOf(salt));
+            setPassStatement.setInt(3, user.getUserID());
+            setPassStatement.execute();
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            throw new SQLException("couldn't set password hash and salt");
+        }
+
+    }
+
+    //-----------------------------payment methods/bank cards---------------------------
     public void getPaymentMethod(User user, Connection con) throws SQLException{
         try {
             // execute query
@@ -160,10 +320,60 @@ public class DatabaseOperations {
         System.out.println("PaymentCard inserted rows : " + cardRowsUpdated);
     }
 
+    //------------------------------login------------------------
     // from lab 5
-    public String verifyLogin(Connection connection, String username, char[] enteredPassword) {
+    public String verifyLogin(Connection con, String email, char[] enteredPassword) {
         // TODO : Implement this method.
-        return null;
+        String errorMessage = "unable to verify user";
+        try{
+            User user = this.getUserFromEmail(email, con);
+            System.out.println("Found user with that email, ID: " + user.getUserID());
+            if (user != null) {
+                System.out.println("(user not null)");
+                if (!user.getIsBlocked(this, con)){
+                    System.out.println("user not blocked");
+                    if (this.verifyPassword(con, enteredPassword, user)){
+                        resetLoginAttempts(user, con);
+                        errorMessage = "successfully logged in!";
+                    }
+                    else{
+                        incrementLoginAttempts(user, con);
+                        errorMessage = "wrong password";
+                    }
+                }
+                else{
+                    errorMessage = "User is blocked";
+                }
+            }
+            System.out.println(errorMessage);
+        }
+
+        catch (SQLException e){
+            errorMessage = e.getMessage();
+            System.out.println(errorMessage);
+        }
+
+        return errorMessage;
+    }
+
+    public boolean verifyPassword(Connection con, char[] enteredPassword, User user){
+        try {
+            System.out.println("verifying password");
+            char[] storedPasswordHash = user.getPasswordHash(con, this);
+            char[] salt = user.getPasswordSalt(con, this);
+
+            HashedPasswordGenerator hashedPasswordGenerator = new HashedPasswordGenerator(salt);
+            String enteredPasswordHashed = hashedPasswordGenerator.hashPassword(enteredPassword);
+
+            System.out.println("entered : " + enteredPasswordHashed);
+            System.out.println("stored  : " + String.valueOf(storedPasswordHash));
+            System.out.println("salt    : " + String.valueOf(salt));
+            return storedPasswordHash.equals(enteredPasswordHashed.toCharArray());
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            return false;
+        }
     }
 
 }
