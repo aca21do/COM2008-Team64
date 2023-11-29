@@ -128,7 +128,6 @@ public class DatabaseOperations {
             } else {
                 hash = new char[0];
             }
-            System.out.println("got hash from database: " + String.valueOf(hash));
             return hash;
         }
         catch (SQLException e){
@@ -150,7 +149,6 @@ public class DatabaseOperations {
             } else {
                 salt = new char[0];
             }
-            System.out.println("got salt from database: " + String.valueOf(salt));
             return salt;
         }
         catch (SQLException e){
@@ -218,15 +216,9 @@ public class DatabaseOperations {
             int randInt = random.nextInt(32,126);
             salt[i] = (char) randInt;
         }
+        //hash password
         HashedPasswordGenerator hashGen = new HashedPasswordGenerator(salt);
-
-        // print hash and salt to be stored
         String hashedPassword = hashGen.hashPassword(newPass);
-        System.out.println("storing new salt: " + String.valueOf(salt));
-        System.out.println("of length - " + salt.length);
-        System.out.println("--");
-        System.out.println("storing new hash: " + hashedPassword);
-        System.out.println("of length - " + hashedPassword.length());
 
         // store in db
         try {
@@ -359,16 +351,18 @@ public class DatabaseOperations {
     public boolean verifyPassword(Connection con, char[] enteredPassword, User user){
         try {
             System.out.println("verifying password");
-            char[] storedPasswordHash = user.getPasswordHash(con, this);
+            // get entered and stored passwords/hashes as char arrays
+            char[] storedPasswordHashChars = user.getPasswordHash(con, this);
             char[] salt = user.getPasswordSalt(con, this);
 
+            //hash entered password
             HashedPasswordGenerator hashedPasswordGenerator = new HashedPasswordGenerator(salt);
-            String enteredPasswordHashed = hashedPasswordGenerator.hashPassword(enteredPassword);
 
-            System.out.println("entered : " + enteredPasswordHashed);
-            System.out.println("stored  : " + String.valueOf(storedPasswordHash));
-            System.out.println("salt    : " + String.valueOf(salt));
-            return storedPasswordHash.equals(enteredPasswordHashed.toCharArray());
+            // convert char arrays to strings
+            String enteredPasswordHash = hashedPasswordGenerator.hashPassword(enteredPassword);
+            String storedPasswordHash = String.valueOf(storedPasswordHashChars);
+
+            return storedPasswordHash.equals(enteredPasswordHash);
         }
         catch (SQLException e){
             e.printStackTrace();

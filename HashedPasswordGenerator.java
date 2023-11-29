@@ -13,15 +13,11 @@ public class HashedPasswordGenerator {
 
     public String hashPassword(char[] password) {
         try {
-            System.out.println("-----NEW HASH WITH");
-            System.out.println("password: " + String.valueOf(password));
-            System.out.println("salt    : " + String.valueOf(salt));
             // Create a MessageDigest instance for SHA-256
             MessageDigest md = MessageDigest.getInstance("SHA-256");
 
             // Concatenate the salt and password bytes
-            byte[] saltedPasswordBytes = concatenateBytes(salt.toString().getBytes(), password.toString().getBytes());
-            System.out.println("salted bytes: " + saltedPasswordBytes.toString());
+            byte[] saltedPasswordBytes = concatenateBytes(String.valueOf(salt).getBytes(), String.valueOf(password).getBytes());
 
             // Update the digest with the salted password bytes
             md.update(saltedPasswordBytes);
@@ -34,7 +30,6 @@ public class HashedPasswordGenerator {
             for (byte b : hashedPasswordBytes) {
                 hexStringBuilder.append(String.format("%02x", b));
             }
-            System.out.println("outputs : " + hexStringBuilder.toString());
             return hexStringBuilder.toString();
 
         } catch (NoSuchAlgorithmException e) {

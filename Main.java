@@ -8,9 +8,33 @@ public class Main {
 
         DatabaseConnectionHandler databaseConnectionHandler = new DatabaseConnectionHandler();
         DatabaseOperations databaseOperations = new DatabaseOperations();
+
         try {
             System.out.println("connecting");
             databaseConnectionHandler.openConnection();
+
+
+            // create a test user to login
+            /*
+            try {
+                User newUser = new User(107, "107", "Mr", "testies");
+                String password = "pass";
+                char[] passChars = password.toCharArray();
+
+                //databaseOperations.insertUser(newUser, databaseConnectionHandler.getConnection());
+                newUser.setPassword(passChars, databaseConnectionHandler.getConnection(), databaseOperations);
+
+
+                //User gotUser = databaseOperations.getUserFromID(69);
+
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+
+             */
+
+
+
 
         } catch (Throwable e) {
             e.printStackTrace();
