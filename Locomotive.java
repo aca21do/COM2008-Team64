@@ -3,6 +3,8 @@ public class Locomotive extends Part {
 
     private String dccCode;
 
+
+
     public String getEraCode () {
         return this.eraCode;
     }
@@ -19,9 +21,10 @@ public class Locomotive extends Part {
         this.dccCode = dccCode;
     }
 
-    public Locomotive(String brandName, String productCode, String gaugeCode, double retailPrice, String eraCode, String dccCode) {
-        super(brandName, productCode, gaugeCode, retailPrice);
+    public Locomotive(String brandName, String productName, String productCode, double retailPrice,
+                      String gaugeCode, String eraCode, String dccCode) {
+        super(brandName, productName, productCode, retailPrice, gaugeCode);
         this.eraCode = eraCode;
-        this.dccCode = eraCode;
+        this.dccCode = dccCode;
     }
 }

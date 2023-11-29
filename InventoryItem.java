@@ -1,27 +1,25 @@
 public class InventoryItem {
-
-    private String gaugeCode;
     private Product product;
-
-
-    public String getGaugeCode () {
-        return this.gaugeCode;
-    }
-
-    public void setGaugeCode (String gaugeCode) {
-        this.gaugeCode = gaugeCode;
-    }
+    private int quantity;
 
     public Product getProduct() {
-        return product;
+        return this.product;
     }
 
     public void setProduct(Product product) {
         this.product = product;
     }
 
-    public InventoryItem(String gaugeCode, Product product) {
-        this.gaugeCode = gaugeCode;
+    public int getQuantity() {
+        return this.quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public InventoryItem(Product product, int quantity) {
         this.product = product;
+        this.quantity = quantity;
     }
 }
