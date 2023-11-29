@@ -14,29 +14,27 @@ public class DatabaseOperations {
     //------------------------------------------Users-------------------------------------
     // TODO better exception handling
     // creates a user object from its id
-    public User getUserFromID(int id, Connection con) throws SQLException{
+    public User getUserFromID(String id, Connection con) throws SQLException{
         try {
             // execute query
-            String sqlString = "SELECT Email, Forename, Surname FROM Users WHERE UserID = ?";
+            String sqlString = "SELECT Email FROM Users WHERE UserID = ?";
             PreparedStatement statement = con.prepareStatement(sqlString);
-            statement.setInt(1, id);
+            statement.setString(1, id);
             ResultSet resultSet = statement.executeQuery();
             System.out.println("get user query executed");
 
             // get values for constructor
             if (resultSet.next()) {
                 String email = resultSet.getString("Email");
-                String forename = resultSet.getString("Forename");
-                String surname = resultSet.getString("Surname");
-                User user = new User(id, email,forename, surname);
+
+                User user = new User(id, email);
                 return user;
             } else{
                 return null;
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;// Re-throw the exception to signal an error.
+            throw new SQLException("User not found in database");// Re-throw the exception to signal an error.
         }
     }
 
@@ -51,15 +49,14 @@ public class DatabaseOperations {
 
             // if user found, create a user object from its id
             if (resultSet.next()) {
-                int id = resultSet.getInt("UserID");
+                String id = resultSet.getString("UserID");
                 user = this.getUserFromID(id, con);
             }
 
             return user;// will return null if no user exists
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;// Re-throw the exception to signal an error.
+            throw new SQLException("User not found in database");// Re-throw the exception to signal an error.
         }
     }
 
@@ -68,30 +65,23 @@ public class DatabaseOperations {
     // sets isStaff and is isManager to 0 by default
     public void insertUser(User user, Connection con) throws SQLException{
         try {
-            String sqlString = "INSERT INTO Users (UserID, Email, PasswordHash, Forename, Surname) VALUES (?, ?, ?, ?, ?)";
+            String sqlString = "INSERT INTO Users (UserID, Email, PasswordHash) VALUES (?, ?, ?)";
             PreparedStatement statement = con.prepareStatement(sqlString);
 
             // format attributes into correct data types
             char[] passwordHashChars = user.getPasswordHash(con, this);//convert password has from char list to string
             String passwordHash = new String(passwordHashChars);
 
-
-            String forename = user.getPersonalRecord().getForename();
-            String surname = user.getPersonalRecord().getSurname();
-
             // insert attributes into statement
-            statement.setInt(1, user.getUserID());
+            statement.setString(1, user.getUserID());
             statement.setString(2, user.getEmail());
             statement.setString(3, passwordHash);
-            statement.setString(4, forename);
-            statement.setString(5, surname);
 
             int rowsUpdated = statement.executeUpdate();
             System.out.println("insert user");
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;// Re-throw the exception to signal an error.
+            throw new SQLException("Error saving user");// Re-throw the exception to signal an error.
         }
     }
 
@@ -99,7 +89,7 @@ public class DatabaseOperations {
         try {
             String isBlockedString = "SELECT isBlocked FROM Users WHERE UserID = ?";
             PreparedStatement isBlockedStatement = con.prepareStatement(isBlockedString);
-            isBlockedStatement.setInt(1, user.getUserID());
+            isBlockedStatement.setString(1, user.getUserID());
             ResultSet isBlockedResultSet = isBlockedStatement.executeQuery();
 
             boolean isBlocked = true;
@@ -119,7 +109,7 @@ public class DatabaseOperations {
         try {
             String getHashString = "SELECT PasswordHash FROM Users WHERE UserID = ?";
             PreparedStatement getHashStatement = con.prepareStatement(getHashString);
-            getHashStatement.setInt(1, user.getUserID());
+            getHashStatement.setString(1, user.getUserID());
             ResultSet hashResultSet = getHashStatement.executeQuery();
 
             char[] hash;
@@ -140,7 +130,7 @@ public class DatabaseOperations {
         try {
             String getSaltString = "SELECT PasswordSalt FROM Users WHERE UserID = ?";
             PreparedStatement getSaltStatement = con.prepareStatement(getSaltString);
-            getSaltStatement.setInt(1, user.getUserID());
+            getSaltStatement.setString(1, user.getUserID());
             ResultSet saltResultSet = getSaltStatement.executeQuery();
 
             char[] salt;
@@ -162,7 +152,7 @@ public class DatabaseOperations {
             String resetAttemptsStr = "UPDATE Users Set loginAttempts = ? WHERE UserID = ?";
             PreparedStatement resetAttemptsStatement = con.prepareStatement(resetAttemptsStr);
             resetAttemptsStatement.setInt(1, 0);
-            resetAttemptsStatement.setInt(2, user.getUserID());
+            resetAttemptsStatement.setString(2, user.getUserID());
             resetAttemptsStatement.execute();
         }
         catch (SQLException e){
@@ -175,7 +165,7 @@ public class DatabaseOperations {
             int attempts;
             String getAttemptsStr = "Select loginAttempts FROM Users WHERE UserID = ?";
             PreparedStatement getAttemptsStatement = con.prepareStatement(getAttemptsStr);
-            getAttemptsStatement.setInt(1, user.getUserID());
+            getAttemptsStatement.setString(1, user.getUserID());
             ResultSet getAttemptsResult = getAttemptsStatement.executeQuery();
 
             if (getAttemptsResult.next()) {
@@ -189,14 +179,14 @@ public class DatabaseOperations {
             String resetAttemptsStr = "UPDATE Users Set loginAttempts = ? WHERE UserID = ?";
             PreparedStatement resetAttemptsStatement = con.prepareStatement(resetAttemptsStr);
             resetAttemptsStatement.setInt(1, attempts);
-            resetAttemptsStatement.setInt(2, user.getUserID());
+            resetAttemptsStatement.setString(2, user.getUserID());
             resetAttemptsStatement.execute();
 
             //update isblocked
             if (attempts >= 3){
                 String setBlockedStr = "UPDATE Users Set isBlocked = 1 WHERE UserID = ?";
                 PreparedStatement setBlockedState = con.prepareStatement(setBlockedStr);
-                setBlockedState.setInt(1, user.getUserID());
+                setBlockedState.setString(1, user.getUserID());
                 setBlockedState.execute();
             }
 
@@ -207,6 +197,12 @@ public class DatabaseOperations {
         }
     }
 
+    // set password take a char array and produces a random
+    /**
+     * Set Password hashes a char array and sets the salt and hash value in the database.
+     * @param user the user whose password is being set
+     * @param newPass the password to be set as a char array
+     */
     public void setPassword(User user, char[] newPass, Connection con) throws SQLException{
         //set random salt
         Random random = new Random();
@@ -226,12 +222,11 @@ public class DatabaseOperations {
             PreparedStatement setPassStatement = con.prepareStatement(setPassStr);
             setPassStatement.setString(1, hashedPassword);
             setPassStatement.setString(2, String.valueOf(salt));
-            setPassStatement.setInt(3, user.getUserID());
+            setPassStatement.setString(3, user.getUserID());
             setPassStatement.execute();
         }
         catch (SQLException e){
-            e.printStackTrace();
-            throw new SQLException("couldn't set password hash and salt");
+            throw new SQLException("couldn't set password");
         }
 
     }
@@ -243,7 +238,7 @@ public class DatabaseOperations {
             System.out.println("database get payment method");
             String hasPaymentSqlString = "SELECT UserID, CardNumber FROM HasPayment WHERE UserID = ?";
             PreparedStatement statement = con.prepareStatement(hasPaymentSqlString);
-            statement.setInt(1, user.getUserID());
+            statement.setString(1, user.getUserID());
             ResultSet resultSet = statement.executeQuery();
 
             // initialise variables for constructor
@@ -287,29 +282,34 @@ public class DatabaseOperations {
     }
 
     public void insertPaymentMethod(UserHasPayment hasPayment, Connection con) throws SQLException {
-        String insPayMeth = "INSERT INTO BankCards (CardNumber, BankCardName, CardHolderName, ExpiryDate, SecurityCode) VALUES (?, ?, ?, ?, ?)";
-        PreparedStatement cardStatement = con.prepareStatement(insPayMeth);
+        try {
+            String insPayMeth = "INSERT INTO BankCards (CardNumber, BankCardName, CardHolderName, ExpiryDate, SecurityCode) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement cardStatement = con.prepareStatement(insPayMeth);
 
 
-        PaymentMethod card = hasPayment.getPaymentMethod();
-        CharArrayReader expiryReader = new CharArrayReader(card.getExpiryDate());
+            PaymentMethod card = hasPayment.getPaymentMethod();
+            CharArrayReader expiryReader = new CharArrayReader(card.getExpiryDate());
 
-        cardStatement.setInt(1, card.getCardNumber());
-        cardStatement.setString(2, card.getCardName());
-        cardStatement.setString(3, card.getCardholderName());
-        cardStatement.setCharacterStream(4, expiryReader);
-        cardStatement.setInt(5, card.getSecurityCode());
+            cardStatement.setInt(1, card.getCardNumber());
+            cardStatement.setString(2, card.getCardName());
+            cardStatement.setString(3, card.getCardholderName());
+            cardStatement.setCharacterStream(4, expiryReader);
+            cardStatement.setInt(5, card.getSecurityCode());
 
-        String insHasPayment = "INSERT INTO HasPayment (CardNumber, UserID) VALUES (?, ?)";
-        PreparedStatement hasPStatement = con.prepareStatement(insHasPayment);
+            String insHasPayment = "INSERT INTO HasPayment (CardNumber, UserID) VALUES (?, ?)";
+            PreparedStatement hasPStatement = con.prepareStatement(insHasPayment);
 
-        hasPStatement.setInt(1, card.getCardNumber());
-        hasPStatement.setInt(2, hasPayment.getUser().getUserID());
+            hasPStatement.setInt(1, card.getCardNumber());
+            hasPStatement.setString(2, hasPayment.getUser().getUserID());
 
-        int cardRowsUpdated = cardStatement.executeUpdate();
-        int hasPayMethRowsUpdated = hasPStatement.executeUpdate();
-        System.out.println("HasPaymentMethod inserted rows: " + String.valueOf(hasPayMethRowsUpdated));
-        System.out.println("PaymentCard inserted rows : " + cardRowsUpdated);
+            int cardRowsUpdated = cardStatement.executeUpdate();
+            int hasPayMethRowsUpdated = hasPStatement.executeUpdate();
+            System.out.println("HasPaymentMethod inserted rows: " + String.valueOf(hasPayMethRowsUpdated));
+            System.out.println("PaymentCard inserted rows : " + cardRowsUpdated);
+        }
+        catch(SQLException e){
+            throw new SQLException("Error adding payment method");
+        }
     }
 
     //------------------------------login------------------------

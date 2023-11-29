@@ -9,6 +9,8 @@ import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Random;
+import java.util.UUID;
 
 public class LoginView extends JFrame {
     private JTextField emailField;
@@ -24,7 +26,7 @@ public class LoginView extends JFrame {
         this.add(panel);
 
         // Set a layout manager for the panel (e.g., GridLayout)
-        panel.setLayout(new GridLayout(4, 2));
+        panel.setLayout(new GridLayout(5, 2));
 
         // Create JButtons for the head using LoggedInHeadView
         LoggedInHeadView loggedInHeadView = new LoggedInHeadView();
@@ -42,17 +44,26 @@ public class LoginView extends JFrame {
         // Create a JButton for the login action
         JButton loginButton = new JButton("Login");
 
+        // Create a JButton to Register
+        JButton registerButton = new JButton("Register");
+
         // Add head components to the panel
         panel.add(accountButton);
         panel.add(logoutButton);
+
+        // add label as text area for messages/errors
+        JLabel errorLabel = new JLabel("");
 
         // Add components to the panel
         panel.add(emailLabel);
         panel.add(emailField);
         panel.add(passwordLabel);
         panel.add(passwordField);
-        panel.add(new JLabel());  // Empty label for spacing
+        panel.add(registerButton);  // Empty label for spacing
         panel.add(loginButton);
+        panel.add(new JLabel());
+        panel.add(new JLabel());
+        panel.add(errorLabel);
 
         // Create an ActionListener for the login button
         loginButton.addActionListener(new ActionListener() {
@@ -60,12 +71,45 @@ public class LoginView extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String email = emailField.getText();
                 char[] passwordChars = passwordField.getPassword();
-                System.out.println(email);
-                System.out.println(new String(passwordChars));
                 DatabaseOperations databaseOperations = new DatabaseOperations();
-                System.out.println(databaseOperations.verifyLogin(connection, email, passwordChars));
+                String loginMessage = databaseOperations.verifyLogin(connection, email, passwordChars);
                 // Secure disposal of the password
                 Arrays.fill(passwordChars, '\u0000');
+
+                // display error or success message
+                errorLabel.setText(loginMessage);
+                errorLabel.updateUI();
+            }
+        });
+
+        // Create an ActionListener for the register button
+        registerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                DatabaseOperations databaseOperations = new DatabaseOperations();
+                String errorMessage = "error registering";
+
+                try {
+                    // create user with unique ID
+                    String uniqueID = UUID.randomUUID().toString();
+                    String email = emailField.getText();
+                    User newUser = new User(uniqueID, email);
+                    databaseOperations.insertUser(newUser, connection);
+
+                    char[] passwordChars = passwordField.getPassword();
+                    databaseOperations.setPassword(newUser, passwordField.getPassword(), connection);// hash + store password
+                    Arrays.fill(passwordChars, '\u0000');// clear the password
+                    errorMessage = "register success";
+                }
+                catch(SQLException error){
+                    error.printStackTrace();
+                    errorMessage = error.getMessage();
+                }
+                finally {
+                    // display error or success message
+                    errorLabel.setText(errorMessage);
+                    errorLabel.updateUI();
+                }
             }
         });
     }

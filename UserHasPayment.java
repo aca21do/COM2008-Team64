@@ -1,6 +1,6 @@
 public class UserHasPayment {
 
-    private int userID;
+    private String userID;
     private int cardNo;
 
     private User user;

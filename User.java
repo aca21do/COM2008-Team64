@@ -1,5 +1,3 @@
-import sheffield.DatabaseConnectionHandler;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -21,7 +19,7 @@ public class User {
             return this.surname;
         }
     }
-    private int userID;
+    private String userID;
 
     private String email;
     //private //password hash (list of chars?)
@@ -37,15 +35,22 @@ public class User {
 
     //constructor does not include isBlocked, passHash or salt, as this would be insecure
     //they each have get methods which interact with the database, so they are only fetched when needed
-    public User(int id, String email, String forename, String surname){
+    public User(String id, String email){
         this.userID = id;
         this.email = email;
-        this.personalRecord = new PersonalRecord(forename, surname);
         this.isStaff= false;
         this.isManager = false;
     }
+    public User(String id, String email, char[] passHash, String salt){
+        this.userID = id;
+        this.email = email;
+        this.isStaff= false;
+        this.isManager = false;
+        this.passwordHash = passHash;
+        this.passwordSalt = salt;
+    }
 
-    public int getUserID() {
+    public String getUserID() {
         return userID;
     }
     public String getEmail() {
