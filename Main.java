@@ -1,4 +1,5 @@
 import sheffield.DatabaseConnectionHandler;
+import sheffield.*;
 import javax.swing.*;
 
 public class Main {
@@ -10,7 +11,6 @@ public class Main {
         try {
             System.out.println("connecting");
             databaseConnectionHandler.openConnection();
-
 
         } catch (Throwable e) {
             e.printStackTrace();
