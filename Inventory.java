@@ -40,6 +40,29 @@ public class Inventory {
                 }
             }
         }
+
+        catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public void updateStock(Product product, int quantity, Connection connection) throws SQLException{
+        try {
+            String sql = "UPDATE Inventory SET quantity=? WHERE ProductCode=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, quantity);
+            preparedStatement.setString(2, product.getProductCode());
+
+            int rowsAffected = preparedStatement.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println(rowsAffected + " row(s) updated successfully");
+            }
+            else {
+                System.out.println("No rows were updated for ProductCode: " + product.getProductCode());
+            }
+        }
         catch (SQLException e) {
             e.printStackTrace();
             throw e;
