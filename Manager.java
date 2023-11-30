@@ -8,18 +8,14 @@ public class Manager extends Staff {
     }
 
     public Staff promoteToStaff(User user, Connection con, UserDatabaseOperations dbOps) throws SQLException {
-        char[] userSalt = user.getPasswordSalt(con, dbOps);
-        String saltString = new String(userSalt);
-
         Staff staff = new Staff(user.getUserID(), user.getEmail(), user.getForename(), user.getSurname());
+        dbOps.updateUser(staff, con);
         return staff;
     }
 
     public User demoteToUser(Staff staff, Connection con, UserDatabaseOperations dbOps) throws SQLException {
-        char[] staffSalt = staff.getPasswordSalt(con, dbOps);
-        String saltString = new String(staffSalt);
-
         User user = new User(staff.getUserID(), staff.getEmail(), staff.getForename(), staff.getSurname());
+        dbOps.updateUser(user, con);
         return user;
     }
 }
