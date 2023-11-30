@@ -1,12 +1,9 @@
-import javax.lang.model.type.NullType;
 import java.io.CharArrayReader;
 import java.io.Reader;
-import java.security.SecureRandom;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.Random;
 
-public class DatabaseOperations {
+public class UserDatabaseOperations {
     // add operations to select, insert edit ect tables in the database
     // see lab 3 solutions for inspiration
     public void operation(){
@@ -15,8 +12,60 @@ public class DatabaseOperations {
 
     //------------------------------------------Users-------------------------------------
     // TODO better exception handling
-    // creates a user object from its id
+    // insert a new user into the database from a user object
+    // sets isStaff and is isManager to 0 by default
 
+    /**
+     * takes a user object and adds it to the database. Also adds the user's address to the database,
+     * and updates the HasAddress table.
+     * @param user the user to add
+     * @param con the database connection
+     * @throws SQLException
+     */
+    public void insertUser(User user, Connection con) throws SQLException{
+        String sqlString = "INSERT INTO Users (UserID, Email, Forename, Surname) VALUES (?, ?, ?, ?)";
+        PreparedStatement statement = con.prepareStatement(sqlString);
+
+        // format attributes into correct data types
+        char[] passwordHashChars = user.getPasswordHash(con, this);//convert password has from char list to string
+        String passwordHash = new String(passwordHashChars);
+
+        // insert attributes into statement
+        statement.setString(1, user.getUserID());
+        statement.setString(2, user.getEmail());
+        statement.setString(3, user.getForename());
+        statement.setString(4, user.getSurname());
+
+        statement.executeUpdate();
+        System.out.println("insert user");
+        insertAddress(user, con);
+    }
+
+    public void insertAddress(User user, Connection con) throws SQLException{
+        Address usersAddress = user.getAddress();
+        String addressSqlString = "INSERT INTO Addresses (HouseNumber, RoadName, CityName, PostCode) VALUES (?, ?, ?, ?)";
+        PreparedStatement addressStatement = con.prepareStatement(addressSqlString);
+
+        // insert attributes into statement
+        addressStatement.setInt(1, usersAddress.getHouseNumber());
+        addressStatement.setString(2, usersAddress.getRoadName());
+        addressStatement.setString(3, usersAddress.getCityName());
+        addressStatement.setString(4, usersAddress.getPostcode());
+        System.out.println("insert address");
+
+        addressStatement.executeUpdate();
+
+        // insert has address
+        String hasAddressString = "INSERT INTO HasAddress (UserID, HouseNumber, Postcode) VALUES (?, ?, ?)";
+        PreparedStatement hasAddressStatement = con.prepareStatement(hasAddressString);
+        hasAddressStatement.setString(1, user.getUserID());
+        hasAddressStatement.setInt(2, usersAddress.getHouseNumber());
+        hasAddressStatement.setString(3, usersAddress.getPostcode());
+        hasAddressStatement.executeUpdate();
+    }
+
+
+    // creates a user object from its id
     /**
      * Finds the user with the parameter userID, and returns a user object.
      * Not null attributes: UserID, Email, isStaff & isManager are always set.
@@ -41,18 +90,12 @@ public class DatabaseOperations {
                 String email = resultSet.getString("Email");
                 boolean isStaff = resultSet.getBoolean("isStaff");
                 boolean isManager = resultSet.getBoolean("isManager");
-                User user = new User(id, email);
-
-                // get potentially nullable fields add to object, if not null
                 String forename = resultSet.getString("Forename");
                 String surname = resultSet.getString("Surname");
+                User user = new User(id, email, forename, surname);
 
-                // if not null, set attributes
-                if (forename != null) {user.setForename(forename);}
-                if (surname != null) {user.setSurname(surname);}
-
-                System.out.println("forename: " + user.getPersonalRecord().getForename());
-                System.out.println("surname: " + user.getPersonalRecord().getSurname());
+                System.out.println("forename: " + user.getForename());
+                System.out.println("surname: " + user.getSurname());
                 return user;
             } else{
                 throw new SQLException("User not found in database");
@@ -62,6 +105,30 @@ public class DatabaseOperations {
             throw new SQLException("User not found in database");// Re-throw the exception to signal an error.
         }
     }
+
+    public void loadAddress(User user, Connection con) throws SQLException{
+        // find HasAddress with matching userID
+        String findHasAddressSql = "SELECT HouseNumber, PostCode FROM HasAddress WHERE UserID = ?";
+        PreparedStatement hasAddressStatement = con.prepareStatement(findHasAddressSql);
+        hasAddressStatement.setString(1, user.getUserID());
+        ResultSet resultSet = hasAddressStatement.executeQuery();
+        int houseNo = resultSet.getInt("HouseNumber");
+        String postCode = resultSet.getString("PostCode");
+
+        // get address with matching primary key
+        String getAddressSql = "SELECT * FROM Addresses WHERE HouseNumber = ? AND PostCode = ?";
+        PreparedStatement getAddressStatement = con.prepareStatement(getAddressSql);
+        getAddressStatement.setInt(1, houseNo);
+        getAddressStatement.setString(2, postCode);
+        ResultSet resultSet1 = getAddressStatement.executeQuery();
+        String roadName = resultSet1.getString("RoadName");
+        String cityName = resultSet1.getString("CityName");
+
+        // create and set user address
+        Address loadedAddress = new Address(houseNo, roadName, cityName, postCode);
+        user.setAddress(loadedAddress);
+    }
+
 
     /**
      * Finds the user with the matching email parameter, and returns a user object
@@ -94,26 +161,6 @@ public class DatabaseOperations {
             throw new SQLException("User not found in database");// Re-throw the exception to signal an error.
         }
     }
-
-
-    // insert a new user into the database from a user object
-    // sets isStaff and is isManager to 0 by default
-    public void insertUser(User user, Connection con) throws SQLException{
-        String sqlString = "INSERT INTO Users (UserID, Email, PasswordHash) VALUES (?, ?, ?)";
-        PreparedStatement statement = con.prepareStatement(sqlString);
-
-        // format attributes into correct data types
-        char[] passwordHashChars = user.getPasswordHash(con, this);//convert password has from char list to string
-        String passwordHash = new String(passwordHashChars);
-
-        // insert attributes into statement
-        statement.setString(1, user.getUserID());
-        statement.setString(2, user.getEmail());
-
-        int rowsUpdated = statement.executeUpdate();
-        System.out.println("insert user");
-    }
-
 
     /**
      * takes a local user and checks if any attributes are different to those stored in the database.
@@ -175,6 +222,7 @@ public class DatabaseOperations {
             throw new SQLException(("problem updating "+ attribute));
         }
     }
+
 
     // ------------------- login/security------------
     public boolean userIsBlocked(User user, Connection con) throws SQLException {

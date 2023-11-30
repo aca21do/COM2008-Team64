@@ -14,8 +14,6 @@ public class EditPassword extends JFrame {
     private JButton logoutButton;
 
     public EditPassword (Connection connection) {
-        DatabaseConnectionHandler databaseConnectionHandler = new DatabaseConnectionHandler();
-
         // panel setup
         setContentPane(editPasswordPanel);
         setTitle("Edit Password");
@@ -31,13 +29,15 @@ public class EditPassword extends JFrame {
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                new AccountDetails(connection).setVisible(true);
+                setVisible(false);
             }
         });
         logoutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                new MainFrame().setVisible(true);
+                setVisible(false);
             }
         });
     }

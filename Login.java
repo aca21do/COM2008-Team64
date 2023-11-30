@@ -16,8 +16,6 @@ public class Login extends JFrame {
     private JLabel errorLabel;
 
     public Login (Connection connection) {
-        DatabaseConnectionHandler databaseConnectionHandler = new DatabaseConnectionHandler();
-
         // panel setup
         setContentPane(loginPanel);
         setTitle("Login");
@@ -34,36 +32,21 @@ public class Login extends JFrame {
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SwingUtilities.invokeLater(() -> {
-                    Register register;
-                    try {
-                        // Open a database connection
-                        databaseConnectionHandler.openConnection();
-
-                        // Create and initial
-                        // ize the LoanTableDisplay view using the database connection
-                        register = new Register(databaseConnectionHandler.getConnection());
-                        register.setVisible(true);
-                        setVisible(false);
-
-                    } catch (Throwable t) {
-                        // Close connection if database crashes.
-                        databaseConnectionHandler.closeConnection();
-                        throw new RuntimeException(t);
-                    }
-                });
+                new Register(connection).setVisible(true);
+                setVisible(false);
             }
         });
         loginDBButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                // TODO: check login
                 String loginMessage = "";
 
                 try {
                     String email = emailTextField.getText();
                     char[] passwordChars = passwordField.getPassword();
-                    DatabaseOperations databaseOperations = new DatabaseOperations();
-                    loginMessage = databaseOperations.verifyLogin(connection, email, passwordChars);
+                    UserDatabaseOperations userDatabaseOperations = new UserDatabaseOperations();
+                    loginMessage = userDatabaseOperations.verifyLogin(connection, email, passwordChars);
                     // Secure disposal of the password
                     Arrays.fill(passwordChars, '\u0000');
                 }
@@ -72,6 +55,9 @@ public class Login extends JFrame {
                     errorLabel.setText(loginMessage);
                     errorLabel.updateUI();
                 }
+
+                new CatalogueCustomer(connection).setVisible(true);
+                setVisible(false);
             }
         });
     }

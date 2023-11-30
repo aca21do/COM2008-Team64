@@ -24,8 +24,6 @@ public class Register extends JFrame {
     private JLabel errorLabel;
 
     public Register (Connection connection) {
-        DatabaseConnectionHandler databaseConnectionHandler = new DatabaseConnectionHandler();
-
         // panel setup
         setContentPane(registerPanel);
         setTitle("Register");
@@ -42,59 +40,46 @@ public class Register extends JFrame {
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SwingUtilities.invokeLater(() -> {
-                    Login login;
-                    try {
-                        // Open a database connection
-                        databaseConnectionHandler.openConnection();
-
-                        // Create and initial
-                        // ize the LoanTableDisplay view using the database connection
-                        login = new Login(databaseConnectionHandler.getConnection());
-                        login.setVisible(true);
-                        setVisible(false);
-
-                    } catch (Throwable t) {
-                        // Close connection if database crashes.
-                        databaseConnectionHandler.closeConnection();
-                        throw new RuntimeException(t);
-                    }
-                });
+                new Login(connection).setVisible(true);
+                setVisible(false);
             }
         });
         registerDBButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                DatabaseOperations databaseOperations = new DatabaseOperations();
+                UserDatabaseOperations userDatabaseOperations = new UserDatabaseOperations();
                 String errorMessage = "error registering";
 
                 try {
                     // create user with unique ID
                     String uniqueID = UUID.randomUUID().toString();
                     String email = emailTextField.getText();
-                    User newUser = new User(uniqueID, email);
-                    databaseOperations.insertUser(newUser, connection);
+                    String forename = forenameTextField.getText();
+                    String surname = surnameTextField.getText();
+                    User newUser = new User(uniqueID, email, forename, surname);
+
+                    // create and add address to user
+                    int houseNo = Integer.valueOf(houseNumberTextField.getText());
+                    String roadName = roadNameTextField.getText();
+                    String cityName = cityNameTextField.getText();
+                    String postcode = postcodeTextField.getText();
+                    Address usersAddress = new Address(houseNo, roadName, cityName, postcode);
+                    newUser.setAddress(usersAddress);
+
+                    // insert user into database (including address)
+                    userDatabaseOperations.insertUser(newUser, connection);
 
                     // hash and store password+salt
                     char[] passwordChars = passwordField.getPassword();
-                    databaseOperations.setPassword(newUser, passwordField.getPassword(), connection);// hash + store password
+                    userDatabaseOperations.setPassword(newUser, passwordField.getPassword(), connection);// hash + store password
                     Arrays.fill(passwordChars, '\u0000');// clear the password
-
-                    // add names to user if entered
-                    if (!forenameTextField.getText().isEmpty()) {
-                        newUser.setForename(forenameTextField.getText());
-                    }
-                    if (!surnameTextField.getText().isEmpty()) {
-                        newUser.setSurname(surnameTextField.getText());
-                    }
-
-                    // add adress to users if needed
 
 
 
                     errorMessage = "register success";
                 }
                 catch (SQLException error) {
+                    error.printStackTrace();
                     errorMessage = error.getMessage();
                 }
                 finally {

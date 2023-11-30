@@ -70,32 +70,11 @@ public class Inventory {
         }
     }
 
-    public InventoryItem getInventoryItem(String productCode, Connection connection) throws SQLException {
-        try {
-            String sql = "SELECT * FROM Inventory WHERE ProductCode = ?";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, productCode);
-            ResultSet resultSet = preparedStatement.executeQuery();
 
-            resultSet.next();
-
-            Product product = returnProductSubClass(productCode, connection);
-            if (product == null) {
-                System.out.println("Invalid Product Code");
-                return null;
-            }
-            InventoryItem inventoryItem = new InventoryItem(product, resultSet.getInt("Quantity"));
-            return inventoryItem;
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
-        }
-    }
 
     public Product returnProductSubClass(String productCode, Connection connection) throws SQLException {
         try {
-            Character firstLetter = productCode.charAt(0);
+            Character firstLetter = productCode.toUpperCase().charAt(0);
 
             String sql = "SELECT * FROM Inventory WHERE ProductCode = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -137,6 +116,7 @@ public class Inventory {
                         eraCode,
                         dccCode);
                 return locomotive;
+
             }
             else if (firstLetter == 'S') {
                 sql = "SELECT * FROM Eras WHERE ProductCode = ?";
@@ -157,6 +137,7 @@ public class Inventory {
                         eraCode);
                 return rollingStock;
             }
+
             else if (firstLetter == 'R') {
                 Gauge gaugeType = Gauge.valueOf(resultSet1.getString("GaugeCode"));
                 
@@ -168,6 +149,7 @@ public class Inventory {
                         gaugeType);
                 return trackPiece;
             }
+
             else if (firstLetter == 'C') {
                 Gauge gaugeType = Gauge.valueOf(resultSet1.getString("GaugeCode"));
 
@@ -179,7 +161,7 @@ public class Inventory {
                         gaugeType);
                 return controller;
             }
-            else if (firstLetter == 'S') {
+            else if (firstLetter == 'M') {
                 Gauge gaugeType = Gauge.valueOf(resultSet1.getString("GaugeCode"));
 
                 Set set = new Set(
@@ -206,6 +188,85 @@ public class Inventory {
             }
         }
         catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public InventoryItem getInventoryItem(String productCode, Connection connection) throws SQLException {
+        try {
+            String sql = "SELECT * FROM Inventory WHERE ProductCode = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, productCode);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            resultSet.next();
+
+            Product product = returnProductSubClass(productCode, connection);
+            if (product == null) {
+                System.out.println("Invalid Product Code");
+                return null;
+            }
+            InventoryItem inventoryItem = new InventoryItem(product, resultSet.getInt("Quantity"));
+            return inventoryItem;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public void UpdateItem (InventoryItem inventoryItem, Connection connection) throws SQLException {
+        try {
+            String sql = "UPDATE Inventory SET BrandName=?, ProductName=?, Price=?, Quantity=? WHERE ProductCode=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, inventoryItem.getProduct().getBrandName());
+            preparedStatement.setString(2, inventoryItem.getProduct().getProductName());
+            preparedStatement.setDouble(3, inventoryItem.getProduct().getRetailPrice());
+            preparedStatement.setInt(4, inventoryItem.getQuantity());
+            preparedStatement.setString(5, inventoryItem.getProduct().getProductCode());
+            insertItem(inventoryItem, connection);
+
+            Character firstletter = inventoryItem.getProduct().getProductCode().toUpperCase().charAt(0);
+            if (firstletter == 'S') {
+                sql = "UPDATE Eras SET EraCode=? WHERE ProductCode=?";
+                preparedStatement = connection.prepareStatement(sql);
+                RollingStock product = (RollingStock) returnProductSubClass(inventoryItem.getProduct().getProductCode(),
+                                                                                                            connection);
+                preparedStatement.setString(1, product.getEraCode());
+                preparedStatement.setString(2, inventoryItem.getProduct().getProductCode());
+                int rowsAffected = preparedStatement.executeUpdate();
+
+                if (rowsAffected > 0) {
+                    System.out.println(rowsAffected + " row(s) updated successfully");
+                }
+                else {
+                    System.out.println("No rows were updated for ProductCode: " + product.getProductCode());
+                }
+            }
+            else if (firstletter == 'L') {
+                preparedStatement = connection.prepareStatement(sql);
+                Locomotive product = (Locomotive) returnProductSubClass(inventoryItem.getProduct().getProductCode(),
+                                                                                                            connection);
+                preparedStatement.setString(1, product.getEraCode());
+                preparedStatement.setString(2, inventoryItem.getProduct().getProductCode());
+                int rowsAffected = preparedStatement.executeUpdate();
+
+                sql = "UPDATE DCCCodes SET DCCCode=? WHERE ProductCode=?";
+                preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1, product.getDCCCode());
+                preparedStatement.setString(2, product.getProductCode());
+                rowsAffected += preparedStatement.executeUpdate();
+
+                if (rowsAffected > 0) {
+                    System.out.println(rowsAffected + " row(s) updated successfully");
+                }
+                else {
+                    System.out.println("No rows were updated for ProductCode: " + product.getProductCode());
+                }
+            }
+
+        } catch (SQLException e) {
             e.printStackTrace();
             throw e;
         }

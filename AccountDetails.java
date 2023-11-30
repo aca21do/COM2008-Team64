@@ -21,18 +21,17 @@ public class AccountDetails extends JFrame {
     private JButton logoutButton;
 
     public AccountDetails (Connection connection) {
-        DatabaseConnectionHandler databaseConnectionHandler = new DatabaseConnectionHandler();
-
         // panel setup
         setContentPane(accountPanel);
         setTitle("Account Details");
-        setSize(400, 250);
+        setSize(400, 500);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
         browseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                new CatalogueCustomer(connection).setVisible(true);
+                setVisible(false);
             }
         });
         updateInfoButton.addActionListener(new ActionListener() {
@@ -44,18 +43,22 @@ public class AccountDetails extends JFrame {
         editPasswordButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                new EditPassword(connection).setVisible(true);
+                setVisible(false);
             }
         });
         editBankDetailsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                new EditBankDetails(connection).setVisible(true);
+                setVisible(false);
             }
         });
         logoutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                new MainFrame().setVisible(true);
+                setVisible(false);
 
             }
         });

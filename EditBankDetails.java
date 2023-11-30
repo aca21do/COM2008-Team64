@@ -17,12 +17,10 @@ public class EditBankDetails extends JFrame {
     private JButton logoutButton;
 
     public EditBankDetails (Connection connection) {
-        DatabaseConnectionHandler databaseConnectionHandler = new DatabaseConnectionHandler();
-
         // panel setup
         setContentPane(editBankDetailsPanel);
         setTitle("Edit Bank Details");
-        setSize(400, 250);
+        setSize(400, 350);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
         updateBankDetailsButton.addActionListener(new ActionListener() {
@@ -34,13 +32,15 @@ public class EditBankDetails extends JFrame {
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                new AccountDetails(connection).setVisible(true);
+                setVisible(false);
             }
         });
         logoutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                new MainFrame().setVisible(true);
+                setVisible(false);
             }
         });
     }
