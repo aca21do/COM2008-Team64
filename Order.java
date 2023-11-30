@@ -1,16 +1,16 @@
 import java.util.ArrayList;
 
 public class Order {
-    protected String orderNumber;
+    protected int orderNumber;
     protected String orderDate;
     protected String orderStatus;
     protected ArrayList<OrderLine> orderLines;
 
-    public String getOrderNumber() {
+    public int getOrderNumber() {
         return this.orderNumber;
     }
 
-    public void setOrderNumber(String orderNumber) {
+    public void setOrderNumber(int orderNumber) {
         this.orderNumber = orderNumber;
     }
 
@@ -38,7 +38,7 @@ public class Order {
         this.orderLines = orderLines;
     }
 
-    public Order(String orderNumber, String orderDate, String orderStatus, ArrayList<OrderLine> orderLines) {
+    public Order(int orderNumber, String orderDate, String orderStatus, ArrayList<OrderLine> orderLines) {
         this.orderNumber = orderNumber;
         this.orderDate = orderDate;
         this.orderStatus = orderStatus;
