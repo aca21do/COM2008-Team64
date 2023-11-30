@@ -13,6 +13,7 @@ public class OrdersCustomer extends JFrame {
     private JLabel tableLabel;
     private JButton ordersHistoryButton;
     private JButton myOrdersButton;
+    private JButton placeOrdersButton;
 
     public OrdersCustomer (Connection connection) {
         // panel setup
@@ -66,6 +67,7 @@ public class OrdersCustomer extends JFrame {
 
                 ordersHistoryButton.setEnabled(false);
                 myOrdersButton.setEnabled(true);
+                placeOrdersButton.setEnabled(false);
                 tableLabel.setText("Order History Items");
             }
         });
@@ -76,7 +78,18 @@ public class OrdersCustomer extends JFrame {
 
                 myOrdersButton.setEnabled(false);
                 ordersHistoryButton.setEnabled(true);
+                placeOrdersButton.setEnabled(true);
                 tableLabel.setText("Order Items");
+            }
+        });
+        placeOrdersButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO: check bank details
+                //  and skip straight to confirm if valid
+
+                new BankDetails(connection).setVisible(true);
+                setVisible(false);
             }
         });
     }
