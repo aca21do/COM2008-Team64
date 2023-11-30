@@ -62,8 +62,8 @@ public class Login extends JFrame {
                 try {
                     String email = emailTextField.getText();
                     char[] passwordChars = passwordField.getPassword();
-                    DatabaseOperations databaseOperations = new DatabaseOperations();
-                    loginMessage = databaseOperations.verifyLogin(connection, email, passwordChars);
+                    UserDatabaseOperations userDatabaseOperations = new UserDatabaseOperations();
+                    loginMessage = userDatabaseOperations.verifyLogin(connection, email, passwordChars);
                     // Secure disposal of the password
                     Arrays.fill(passwordChars, '\u0000');
                 }

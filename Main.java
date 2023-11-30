@@ -5,7 +5,7 @@ public class Main {
         System.out.println("---------Hello---------");
 
         DatabaseConnectionHandler databaseConnectionHandler = new DatabaseConnectionHandler();
-        DatabaseOperations databaseOperations = new DatabaseOperations();
+        UserDatabaseOperations userDatabaseOperations = new UserDatabaseOperations();
 
         try {
             System.out.println("connecting");
