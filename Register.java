@@ -75,9 +75,23 @@ public class Register extends JFrame {
                     User newUser = new User(uniqueID, email);
                     databaseOperations.insertUser(newUser, connection);
 
+                    // hash and store password+salt
                     char[] passwordChars = passwordField.getPassword();
                     databaseOperations.setPassword(newUser, passwordField.getPassword(), connection);// hash + store password
                     Arrays.fill(passwordChars, '\u0000');// clear the password
+
+                    // add names to user if entered
+                    if (!forenameTextField.getText().isEmpty()) {
+                        newUser.setForename(forenameTextField.getText());
+                    }
+                    if (!surnameTextField.getText().isEmpty()) {
+                        newUser.setSurname(surnameTextField.getText());
+                    }
+
+                    // add adress to users if needed
+
+
+
                     errorMessage = "register success";
                 }
                 catch (SQLException error) {
@@ -88,6 +102,13 @@ public class Register extends JFrame {
                     errorLabel.setText(errorMessage);
                     errorLabel.updateUI();
                 }
+            }
+
+            public void addOptionalDetails(User newUser){
+                if (!forenameTextField.getText().isEmpty()){
+                    //user.set
+                }
+
             }
         });
     }

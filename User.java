@@ -41,6 +41,12 @@ public class User {
         this.isStaff= false;
         this.isManager = false;
     }
+    public User(String id, String email, boolean staffBool, boolean manBool){
+        this.userID = id;
+        this.email = email;
+        this.isStaff= staffBool;
+        this.isManager = manBool;
+    }
     public User(String id, String email, char[] passHash, String salt){
         this.userID = id;
         this.email = email;
@@ -48,6 +54,13 @@ public class User {
         this.isManager = false;
         this.passwordHash = passHash;
         this.passwordSalt = salt;
+    }
+
+    public void setForename(String foreName){
+        this.personalRecord.forename = foreName;
+    }
+    public void setSurname(String surname){
+        this.personalRecord.surname = surname;
     }
 
     public String getUserID() {
@@ -64,6 +77,12 @@ public class User {
     }
     public PersonalRecord getPersonalRecord() {
         return personalRecord;
+    }
+    public String getForename(){
+        return this.personalRecord.forename;
+    }
+    public String getSurname(){
+        return this.personalRecord.surname;
     }
 
 
@@ -86,6 +105,7 @@ public class User {
     public void setPassword (char[] newPass, Connection con, DatabaseOperations dbOps) throws SQLException{
         dbOps.setPassword(this, newPass, con);
     }
+
 
 
 
