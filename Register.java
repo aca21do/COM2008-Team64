@@ -1,0 +1,94 @@
+import sheffield.DatabaseConnectionHandler;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.UUID;
+
+public class Register extends JFrame {
+    private JTextField forenameTextField;
+    private JTextField surnameTextField;
+    private JTextField houseNumberTextField;
+    private JTextField roadNameTextField;
+    private JTextField cityNameTextField;
+    private JTextField postcodeTextField;
+    private JTextField emailTextField;
+    private JPasswordField passwordField;
+    private JButton registerDBButton;
+    private JButton homeButton;
+    private JButton loginButton;
+    private JPanel registerPanel;
+    private JLabel errorLabel;
+
+    public Register (Connection connection) {
+        DatabaseConnectionHandler databaseConnectionHandler = new DatabaseConnectionHandler();
+
+        // panel setup
+        setContentPane(registerPanel);
+        setTitle("Register");
+        setSize(400, 500);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setVisible(true);
+        homeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new MainFrame().setVisible(true);
+                setVisible(false);
+            }
+        });
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SwingUtilities.invokeLater(() -> {
+                    Login login;
+                    try {
+                        // Open a database connection
+                        databaseConnectionHandler.openConnection();
+
+                        // Create and initial
+                        // ize the LoanTableDisplay view using the database connection
+                        login = new Login(databaseConnectionHandler.getConnection());
+                        login.setVisible(true);
+                        setVisible(false);
+
+                    } catch (Throwable t) {
+                        // Close connection if database crashes.
+                        databaseConnectionHandler.closeConnection();
+                        throw new RuntimeException(t);
+                    }
+                });
+            }
+        });
+        registerDBButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                DatabaseOperations databaseOperations = new DatabaseOperations();
+                String errorMessage = "error registering";
+
+                try {
+                    // create user with unique ID
+                    String uniqueID = UUID.randomUUID().toString();
+                    String email = emailTextField.getText();
+                    User newUser = new User(uniqueID, email);
+                    databaseOperations.insertUser(newUser, connection);
+
+                    char[] passwordChars = passwordField.getPassword();
+                    databaseOperations.setPassword(newUser, passwordField.getPassword(), connection);// hash + store password
+                    Arrays.fill(passwordChars, '\u0000');// clear the password
+                    errorMessage = "register success";
+                }
+                catch (SQLException error) {
+                    errorMessage = error.getMessage();
+                }
+                finally {
+                    // display error or success message
+                    errorLabel.setText(errorMessage);
+                    errorLabel.updateUI();
+                }
+            }
+        });
+    }
+}

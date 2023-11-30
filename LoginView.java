@@ -26,7 +26,7 @@ public class LoginView extends JFrame {
         this.add(panel);
 
         // Set a layout manager for the panel (e.g., GridLayout)
-        panel.setLayout(new GridLayout(5, 2));
+        panel.setLayout(new GridLayout(6, 2));
 
         // Create JButtons for the head using LoggedInHeadView
         LoggedInHeadView loggedInHeadView = new LoggedInHeadView();
@@ -64,6 +64,7 @@ public class LoginView extends JFrame {
         panel.add(new JLabel());
         panel.add(new JLabel());
         panel.add(errorLabel);
+        panel.add(new JLabel());
 
         // Create an ActionListener for the login button
         loginButton.addActionListener(new ActionListener() {
