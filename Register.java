@@ -24,8 +24,6 @@ public class Register extends JFrame {
     private JLabel errorLabel;
 
     public Register (Connection connection) {
-        DatabaseConnectionHandler databaseConnectionHandler = new DatabaseConnectionHandler();
-
         // panel setup
         setContentPane(registerPanel);
         setTitle("Register");
@@ -42,24 +40,8 @@ public class Register extends JFrame {
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SwingUtilities.invokeLater(() -> {
-                    Login login;
-                    try {
-                        // Open a database connection
-                        databaseConnectionHandler.openConnection();
-
-                        // Create and initial
-                        // ize the LoanTableDisplay view using the database connection
-                        login = new Login(databaseConnectionHandler.getConnection());
-                        login.setVisible(true);
-                        setVisible(false);
-
-                    } catch (Throwable t) {
-                        // Close connection if database crashes.
-                        databaseConnectionHandler.closeConnection();
-                        throw new RuntimeException(t);
-                    }
-                });
+                new Login(connection).setVisible(true);
+                setVisible(false);
             }
         });
         registerDBButton.addActionListener(new ActionListener() {

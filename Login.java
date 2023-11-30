@@ -16,8 +16,6 @@ public class Login extends JFrame {
     private JLabel errorLabel;
 
     public Login (Connection connection) {
-        DatabaseConnectionHandler databaseConnectionHandler = new DatabaseConnectionHandler();
-
         // panel setup
         setContentPane(loginPanel);
         setTitle("Login");
@@ -34,24 +32,8 @@ public class Login extends JFrame {
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SwingUtilities.invokeLater(() -> {
-                    Register register;
-                    try {
-                        // Open a database connection
-                        databaseConnectionHandler.openConnection();
-
-                        // Create and initial
-                        // ize the LoanTableDisplay view using the database connection
-                        register = new Register(databaseConnectionHandler.getConnection());
-                        register.setVisible(true);
-                        setVisible(false);
-
-                    } catch (Throwable t) {
-                        // Close connection if database crashes.
-                        databaseConnectionHandler.closeConnection();
-                        throw new RuntimeException(t);
-                    }
-                });
+                new Register(connection).setVisible(true);
+                setVisible(false);
             }
         });
         loginDBButton.addActionListener(new ActionListener() {
@@ -74,25 +56,8 @@ public class Login extends JFrame {
                     errorLabel.updateUI();
                 }
 
-                SwingUtilities.invokeLater(() -> {
-                    CatalogueCustomer catalogueCustomer;
-                    try {
-                        // Open a database connection
-                        databaseConnectionHandler.openConnection();
-
-                        // Create and initial
-                        // ize the LoanTableDisplay view using the database connection
-                        catalogueCustomer = new CatalogueCustomer(databaseConnectionHandler.getConnection());
-                        catalogueCustomer.setVisible(true);
-                        setVisible(false);
-
-                    } catch (Throwable t) {
-                        // Close connection if database crashes.
-                        databaseConnectionHandler.closeConnection();
-                        throw new RuntimeException(t);
-                    }
-                });
-
+                new CatalogueCustomer(connection).setVisible(true);
+                setVisible(false);
             }
         });
     }
