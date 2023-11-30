@@ -13,31 +13,26 @@ public class BankDetails extends JFrame {
     private JButton backButton;
     private JButton logoutButton;
     private JPanel bankDetailsPanel;
+    private JButton cancelOrderButton;
 
     public BankDetails (Connection connection) {
         // panel setup
         setContentPane(bankDetailsPanel);
         setTitle("Set Bank Details");
-        setSize(400, 400);
+        setSize(400, 350);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
         updateBankDetailsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-        backButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new OrdersCustomer(connection).setVisible(true);
+                new ConfirmBankDetails(connection).setVisible(true);
                 setVisible(false);
             }
         });
-        logoutButton.addActionListener(new ActionListener() {
+        cancelOrderButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new MainFrame().setVisible(true);
+                new CatalogueCustomer(connection).setVisible(true);
                 setVisible(false);
             }
         });

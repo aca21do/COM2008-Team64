@@ -33,8 +33,8 @@ public class CatalogueCustomer extends JFrame {
         staffViewButton.setEnabled(true);
 
         // TODO: if manager
-//        managerViewButton.setVisible(true);
-//        managerViewButton.setEnabled(true);
+        managerViewButton.setVisible(true);
+        managerViewButton.setEnabled(true);
         categoryComboBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
@@ -64,7 +64,8 @@ public class CatalogueCustomer extends JFrame {
         managerViewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                new ViewUsers(connection).setVisible(true);
+                setVisible(false);
             }
         });
     }

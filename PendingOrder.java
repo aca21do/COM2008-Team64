@@ -2,9 +2,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class PendingOrder extends Order{
-    public PendingOrder(int orderNumber, String orderDate, String orderStatus, ArrayList<OrderLine> orderLines) {
+    public PendingOrder(int orderNumber, Date orderDate, String orderStatus, ArrayList<OrderLine> orderLines) {
         super(orderNumber, orderDate, orderStatus, orderLines);
     }
 

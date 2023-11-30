@@ -1,8 +1,9 @@
 import java.util.ArrayList;
+import java.util.Date;
 
 public class Order {
     protected int orderNumber;
-    protected String orderDate;
+    protected Date orderDate;
     protected String orderStatus;
     protected ArrayList<OrderLine> orderLines;
 
@@ -14,11 +15,11 @@ public class Order {
         this.orderNumber = orderNumber;
     }
 
-    public String getOrderDate() {
+    public Date getOrderDate() {
         return this.orderDate;
     }
 
-    public void setOrderDate(String orderDate) {
+    public void setOrderDate(Date orderDate) {
         this.orderDate = orderDate;
     }
 
@@ -38,7 +39,7 @@ public class Order {
         this.orderLines = orderLines;
     }
 
-    public Order(int orderNumber, String orderDate, String orderStatus, ArrayList<OrderLine> orderLines) {
+    public Order(int orderNumber, Date orderDate, String orderStatus, ArrayList<OrderLine> orderLines) {
         this.orderNumber = orderNumber;
         this.orderDate = orderDate;
         this.orderStatus = orderStatus;
