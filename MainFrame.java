@@ -2,7 +2,7 @@ import sheffield.DatabaseConnectionHandler;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+//mainframe.java
 public class MainFrame extends JFrame {
     private JButton loginButton;
     private JButton registerButton;
