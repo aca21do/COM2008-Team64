@@ -19,19 +19,19 @@ public class User {
             return this.surname;
         }
     }
-    private String userID;
+    protected String userID;
 
-    private String email;
+    protected String email;
     //private //password hash (list of chars?)
-    private PersonalRecord personalRecord;
-    private Address address;
-    private boolean isStaff;
-    private boolean isManager;
-    private UserHasPayment hasPayment;
-    private boolean isBlocked;
+    protected PersonalRecord personalRecord;
+    protected Address address;
+    protected boolean isStaff;
+    protected boolean isManager;
+    protected UserHasPayment hasPayment;
+    protected boolean isBlocked;
 
-    private char[] passwordHash;
-    private String passwordSalt;
+    protected char[] passwordHash;
+    protected String passwordSalt;
 
     //constructor does not include isBlocked, passHash or salt, as this would be insecure
     //they each have get methods which interact with the database, so they are only fetched when needed
