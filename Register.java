@@ -51,36 +51,49 @@ public class Register extends JFrame {
                 String errorMessage = "error registering";
 
                 try {
-                    // create user with unique ID
+                    // get text area values and set a unique ID
                     String uniqueID = UUID.randomUUID().toString();
                     String email = emailTextField.getText();
                     String forename = forenameTextField.getText();
                     String surname = surnameTextField.getText();
-                    User newUser = new User(uniqueID, email, forename, surname);
-
-                    // create and add address to user
                     int houseNo = Integer.valueOf(houseNumberTextField.getText());
                     String roadName = roadNameTextField.getText();
                     String cityName = cityNameTextField.getText();
                     String postcode = postcodeTextField.getText();
-                    Address usersAddress = new Address(houseNo, roadName, cityName, postcode);
-                    newUser.setAddress(usersAddress);
 
-                    // insert user into database (including address)
-                    userDatabaseOperations.insertUser(newUser, connection);
+                    User newUser;
 
-                    // hash and store password+salt
-                    char[] passwordChars = passwordField.getPassword();
-                    userDatabaseOperations.setPassword(newUser, passwordField.getPassword(), connection);// hash + store password
-                    Arrays.fill(passwordChars, '\u0000');// clear the password
+                    if (!(email.isBlank() && forename.isBlank() && surname.isBlank())){
+                        if (!(postcode.isBlank() && roadName.isBlank() && cityName.isBlank())){
+                            newUser = new User(uniqueID, email, forename, surname);
 
+                            // create and add address to user
+                            Address usersAddress = new Address(houseNo, roadName, cityName, postcode);
+                            newUser.setAddress(usersAddress);
 
+                            // insert user into database (including address)
+                            userDatabaseOperations.insertUser(newUser, connection);
 
-                    errorMessage = "register success";
+                            // hash and store password+salt
+                            char[] passwordChars = passwordField.getPassword();
+                            userDatabaseOperations.setPassword(newUser, passwordField.getPassword(), connection);
+                            Arrays.fill(passwordChars, '\u0000');// clear the password
+
+                            errorMessage = "register success";
+                        }
+                        else{
+                            errorMessage = "Please complete all fields";
+                        }
+                    }
+                    else{
+                        errorMessage = "Please complete all fields";
+                    }
                 }
                 catch (SQLException error) {
-                    error.printStackTrace();
                     errorMessage = error.getMessage();
+                }
+                catch (NumberFormatException error){
+                    errorMessage = "House Number must be a number";
                 }
                 finally {
                     // display error or success message

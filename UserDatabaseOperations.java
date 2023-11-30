@@ -1,3 +1,5 @@
+import com.mysql.cj.util.StringUtils;
+
 import java.io.CharArrayReader;
 import java.io.Reader;
 import java.sql.*;
@@ -23,22 +25,31 @@ public class UserDatabaseOperations {
      * @throws SQLException
      */
     public void insertUser(User user, Connection con) throws SQLException{
-        String sqlString = "INSERT INTO Users (UserID, Email, Forename, Surname) VALUES (?, ?, ?, ?)";
-        PreparedStatement statement = con.prepareStatement(sqlString);
+        try {
+            String sqlString = "INSERT INTO Users (UserID, Email, Forename, Surname) VALUES (?, ?, ?, ?)";
+            PreparedStatement statement = con.prepareStatement(sqlString);
 
-        // format attributes into correct data types
-        char[] passwordHashChars = user.getPasswordHash(con, this);//convert password has from char list to string
-        String passwordHash = new String(passwordHashChars);
+            // format attributes into correct data types
+            char[] passwordHashChars = user.getPasswordHash(con, this);//convert password has from char list to string
+            String passwordHash = new String(passwordHashChars);
 
-        // insert attributes into statement
-        statement.setString(1, user.getUserID());
-        statement.setString(2, user.getEmail());
-        statement.setString(3, user.getForename());
-        statement.setString(4, user.getSurname());
+            // insert attributes into statement
+            statement.setString(1, user.getUserID());
+            statement.setString(2, user.getEmail());
+            statement.setString(3, user.getForename());
+            statement.setString(4, user.getSurname());
 
-        statement.executeUpdate();
-        System.out.println("insert user");
-        insertAddress(user, con);
+            statement.executeUpdate();
+            System.out.println("insert user");
+            insertAddress(user, con);
+        }
+        catch(SQLException exception){
+            if (exception.getMessage().substring(0,9).equals("Duplicate")){
+                throw new SQLException("Email already taken");
+            } else {
+                throw new SQLException("error saving user");
+            }
+        }
     }
 
     public void insertAddress(User user, Connection con) throws SQLException{
@@ -171,8 +182,8 @@ public class UserDatabaseOperations {
      * @throws SQLException
      */
     public void updateUser(User updatedUser, Connection con) throws SQLException{
+        try {
             User storedUser = getUserFromID(updatedUser.getUserID(), con);
-
             String id = storedUser.getUserID();
 
             if (storedUser.getEmail() != updatedUser.getEmail()) {
@@ -184,12 +195,16 @@ public class UserDatabaseOperations {
             if (storedUser.getSurname() != updatedUser.getSurname()) {
                 updateUserAttribute("Surname", updatedUser.getSurname(), id, con);
             }
-            if (storedUser.getIsStaff() != updatedUser.getIsStaff()){
+            if (storedUser.getIsStaff() != updatedUser.getIsStaff()) {
                 updateUserAttribute("isStaff", updatedUser.getIsStaff(), id, con);
             }
-            if (storedUser.getIsManager() != updatedUser.getIsManager()){
+            if (storedUser.getIsManager() != updatedUser.getIsManager()) {
                 updateUserAttribute("isManager", updatedUser.getIsManager(), id, con);
             }
+        }
+        catch(SQLException exception){
+            throw new SQLException("error updating user");
+        }
 
 
     }
