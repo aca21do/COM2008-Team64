@@ -2,8 +2,7 @@ public class Order {
     protected String orderNumber;
     protected String orderDate;
     protected String orderStatus;
-
-
+    protected OrderLine[] orderLines;
 
     public String getOrderNumber() {
         return this.orderNumber;
