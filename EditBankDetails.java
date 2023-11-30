@@ -20,7 +20,7 @@ public class EditBankDetails extends JFrame {
         // panel setup
         setContentPane(editBankDetailsPanel);
         setTitle("Edit Bank Details");
-        setSize(400, 350);
+        setSize(400, 400);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
         updateBankDetailsButton.addActionListener(new ActionListener() {

@@ -1,25 +1,23 @@
-import sheffield.DatabaseConnectionHandler;
-
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.sql.Connection;
 
-public class CatalogueCustomer extends JFrame {
-    private JPanel catalogueCustomerPanel;
-    private JComboBox categoryComboBox;
-    private JTable catalogueTable;
-    private JButton ordersButton;
+public class OrdersCustomer extends JFrame {
+    private JButton browseButton;
     private JButton accountButton;
     private JButton staffViewButton;
     private JButton managerViewButton;
+    private JTable ordersTable;
+    private JPanel ordersCustomerPanel;
+    private JLabel tableLabel;
+    private JButton ordersHistoryButton;
+    private JButton myOrdersButton;
 
-    public CatalogueCustomer (Connection connection) {
+    public OrdersCustomer (Connection connection) {
         // panel setup
-        setContentPane(catalogueCustomerPanel);
-        setTitle("Catalogue");
+        setContentPane(ordersCustomerPanel);
+        setTitle("Orders");
         setSize(800, 400);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
@@ -35,16 +33,10 @@ public class CatalogueCustomer extends JFrame {
         // TODO: if manager
 //        managerViewButton.setVisible(true);
 //        managerViewButton.setEnabled(true);
-        categoryComboBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-
-            }
-        });
-        ordersButton.addActionListener(new ActionListener() {
+        browseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new OrdersCustomer(connection).setVisible(true);
+                new CatalogueCustomer(connection).setVisible(true);
                 setVisible(false);
             }
         });
@@ -65,6 +57,26 @@ public class CatalogueCustomer extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
 
+            }
+        });
+        ordersHistoryButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO: change table contents
+
+                ordersHistoryButton.setEnabled(false);
+                myOrdersButton.setEnabled(true);
+                tableLabel.setText("Order History Items");
+            }
+        });
+        myOrdersButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO: change table contents
+
+                myOrdersButton.setEnabled(false);
+                ordersHistoryButton.setEnabled(true);
+                tableLabel.setText("Order Items");
             }
         });
     }
