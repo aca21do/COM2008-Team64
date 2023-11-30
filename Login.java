@@ -57,6 +57,7 @@ public class Login extends JFrame {
         loginDBButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                // TODO: check login
                 String loginMessage = "";
 
                 try {
@@ -72,6 +73,26 @@ public class Login extends JFrame {
                     errorLabel.setText(loginMessage);
                     errorLabel.updateUI();
                 }
+
+                SwingUtilities.invokeLater(() -> {
+                    CatalogueCustomer catalogueCustomer;
+                    try {
+                        // Open a database connection
+                        databaseConnectionHandler.openConnection();
+
+                        // Create and initial
+                        // ize the LoanTableDisplay view using the database connection
+                        catalogueCustomer = new CatalogueCustomer(databaseConnectionHandler.getConnection());
+                        catalogueCustomer.setVisible(true);
+                        setVisible(false);
+
+                    } catch (Throwable t) {
+                        // Close connection if database crashes.
+                        databaseConnectionHandler.closeConnection();
+                        throw new RuntimeException(t);
+                    }
+                });
+
             }
         });
     }

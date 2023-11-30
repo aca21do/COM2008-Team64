@@ -20,19 +20,22 @@ public class User {
         }
     }
 
-    // ----------------- DECLARE ATTRIBUTES --------------
-    private String userID;
-    private String email;
-    //private //password hash (list of chars?)
-    private PersonalRecord personalRecord;
-    private Address address;
-    private boolean isStaff;
-    private boolean isManager;
-    private UserHasPayment hasPayment;
-    private boolean isBlocked;
 
-    private char[] passwordHash;
-    private String passwordSalt;
+    // ----------------- DECLARE ATTRIBUTES --------------
+    protected String userID;
+
+    protected String email;
+
+    //private //password hash (list of chars?)
+    protected PersonalRecord personalRecord;
+    protected Address address;
+    protected boolean isStaff;
+    protected boolean isManager;
+    protected UserHasPayment hasPayment;
+    protected boolean isBlocked;
+
+    protected char[] passwordHash;
+    protected String passwordSalt;
 
 
     //-------------------- CONSTRUCTOR METHODS ----------------

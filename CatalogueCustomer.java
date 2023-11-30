@@ -3,32 +3,51 @@ import sheffield.DatabaseConnectionHandler;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.sql.Connection;
 
-public class EditPassword extends JFrame {
-    private JPasswordField currentPasswordField;
-    private JPasswordField newPasswordField;
-    private JButton updatePasswordButton;
-    private JButton backButton;
-    private JPanel editPasswordPanel;
-    private JButton logoutButton;
+public class CatalogueCustomer extends JFrame {
+    private JPanel catalogueCustomerPanel;
+    private JComboBox categoryComboBox;
+    private JTable catalogueTable;
+    private JButton ordersButton;
+    private JButton accountButton;
+    private JButton staffViewButton;
+    private JButton managerViewButton;
 
-    public EditPassword (Connection connection) {
+    public CatalogueCustomer (Connection connection) {
         DatabaseConnectionHandler databaseConnectionHandler = new DatabaseConnectionHandler();
 
         // panel setup
-        setContentPane(editPasswordPanel);
-        setTitle("Edit Password");
-        setSize(400, 250);
+        setContentPane(catalogueCustomerPanel);
+        setTitle("Catalogue");
+        setSize(800, 400);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
-        updatePasswordButton.addActionListener(new ActionListener() {
+
+        staffViewButton.setVisible(false);
+        managerViewButton.setVisible(false);
+
+        // TODO: if staff member
+//        staffViewButton.setVisible(true);
+//        staffViewButton.setEnabled(true);
+//
+//        managerViewButton.setVisible(true);
+//        managerViewButton.setEnabled(true);
+        categoryComboBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+
+            }
+        });
+        ordersButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
             }
         });
-        backButton.addActionListener(new ActionListener() {
+        accountButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 SwingUtilities.invokeLater(() -> {
@@ -51,11 +70,16 @@ public class EditPassword extends JFrame {
                 });
             }
         });
-        logoutButton.addActionListener(new ActionListener() {
+        staffViewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new MainFrame().setVisible(true);
-                setVisible(false);
+
+            }
+        });
+        managerViewButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
             }
         });
     }
