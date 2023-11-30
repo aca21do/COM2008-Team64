@@ -27,9 +27,19 @@ public class Order {
     public void setOrderStatus(String orderStatus) {
         this.orderStatus = orderStatus;
     }
-    public Order(String orderNumber, String orderDate, String orderStatus) {
+
+    public OrderLine[] getOrderLines() {
+        return this.orderLines;
+    }
+
+    public void setOrderLines(OrderLine[] orderLines) {
+        this.orderLines = orderLines;
+    }
+
+    public Order(String orderNumber, String orderDate, String orderStatus, OrderLine[] orderLines) {
         this.orderNumber = orderNumber;
         this.orderDate = orderDate;
         this.orderStatus = orderStatus;
+        this.orderLines = orderLines;
     }
 }
