@@ -17,8 +17,6 @@ public class EditBankDetails extends JFrame {
     private JButton logoutButton;
 
     public EditBankDetails (Connection connection) {
-        DatabaseConnectionHandler databaseConnectionHandler = new DatabaseConnectionHandler();
-
         // panel setup
         setContentPane(editBankDetailsPanel);
         setTitle("Edit Bank Details");
@@ -34,24 +32,8 @@ public class EditBankDetails extends JFrame {
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SwingUtilities.invokeLater(() -> {
-                    AccountDetails accountDetails;
-                    try {
-                        // Open a database connection
-                        databaseConnectionHandler.openConnection();
-
-                        // Create and initial
-                        // ize the LoanTableDisplay view using the database connection
-                        accountDetails = new AccountDetails(databaseConnectionHandler.getConnection());
-                        accountDetails.setVisible(true);
-                        setVisible(false);
-
-                    } catch (Throwable t) {
-                        // Close connection if database crashes.
-                        databaseConnectionHandler.closeConnection();
-                        throw new RuntimeException(t);
-                    }
-                });
+                new AccountDetails(connection).setVisible(true);
+                setVisible(false);
             }
         });
         logoutButton.addActionListener(new ActionListener() {

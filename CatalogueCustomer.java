@@ -17,8 +17,6 @@ public class CatalogueCustomer extends JFrame {
     private JButton managerViewButton;
 
     public CatalogueCustomer (Connection connection) {
-        DatabaseConnectionHandler databaseConnectionHandler = new DatabaseConnectionHandler();
-
         // panel setup
         setContentPane(catalogueCustomerPanel);
         setTitle("Catalogue");
@@ -30,9 +28,10 @@ public class CatalogueCustomer extends JFrame {
         managerViewButton.setVisible(false);
 
         // TODO: if staff member
-//        staffViewButton.setVisible(true);
-//        staffViewButton.setEnabled(true);
-//
+        staffViewButton.setVisible(true);
+        staffViewButton.setEnabled(true);
+
+        // TODO: if manager
 //        managerViewButton.setVisible(true);
 //        managerViewButton.setEnabled(true);
         categoryComboBox.addItemListener(new ItemListener() {
@@ -50,24 +49,8 @@ public class CatalogueCustomer extends JFrame {
         accountButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SwingUtilities.invokeLater(() -> {
-                    AccountDetails accountDetails;
-                    try {
-                        // Open a database connection
-                        databaseConnectionHandler.openConnection();
-
-                        // Create and initial
-                        // ize the LoanTableDisplay view using the database connection
-                        accountDetails = new AccountDetails(databaseConnectionHandler.getConnection());
-                        accountDetails.setVisible(true);
-                        setVisible(false);
-
-                    } catch (Throwable t) {
-                        // Close connection if database crashes.
-                        databaseConnectionHandler.closeConnection();
-                        throw new RuntimeException(t);
-                    }
-                });
+                new AccountDetails(connection).setVisible(true);
+                setVisible(false);
             }
         });
         staffViewButton.addActionListener(new ActionListener() {

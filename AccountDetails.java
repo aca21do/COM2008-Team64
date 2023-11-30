@@ -21,8 +21,6 @@ public class AccountDetails extends JFrame {
     private JButton logoutButton;
 
     public AccountDetails (Connection connection) {
-        DatabaseConnectionHandler databaseConnectionHandler = new DatabaseConnectionHandler();
-
         // panel setup
         setContentPane(accountPanel);
         setTitle("Account Details");
@@ -32,24 +30,8 @@ public class AccountDetails extends JFrame {
         browseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SwingUtilities.invokeLater(() -> {
-                    CatalogueCustomer catalogueCustomer;
-                    try {
-                        // Open a database connection
-                        databaseConnectionHandler.openConnection();
-
-                        // Create and initial
-                        // ize the LoanTableDisplay view using the database connection
-                        catalogueCustomer = new CatalogueCustomer(databaseConnectionHandler.getConnection());
-                        catalogueCustomer.setVisible(true);
-                        setVisible(false);
-
-                    } catch (Throwable t) {
-                        // Close connection if database crashes.
-                        databaseConnectionHandler.closeConnection();
-                        throw new RuntimeException(t);
-                    }
-                });
+                new CatalogueCustomer(connection).setVisible(true);
+                setVisible(false);
             }
         });
         updateInfoButton.addActionListener(new ActionListener() {
@@ -61,47 +43,15 @@ public class AccountDetails extends JFrame {
         editPasswordButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SwingUtilities.invokeLater(() -> {
-                    EditPassword editPassword;
-                    try {
-                        // Open a database connection
-                        databaseConnectionHandler.openConnection();
-
-                        // Create and initial
-                        // ize the LoanTableDisplay view using the database connection
-                        editPassword = new EditPassword(databaseConnectionHandler.getConnection());
-                        editPassword.setVisible(true);
-                        setVisible(false);
-
-                    } catch (Throwable t) {
-                        // Close connection if database crashes.
-                        databaseConnectionHandler.closeConnection();
-                        throw new RuntimeException(t);
-                    }
-                });
+                new EditPassword(connection).setVisible(true);
+                setVisible(false);
             }
         });
         editBankDetailsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SwingUtilities.invokeLater(() -> {
-                    EditBankDetails editBankDetails;
-                    try {
-                        // Open a database connection
-                        databaseConnectionHandler.openConnection();
-
-                        // Create and initial
-                        // ize the LoanTableDisplay view using the database connection
-                        editBankDetails = new EditBankDetails(databaseConnectionHandler.getConnection());
-                        editBankDetails.setVisible(true);
-                        setVisible(false);
-
-                    } catch (Throwable t) {
-                        // Close connection if database crashes.
-                        databaseConnectionHandler.closeConnection();
-                        throw new RuntimeException(t);
-                    }
-                });
+                new EditBankDetails(connection).setVisible(true);
+                setVisible(false);
             }
         });
         logoutButton.addActionListener(new ActionListener() {
@@ -109,6 +59,7 @@ public class AccountDetails extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 new MainFrame().setVisible(true);
                 setVisible(false);
+
             }
         });
     }
