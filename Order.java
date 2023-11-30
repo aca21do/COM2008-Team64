@@ -1,8 +1,10 @@
+import java.util.ArrayList;
+
 public class Order {
     protected String orderNumber;
     protected String orderDate;
     protected String orderStatus;
-    protected OrderLine[] orderLines;
+    protected ArrayList<OrderLine> orderLines;
 
     public String getOrderNumber() {
         return this.orderNumber;
@@ -28,15 +30,15 @@ public class Order {
         this.orderStatus = orderStatus;
     }
 
-    public OrderLine[] getOrderLines() {
+    public ArrayList<OrderLine> getOrderLines() {
         return this.orderLines;
     }
 
-    public void setOrderLines(OrderLine[] orderLines) {
+    public void setOrderLines(ArrayList<OrderLine> orderLines) {
         this.orderLines = orderLines;
     }
 
-    public Order(String orderNumber, String orderDate, String orderStatus, OrderLine[] orderLines) {
+    public Order(String orderNumber, String orderDate, String orderStatus, ArrayList<OrderLine> orderLines) {
         this.orderNumber = orderNumber;
         this.orderDate = orderDate;
         this.orderStatus = orderStatus;
