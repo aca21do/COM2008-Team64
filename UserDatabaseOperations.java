@@ -479,11 +479,9 @@ public class UserDatabaseOperations {
                 if (!user.getIsBlocked(this, con)){
                     System.out.println("user not blocked");
                     if (this.verifyPassword(con, enteredPassword, user)){
-                        resetLoginAttempts(user, con);
                         errorMessage = "success";
                     }
                     else{
-                        incrementLoginAttempts(user, con);
                         errorMessage = "wrong password";
                     }
                 }
@@ -519,10 +517,17 @@ public class UserDatabaseOperations {
             String enteredPasswordHash = hashedPasswordGenerator.hashPassword(enteredPassword);
             String storedPasswordHash = String.valueOf(storedPasswordHashChars);
 
-            return storedPasswordHash.equals(enteredPasswordHash);
+            boolean passwordsMatch = storedPasswordHash.equals(enteredPasswordHash);
+            if (passwordsMatch){
+                resetLoginAttempts(user, con);
+            }
+            else{
+                incrementLoginAttempts(user, con);
+            }
+
+            return passwordsMatch;
         }
         catch (SQLException e){
-            e.printStackTrace();
             return false;
         }
     }
