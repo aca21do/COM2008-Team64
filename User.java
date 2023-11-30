@@ -91,6 +91,7 @@ public class User {
 
 
     // --------------------- SETTER METHODS ----------------
+    public void setEmail(String newEmail){ this.email = newEmail; }
     public void setForename(String foreName){
         this.personalRecord.forename = foreName;
     }

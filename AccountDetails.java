@@ -1,9 +1,8 @@
-import sheffield.DatabaseConnectionHandler;
-
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class AccountDetails extends JFrame {
     private JTextField forenameTextField;
@@ -19,6 +18,7 @@ public class AccountDetails extends JFrame {
     private JButton editBankDetailsButton;
     private JPanel accountPanel;
     private JButton logoutButton;
+    private JLabel updateMessageLabel;
 
     public AccountDetails (Connection connection) {
         // panel setup
@@ -37,7 +37,53 @@ public class AccountDetails extends JFrame {
         updateInfoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                UserDatabaseOperations userDatabaseOperations = new UserDatabaseOperations();
+                String errorMessage = "error updating user";
 
+                try {
+                    // get text area values and set a unique ID
+                    User updatedUser = CurrentUser.getCurrentUser();
+                    Address updatedAddress = updatedUser.getAddress();
+
+                    if (!emailTextField.getText().isBlank()) {updatedUser.setEmail(emailTextField.getText()); }
+                    if (!forenameTextField.getText().isBlank()) {updatedUser.setForename(forenameTextField.getText()); }
+                    if (!surnameTextField.getText().isBlank()) {updatedUser.setSurname(surnameTextField.getText()); }
+
+                    if (!houseNumberTextField.getText().isBlank()){
+                        try {
+                            updatedAddress.setHouseNumber(Integer.valueOf(houseNumberTextField.getText()));
+                        } catch (NumberFormatException numberFormatException){
+                            updatedAddress.setHouseNumber(-1);
+                        }
+                    }
+                    else{
+                        updatedAddress.setHouseNumber(-1);
+                    }
+
+                    if (!roadNameTextField.getText().isBlank()){
+                        updatedAddress.setRoadName(roadNameTextField.getText());
+                    }
+                    if (!cityNameTextField.getText().isBlank()){
+                        updatedAddress.setCityName(cityNameTextField.getText());
+                    }
+                    if (!postcodeTextField.getText().isBlank()){
+                        updatedAddress.setPostcode(postcodeTextField.getText());
+                    }
+
+                    // insert user into database (including address)
+                    userDatabaseOperations.updateUser(updatedUser, connection);
+
+                    errorMessage = "details updated";
+
+                }
+                catch (SQLException error) {
+                    errorMessage = error.getMessage();
+                }
+                finally {
+                    // display error or success message
+                    updateMessageLabel.setText(errorMessage);
+                    updateMessageLabel.updateUI();
+                }
             }
         });
         editPasswordButton.addActionListener(new ActionListener() {

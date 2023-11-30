@@ -11,20 +11,18 @@ public class Address {
         this.postcode = pCode;
     }
 
+    // -----GETTERS-----
     public int getHouseNumber() {
         return houseNumber;
     }
+    public String getRoadName() {return roadName; }
+    public String getCityName() {return cityName;}
+    public String getPostcode() {return postcode;}
 
+    // ----SETTERS-----
 
-    public String getRoadName() {
-        return roadName;
-    }
-
-    public String getCityName() {
-        return cityName;
-    }
-
-    public String getPostcode() {
-        return postcode;
-    }
+    public void setHouseNumber(int newHouseNo) {this.houseNumber = newHouseNo;}
+    public void setRoadName(String newRName) {this.roadName = newRName; }
+    public void setCityName(String newCName) {this.cityName = newCName;}
+    public void setPostcode(String newPostcode) {this.postcode = newPostcode;}
 }

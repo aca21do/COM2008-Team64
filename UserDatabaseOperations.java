@@ -105,14 +105,14 @@ public class UserDatabaseOperations {
                 String surname = resultSet.getString("Surname");
                 User user = new User(id, email, forename, surname);
 
-                System.out.println("forename: " + user.getForename());
-                System.out.println("surname: " + user.getSurname());
+                loadAddress(user, con);
                 return user;
             } else{
                 throw new SQLException("User not found in database");
             }
 
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new SQLException("User not found in database");// Re-throw the exception to signal an error.
         }
     }
@@ -123,21 +123,26 @@ public class UserDatabaseOperations {
         PreparedStatement hasAddressStatement = con.prepareStatement(findHasAddressSql);
         hasAddressStatement.setString(1, user.getUserID());
         ResultSet resultSet = hasAddressStatement.executeQuery();
-        int houseNo = resultSet.getInt("HouseNumber");
-        String postCode = resultSet.getString("PostCode");
 
-        // get address with matching primary key
-        String getAddressSql = "SELECT * FROM Addresses WHERE HouseNumber = ? AND PostCode = ?";
-        PreparedStatement getAddressStatement = con.prepareStatement(getAddressSql);
-        getAddressStatement.setInt(1, houseNo);
-        getAddressStatement.setString(2, postCode);
-        ResultSet resultSet1 = getAddressStatement.executeQuery();
-        String roadName = resultSet1.getString("RoadName");
-        String cityName = resultSet1.getString("CityName");
+        if (resultSet.next()) {
+            int houseNo = resultSet.getInt("HouseNumber");
+            String postCode = resultSet.getString("PostCode");
 
-        // create and set user address
-        Address loadedAddress = new Address(houseNo, roadName, cityName, postCode);
-        user.setAddress(loadedAddress);
+            // get address with matching primary key
+            String getAddressSql = "SELECT * FROM Addresses WHERE HouseNumber = ? AND PostCode = ?";
+            PreparedStatement getAddressStatement = con.prepareStatement(getAddressSql);
+            getAddressStatement.setInt(1, houseNo);
+            getAddressStatement.setString(2, postCode);
+            ResultSet resultSet1 = getAddressStatement.executeQuery();
+            if (resultSet1.next()){
+                String roadName = resultSet1.getString("RoadName");
+                String cityName = resultSet1.getString("CityName");
+
+                // create and set user address
+                Address loadedAddress = new Address(houseNo, roadName, cityName, postCode);
+                user.setAddress(loadedAddress);
+            }
+        }
     }
 
 
@@ -186,6 +191,7 @@ public class UserDatabaseOperations {
             User storedUser = getUserFromID(updatedUser.getUserID(), con);
             String id = storedUser.getUserID();
 
+            // update user attributes if different to what is stored in database
             if (storedUser.getEmail() != updatedUser.getEmail()) {
                 updateUserAttribute("Email", updatedUser.getEmail(), id, con);
             }
@@ -201,36 +207,60 @@ public class UserDatabaseOperations {
             if (storedUser.getIsManager() != updatedUser.getIsManager()) {
                 updateUserAttribute("isManager", updatedUser.getIsManager(), id, con);
             }
+
+            // update address
+            Address updatedAddress = updatedUser.getAddress();
+            Address storedAddress = storedUser.getAddress();
+
+            if (updatedAddress.getHouseNumber() == -1) {updatedAddress.setHouseNumber(storedAddress.getHouseNumber());}
+            if (updatedAddress.getPostcode() == null) {updatedAddress.setPostcode(storedAddress.getPostcode());}
+            if (updatedAddress.getRoadName() == null) {updatedAddress.setRoadName(storedAddress.getRoadName());}
+            if (updatedAddress.getCityName() == null) {updatedAddress.setCityName(storedAddress.getCityName());}
+
+            if (!updatedAddress.equals(storedAddress)){
+                String updateUserAttributeString =
+                        "UPDATE Addresses Set HouseNumber = ?, PostCode = ?, RoadName = ?, CityName = ? "
+                        + "WHERE HouseNumber = ? AND Postcode = ?";
+                PreparedStatement statement = con.prepareStatement(updateUserAttributeString);
+                statement.setInt(1, updatedAddress.getHouseNumber());
+                statement.setString(2, updatedAddress.getPostcode());
+                statement.setString(3, updatedAddress.getRoadName());
+                statement.setString(4, updatedAddress.getCityName());
+                statement.setInt(5, storedAddress.getHouseNumber());
+                statement.setString(6, storedAddress.getPostcode());
+                statement.executeUpdate();
+            }
         }
         catch(SQLException exception){
+            exception.printStackTrace();
             throw new SQLException("error updating user");
         }
-
-
     }
+
+
 
     private void updateUserAttribute(String attribute, String value, String userID, Connection con)
     throws SQLException{
         try {
-            String updateUserAttributeString = "UPDATE Users Set ? = ? WHERE UserID = ?";
+            String updateUserAttributeString = "UPDATE Users SET " + attribute + "=? WHERE UserID = ?";
             PreparedStatement statement = con.prepareStatement(updateUserAttributeString);
-            statement.setString(1, attribute);
-            statement.setString(2, value);
-            statement.setString(3, userID);
+            statement.setString(1, value);
+            statement.setString(2, userID);
+            System.out.println(String.valueOf(statement));
             statement.executeUpdate();
         }
         catch(SQLException e){
+            e.printStackTrace();
             throw new SQLException(("problem updating "+ attribute));
         }
     }
     private void updateUserAttribute(String attribute, boolean value, String userID, Connection con)
             throws SQLException{
         try {
-            String updateUserAttributeString = "UPDATE Users Set ? = ? WHERE UserID = ?";
+            String updateUserAttributeString = "UPDATE Users SET ? = ? WHERE UserID = ?";
             PreparedStatement statement = con.prepareStatement(updateUserAttributeString);
-            statement.setString(1, attribute);
-            statement.setBoolean(2, value);
-            statement.setString(3, userID);
+            statement.setBoolean(1, value);
+            statement.setString(2, userID);
             statement.executeUpdate();
         }
         catch(SQLException e){
