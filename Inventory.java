@@ -77,6 +77,31 @@ public class Inventory {
             preparedStatement.setString(1, productCode);
             ResultSet resultSet = preparedStatement.executeQuery();
 
+            resultSet.next();
+
+            Product product = returnProductSubClass(productCode, connection);
+            if (product == null) {
+                System.out.println("Invalid Product Code");
+                return null;
+            }
+            InventoryItem inventoryItem = new InventoryItem(product, resultSet.getInt("Quantity"));
+            return inventoryItem;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public Product returnProductSubClass(String productCode, Connection connection) throws SQLException {
+        try {
+            Character firstLetter = productCode.charAt(0);
+
+            String sql = "SELECT * FROM Inventory WHERE ProductCode = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, productCode);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
             sql = "SELECT * FROM Products WHERE ProductCode=?";
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, productCode);
@@ -85,14 +110,88 @@ public class Inventory {
             resultSet.next();
             resultSet1.next();
 
-            Product product = new Product(
-                    resultSet.getString("BrandName"),
-                    resultSet.getString("ProductName"),
-                    resultSet.getString("ProductCode"),
-                    resultSet.getDouble("Price"),
-                    resultSet1.getString("GaugeCode"));
-            InventoryItem inventoryItem = new InventoryItem(product, resultSet.getInt("Quantity"));
-            return inventoryItem;
+            if (firstLetter == 'L') {
+
+                sql = "SELECT * FROM Eras WHERE ProductCode = ?";
+                preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1, productCode);
+                ResultSet extraResults = preparedStatement.executeQuery();
+                extraResults.next();
+                String eraCode = extraResults.getString("EraCode");
+
+                sql = "SELECT * FROM DCCCodes WHERE ProductCode = ?";
+                preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1, productCode);
+                extraResults = preparedStatement.executeQuery();
+                extraResults.next();
+                String dccCode = extraResults.getString("DCCCode");
+
+                Locomotive locomotive = new Locomotive(
+                        resultSet.getString("BrandName"),
+                        resultSet.getString("ProductName"),
+                        resultSet.getString("ProductCode"),
+                        resultSet.getDouble("Price"),
+                        resultSet1.getString("GaugeCode"),
+                        eraCode,
+                        dccCode);
+                return locomotive;
+            }
+            else if (firstLetter == 'S') {
+                sql = "SELECT * FROM Eras WHERE ProductCode = ?";
+                preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1, productCode);
+                ResultSet extraResults = preparedStatement.executeQuery();
+                extraResults.next();
+                String eraCode = extraResults.getString("EraCode");
+
+                RollingStock rollingStock = new RollingStock(
+                        resultSet.getString("BrandName"),
+                        resultSet.getString("ProductName"),
+                        resultSet.getString("ProductCode"),
+                        resultSet.getDouble("Price"),
+                        resultSet1.getString("GaugeCode"),
+                        eraCode);
+                return rollingStock;
+            }
+            else if (firstLetter == 'R') {
+                TrackPiece trackPiece = new TrackPiece(
+                        resultSet.getString("BrandName"),
+                        resultSet.getString("ProductName"),
+                        resultSet.getString("ProductCode"),
+                        resultSet.getDouble("Price"),
+                        resultSet1.getString("GaugeCode"));
+                return trackPiece;
+            }
+            else if (firstLetter == 'C') {
+                Controller controller= new Controller(
+                        resultSet.getString("BrandName"),
+                        resultSet.getString("ProductName"),
+                        resultSet.getString("ProductCode"),
+                        resultSet.getDouble("Price"),
+                        resultSet1.getString("GaugeCode"));
+                return controller;
+            }
+            else if (firstLetter == 'S') {
+                Set set = new Set(
+                        resultSet.getString("BrandName"),
+                        resultSet.getString("ProductName"),
+                        resultSet.getString("ProductCode"),
+                        resultSet.getDouble("Price"),
+                        resultSet1.getString("GaugeCode"));
+                return set;
+            }
+            else if (firstLetter == 'P') {
+                Pack pack = new Pack(
+                        resultSet.getString("BrandName"),
+                        resultSet.getString("ProductName"),
+                        resultSet.getString("ProductCode"),
+                        resultSet.getDouble("Price"),
+                        resultSet1.getString("GaugeCode"));
+                return pack;
+            }
+            else {
+                return null;
+            }
         }
         catch (SQLException e) {
             e.printStackTrace();
