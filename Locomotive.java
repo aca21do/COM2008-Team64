@@ -22,7 +22,7 @@ public class Locomotive extends Part {
     }
 
     public Locomotive(String brandName, String productName, String productCode, double retailPrice,
-                      String gaugeCode, String eraCode, String dccCode) {
+                      Gauge gaugeCode, String eraCode, String dccCode) {
         super(brandName, productName, productCode, retailPrice, gaugeCode);
         this.eraCode = eraCode;
         this.dccCode = dccCode;

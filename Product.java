@@ -3,7 +3,7 @@ public class Product {
     protected String productName;
     protected String productCode;
     protected double retailPrice;
-    private String gaugeCode;
+    private Gauge gaugeCode;
 
     public String getBrandName() {
         return this.brandName;
@@ -37,16 +37,16 @@ public class Product {
         this.retailPrice = retailPrice;
     }
 
-    public String getGaugeCode() {
+    public Gauge getGaugeCode() {
         return this.gaugeCode;
     }
 
-    public void setGaugeCode(String gaugeCode) {
+    public void setGaugeCode(Gauge gaugeCode) {
         this.gaugeCode = gaugeCode;
     }
 
     public Product (String brandName, String productName,
-                    String productCode, double retailPrice, String gaugeCode) {
+                    String productCode, double retailPrice, Gauge gaugeCode) {
         this.brandName = brandName;
         this.productName = productName;
         this.productCode = productCode;

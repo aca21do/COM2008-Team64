@@ -126,12 +126,14 @@ public class Inventory {
                 extraResults.next();
                 String dccCode = extraResults.getString("DCCCode");
 
+                Gauge gaugeType = Gauge.valueOf(resultSet1.getString("GaugeCode"));
+
                 Locomotive locomotive = new Locomotive(
                         resultSet.getString("BrandName"),
                         resultSet.getString("ProductName"),
                         resultSet.getString("ProductCode"),
                         resultSet.getDouble("Price"),
-                        resultSet1.getString("GaugeCode"),
+                        gaugeType,
                         eraCode,
                         dccCode);
                 return locomotive;
@@ -144,49 +146,59 @@ public class Inventory {
                 extraResults.next();
                 String eraCode = extraResults.getString("EraCode");
 
+                Gauge gaugeType = Gauge.valueOf(resultSet1.getString("GaugeCode"));
+
                 RollingStock rollingStock = new RollingStock(
                         resultSet.getString("BrandName"),
                         resultSet.getString("ProductName"),
                         resultSet.getString("ProductCode"),
                         resultSet.getDouble("Price"),
-                        resultSet1.getString("GaugeCode"),
+                        gaugeType,
                         eraCode);
                 return rollingStock;
             }
             else if (firstLetter == 'R') {
+                Gauge gaugeType = Gauge.valueOf(resultSet1.getString("GaugeCode"));
+                
                 TrackPiece trackPiece = new TrackPiece(
                         resultSet.getString("BrandName"),
                         resultSet.getString("ProductName"),
                         resultSet.getString("ProductCode"),
                         resultSet.getDouble("Price"),
-                        resultSet1.getString("GaugeCode"));
+                        gaugeType);
                 return trackPiece;
             }
             else if (firstLetter == 'C') {
+                Gauge gaugeType = Gauge.valueOf(resultSet1.getString("GaugeCode"));
+
                 Controller controller= new Controller(
                         resultSet.getString("BrandName"),
                         resultSet.getString("ProductName"),
                         resultSet.getString("ProductCode"),
                         resultSet.getDouble("Price"),
-                        resultSet1.getString("GaugeCode"));
+                        gaugeType);
                 return controller;
             }
             else if (firstLetter == 'S') {
+                Gauge gaugeType = Gauge.valueOf(resultSet1.getString("GaugeCode"));
+
                 Set set = new Set(
                         resultSet.getString("BrandName"),
                         resultSet.getString("ProductName"),
                         resultSet.getString("ProductCode"),
                         resultSet.getDouble("Price"),
-                        resultSet1.getString("GaugeCode"));
+                        gaugeType);
                 return set;
             }
             else if (firstLetter == 'P') {
+                Gauge gaugeType = Gauge.valueOf(resultSet1.getString("GaugeCode"));
+
                 Pack pack = new Pack(
                         resultSet.getString("BrandName"),
                         resultSet.getString("ProductName"),
                         resultSet.getString("ProductCode"),
                         resultSet.getDouble("Price"),
-                        resultSet1.getString("GaugeCode"));
+                        gaugeType);
                 return pack;
             }
             else {

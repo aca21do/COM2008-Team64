@@ -11,7 +11,7 @@ public class RollingStock extends Part {
         this.eraCode = eraCode;
     }
 
-    public RollingStock(String brandName, String productName, String productCode, double retailPrice, String gaugeCode, String eraCode) {
+    public RollingStock(String brandName, String productName, String productCode, double retailPrice, Gauge gaugeCode, String eraCode) {
         super(brandName, productName, productCode, retailPrice, gaugeCode);
         this.eraCode = eraCode;
     }
