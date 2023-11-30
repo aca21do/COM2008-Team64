@@ -1,8 +1,11 @@
 import sheffield.DatabaseConnectionHandler;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.sql.Connection;
 
 public class CatalogueCustomer extends JFrame {
     private JPanel catalogueCustomerPanel;
@@ -13,7 +16,7 @@ public class CatalogueCustomer extends JFrame {
     private JButton staffViewButton;
     private JButton managerViewButton;
 
-    public CatalogueCustomer () {
+    public CatalogueCustomer (Connection connection) {
         DatabaseConnectionHandler databaseConnectionHandler = new DatabaseConnectionHandler();
 
         // panel setup
@@ -38,9 +41,46 @@ public class CatalogueCustomer extends JFrame {
 
             }
         });
-    }
+        ordersButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
 
-    public static void main(String[] args){
-        CatalogueCustomer catalogueCustomer = new CatalogueCustomer();
+            }
+        });
+        accountButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SwingUtilities.invokeLater(() -> {
+                    AccountDetails accountDetails;
+                    try {
+                        // Open a database connection
+                        databaseConnectionHandler.openConnection();
+
+                        // Create and initial
+                        // ize the LoanTableDisplay view using the database connection
+                        accountDetails = new AccountDetails(databaseConnectionHandler.getConnection());
+                        accountDetails.setVisible(true);
+                        setVisible(false);
+
+                    } catch (Throwable t) {
+                        // Close connection if database crashes.
+                        databaseConnectionHandler.closeConnection();
+                        throw new RuntimeException(t);
+                    }
+                });
+            }
+        });
+        staffViewButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        managerViewButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
     }
 }

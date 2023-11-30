@@ -57,21 +57,38 @@ public class Login extends JFrame {
         loginDBButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String loginMessage = "";
+                // TODO: check login
+//                String loginMessage = "";
+//
+//                String email = emailTextField.getText();
+//                char[] passwordChars = passwordField.getPassword();
+//                DatabaseOperations databaseOperations = new DatabaseOperations();
+//                loginMessage = databaseOperations.verifyLogin(connection, email, passwordChars);
+//                // Secure disposal of the password
+//                Arrays.fill(passwordChars, '\u0000');
+//
+//                // display error or success message
+//                errorLabel.setText(loginMessage);
+//                errorLabel.updateUI();
 
-                try {
-                    String email = emailTextField.getText();
-                    char[] passwordChars = passwordField.getPassword();
-                    DatabaseOperations databaseOperations = new DatabaseOperations();
-                    loginMessage = databaseOperations.verifyLogin(connection, email, passwordChars);
-                    // Secure disposal of the password
-                    Arrays.fill(passwordChars, '\u0000');
-                }
-                finally {
-                    // display error or success message
-                    errorLabel.setText(loginMessage);
-                    errorLabel.updateUI();
-                }
+                SwingUtilities.invokeLater(() -> {
+                    CatalogueCustomer catalogueCustomer;
+                    try {
+                        // Open a database connection
+                        databaseConnectionHandler.openConnection();
+
+                        // Create and initial
+                        // ize the LoanTableDisplay view using the database connection
+                        catalogueCustomer = new CatalogueCustomer(databaseConnectionHandler.getConnection());
+                        catalogueCustomer.setVisible(true);
+                        setVisible(false);
+
+                    } catch (Throwable t) {
+                        // Close connection if database crashes.
+                        databaseConnectionHandler.closeConnection();
+                        throw new RuntimeException(t);
+                    }
+                });
             }
         });
     }
