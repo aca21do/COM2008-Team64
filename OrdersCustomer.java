@@ -1,7 +1,14 @@
+import com.mysql.cj.x.protobuf.MysqlxCrud;
+import com.mysql.cj.x.protobuf.MysqlxPrepare;
+
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class OrdersCustomer extends JFrame {
     private JButton browseButton;
@@ -34,6 +41,7 @@ public class OrdersCustomer extends JFrame {
         // TODO: if manager
 //        managerViewButton.setVisible(true);
 //        managerViewButton.setEnabled(true);
+
         browseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -80,6 +88,60 @@ public class OrdersCustomer extends JFrame {
                 ordersHistoryButton.setEnabled(true);
                 placeOrdersButton.setEnabled(true);
                 tableLabel.setText("Order Items");
+
+                String[] columnNames = {"OrderID", "Date", "TotalCost", "Status", "ProductNo",
+                                            "ProductCode", "Quantity", "LineCost"};
+
+                DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0);
+                //Object[][] = {{"on", "xbox"},{"on1","xbox1"}};
+
+                try {
+                    String sql = "SELECT * FROM Orders WHERE UserID=? AND OrderStatus = \"pending\"";
+                    PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                    preparedStatement.setString(1, CurrentUser.getCurrentUser().getUserID());
+                    ResultSet ordersResults = preparedStatement.executeQuery();
+                    boolean displayOrder = true;
+                    Object[] data;
+
+                    while (ordersResults.next()) {
+                        sql = "SELECT * FROM OrderLines WHERE OrderNumber=?";
+                        preparedStatement = connection.prepareStatement(sql);
+                        preparedStatement.setInt(1, ordersResults.getInt("OrderNumber"));
+                        ResultSet orderLinesResults = preparedStatement.executeQuery();
+                        while(orderLinesResults.next()) {
+                            if (displayOrder) {
+                                data = new Object[]{ordersResults.getInt("OrderNumber"),
+                                        ordersResults.getDate("OrderDate"),
+                                        ordersResults.getDouble("TotalCost"),
+                                        ordersResults.getString("OrderStatus"),
+                                        orderLinesResults.getString("OrderLineNumber"),
+                                        orderLinesResults.getString("ProductCode"),
+                                        orderLinesResults.getInt("Quantity"),
+                                        orderLinesResults.getDouble("LineCost")};
+
+                                displayOrder = false;
+                            }
+                            else {
+                                data = new Object[]{"", "", "", "",
+                                        orderLinesResults.getString("OrderLineNumber"),
+                                        orderLinesResults.getString("ProductCode"),
+                                        orderLinesResults.getInt("Quantity"),
+                                        orderLinesResults.getDouble("LineCost")};
+
+                            }
+                            dataModel.addRow(data);
+                        }
+                        displayOrder = true;
+                    }
+
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+
+                ordersTable.setModel(dataModel);
+
+
+
             }
         });
         placeOrdersButton.addActionListener(new ActionListener() {
