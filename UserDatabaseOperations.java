@@ -480,7 +480,7 @@ public class UserDatabaseOperations {
                     System.out.println("user not blocked");
                     if (this.verifyPassword(con, enteredPassword, user)){
                         resetLoginAttempts(user, con);
-                        errorMessage = "successfully logged in!";
+                        errorMessage = "success";
                     }
                     else{
                         incrementLoginAttempts(user, con);

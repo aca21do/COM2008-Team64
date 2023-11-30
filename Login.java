@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Arrays;
 
 public class Login extends JFrame {
@@ -49,15 +50,27 @@ public class Login extends JFrame {
                     loginMessage = userDatabaseOperations.verifyLogin(connection, email, passwordChars);
                     // Secure disposal of the password
                     Arrays.fill(passwordChars, '\u0000');
+
+
+                    if (loginMessage.equals("success")){
+                        User userToLogin = userDatabaseOperations.getUserFromEmail(email, connection);
+                        CurrentUser.setCurrentUser(userToLogin);
+                    }
+                }
+                catch (SQLException exception){
+                    errorLabel.setText(exception.getMessage());
                 }
                 finally {
-                    // display error or success message
-                    errorLabel.setText(loginMessage);
-                    errorLabel.updateUI();
+                    // login if password correct, else error if not
+                    if (CurrentUser.isLoggedIn()){
+                        new CatalogueCustomer(connection).setVisible(true);
+                        setVisible(false);
+                    }
+                    else {
+                        errorLabel.setText(loginMessage);
+                        errorLabel.updateUI();
+                    }
                 }
-
-                new CatalogueCustomer(connection).setVisible(true);
-                setVisible(false);
             }
         });
     }
