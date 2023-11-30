@@ -2,8 +2,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class Manager extends Staff {
-    public Manager(String id, String email, char[] passHash, String salt) {
-        super(id, email, passHash, salt);
+    public Manager(String id, String email, String fname, String sname) {
+        super(id, email, fname, sname);
         this.isManager = true;
     }
 
@@ -11,7 +11,7 @@ public class Manager extends Staff {
         char[] userSalt = user.getPasswordSalt(con, dbOps);
         String saltString = new String(userSalt);
 
-        Staff staff = new Staff(user.getUserID(), user.getEmail(), user.getPasswordHash(con, dbOps), saltString);
+        Staff staff = new Staff(user.getUserID(), user.getEmail(), user.getForename(), user.getSurname());
         return staff;
     }
 
