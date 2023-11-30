@@ -1,7 +1,9 @@
+import javax.lang.model.type.NullType;
 import java.io.CharArrayReader;
 import java.io.Reader;
 import java.security.SecureRandom;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class DatabaseOperations {
@@ -14,10 +16,20 @@ public class DatabaseOperations {
     //------------------------------------------Users-------------------------------------
     // TODO better exception handling
     // creates a user object from its id
+
+    /**
+     * Finds the user with the parameter userID, and returns a user object.
+     * Not null attributes: UserID, Email, isStaff & isManager are always set.
+     * nullable attributes: forename & surname are set if they are not null in the database.
+     * @param id the user's ID (primary key)
+     * @param con the connection to the database
+     * @return the user from the database, with the matching ID primary key
+     * @throws SQLException
+     */
     public User getUserFromID(String id, Connection con) throws SQLException{
         try {
             // execute query
-            String sqlString = "SELECT Email FROM Users WHERE UserID = ?";
+            String sqlString = "SELECT * FROM Users WHERE UserID = ?";
             PreparedStatement statement = con.prepareStatement(sqlString);
             statement.setString(1, id);
             ResultSet resultSet = statement.executeQuery();
@@ -25,12 +37,25 @@ public class DatabaseOperations {
 
             // get values for constructor
             if (resultSet.next()) {
+                // get not nullable fields and create user object
                 String email = resultSet.getString("Email");
-
+                boolean isStaff = resultSet.getBoolean("isStaff");
+                boolean isManager = resultSet.getBoolean("isManager");
                 User user = new User(id, email);
+
+                // get potentially nullable fields add to object, if not null
+                String forename = resultSet.getString("Forename");
+                String surname = resultSet.getString("Surname");
+
+                // if not null, set attributes
+                if (forename != null) {user.setForename(forename);}
+                if (surname != null) {user.setSurname(surname);}
+
+                System.out.println("forename: " + user.getPersonalRecord().getForename());
+                System.out.println("surname: " + user.getPersonalRecord().getSurname());
                 return user;
             } else{
-                return null;
+                throw new SQLException("User not found in database");
             }
 
         } catch (SQLException e) {
@@ -38,6 +63,16 @@ public class DatabaseOperations {
         }
     }
 
+    /**
+     * Finds the user with the matching email parameter, and returns a user object
+     * (by finding the user and calling getUserFromID).
+     * Not null attributes: UserID, Email, isStaff & isManager are always set.
+     * nullable attributes: forename & surname are set if they are not null in the database.
+     * @param email
+     * @param con
+     * @return the user from the database, with the matching unique email.
+     * @throws SQLException
+     */
     public User getUserFromEmail(String email, Connection con) throws SQLException{
         try {
             // execute query to find the id of the user with that email
@@ -74,12 +109,74 @@ public class DatabaseOperations {
         // insert attributes into statement
         statement.setString(1, user.getUserID());
         statement.setString(2, user.getEmail());
-        statement.setString(3, passwordHash);
 
         int rowsUpdated = statement.executeUpdate();
         System.out.println("insert user");
     }
 
+
+    /**
+     * takes a local user and checks if any attributes are different to those stored in the database.
+     * Does NOT update PasswordHash, PasswordSalt, isBlocked or login attempts. For security reasons,
+     * these can only be updated by the login or register systems.
+     * @param updatedUser
+     * @param con the database connection
+     * @throws SQLException
+     */
+    public void updateUser(User updatedUser, Connection con) throws SQLException{
+            User storedUser = getUserFromID(updatedUser.getUserID(), con);
+
+            String id = storedUser.getUserID();
+
+            if (storedUser.getEmail() != updatedUser.getEmail()) {
+                updateUserAttribute("Email", updatedUser.getEmail(), id, con);
+            }
+            if (storedUser.getForename() != updatedUser.getForename()) {
+                updateUserAttribute("Forename", updatedUser.getForename(), id, con);
+            }
+            if (storedUser.getSurname() != updatedUser.getSurname()) {
+                updateUserAttribute("Surname", updatedUser.getSurname(), id, con);
+            }
+            if (storedUser.getIsStaff() != updatedUser.getIsStaff()){
+                updateUserAttribute("isStaff", updatedUser.getIsStaff(), id, con);
+            }
+            if (storedUser.getIsManager() != updatedUser.getIsManager()){
+                updateUserAttribute("isManager", updatedUser.getIsManager(), id, con);
+            }
+
+
+    }
+
+    private void updateUserAttribute(String attribute, String value, String userID, Connection con)
+    throws SQLException{
+        try {
+            String updateUserAttributeString = "UPDATE Users Set ? = ? WHERE UserID = ?";
+            PreparedStatement statement = con.prepareStatement(updateUserAttributeString);
+            statement.setString(1, attribute);
+            statement.setString(2, value);
+            statement.setString(3, userID);
+            statement.executeUpdate();
+        }
+        catch(SQLException e){
+            throw new SQLException(("problem updating "+ attribute));
+        }
+    }
+    private void updateUserAttribute(String attribute, boolean value, String userID, Connection con)
+            throws SQLException{
+        try {
+            String updateUserAttributeString = "UPDATE Users Set ? = ? WHERE UserID = ?";
+            PreparedStatement statement = con.prepareStatement(updateUserAttributeString);
+            statement.setString(1, attribute);
+            statement.setBoolean(2, value);
+            statement.setString(3, userID);
+            statement.executeUpdate();
+        }
+        catch(SQLException e){
+            throw new SQLException(("problem updating "+ attribute));
+        }
+    }
+
+    // ------------------- login/security------------
     public boolean userIsBlocked(User user, Connection con) throws SQLException {
         try {
             String isBlockedString = "SELECT isBlocked FROM Users WHERE UserID = ?";
@@ -314,7 +411,6 @@ public class DatabaseOperations {
         String errorMessage = "unable to verify user";
         try{
             User user = this.getUserFromEmail(email, con);
-            System.out.println("Found user with that email, ID: " + user.getUserID());
             if (user != null) {
                 System.out.println("(user not null)");
                 if (!user.getIsBlocked(this, con)){
@@ -331,6 +427,9 @@ public class DatabaseOperations {
                 else{
                     errorMessage = "User is blocked";
                 }
+            }
+            else{
+                errorMessage = "couldn't find user";
             }
             System.out.println(errorMessage);
         }

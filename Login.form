@@ -66,7 +66,9 @@
       </component>
       <vspacer id="87c30">
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="2" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false">
+            <minimum-size width="-1" height="30"/>
+          </grid>
         </constraints>
       </vspacer>
       <component id="82c13" class="javax.swing.JLabel" binding="errorLabel">
