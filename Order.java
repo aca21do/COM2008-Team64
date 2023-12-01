@@ -6,6 +6,7 @@ public class Order {
     protected Date orderDate;
     protected String orderStatus;
     protected ArrayList<OrderLine> orderLines;
+    protected OrderDatabaseOperations dbOperations;
 
     public int getOrderNumber() {
         return this.orderNumber;
@@ -44,5 +45,6 @@ public class Order {
         this.orderDate = orderDate;
         this.orderStatus = orderStatus;
         this.orderLines = orderLines;
+        this.dbOperations = new OrderDatabaseOperations(this);
     }
 }
