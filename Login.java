@@ -40,7 +40,6 @@ public class Login extends JFrame {
         loginDBButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO: check login
                 String loginMessage = "";
 
                 try {

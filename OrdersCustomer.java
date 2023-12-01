@@ -34,14 +34,15 @@ public class OrdersCustomer extends JFrame {
         staffViewButton.setVisible(false);
         managerViewButton.setVisible(false);
 
-        // TODO: if staff member
-        staffViewButton.setVisible(true);
-        staffViewButton.setEnabled(true);
+        if (CurrentUser.getCurrentUser().getIsStaff()) {
+            staffViewButton.setVisible(true);
+            staffViewButton.setEnabled(true);
+        }
 
-        // TODO: if manager
-        managerViewButton.setVisible(true);
-        managerViewButton.setEnabled(true);
-
+        if (CurrentUser.getCurrentUser().getIsManager()) {
+            managerViewButton.setVisible(true);
+            managerViewButton.setEnabled(true);
+        }
         browseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -73,8 +74,6 @@ public class OrdersCustomer extends JFrame {
         ordersHistoryButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO: change table contents
-
                 ordersHistoryButton.setEnabled(false);
                 myOrdersButton.setEnabled(true);
                 placeOrdersButton.setEnabled(false);
@@ -84,7 +83,6 @@ public class OrdersCustomer extends JFrame {
                         "ProductCode", "Quantity", "LineCost"};
 
                 DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0);
-                //Object[][] = {{"on", "xbox"},{"on1","xbox1"}};
 
                 try {
                     String sql = "SELECT * FROM Orders WHERE UserID=?";
@@ -135,8 +133,6 @@ public class OrdersCustomer extends JFrame {
         myOrdersButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO: change table contents
-
                 myOrdersButton.setEnabled(false);
                 ordersHistoryButton.setEnabled(true);
                 placeOrdersButton.setEnabled(true);
@@ -146,10 +142,9 @@ public class OrdersCustomer extends JFrame {
                                             "ProductCode", "Quantity", "LineCost"};
 
                 DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0);
-                //Object[][] = {{"on", "xbox"},{"on1","xbox1"}};
 
                 try {
-                    String sql = "SELECT * FROM Orders WHERE UserID=? AND OrderStatus = \"pending\"";
+                    String sql = "SELECT * FROM Orders WHERE UserID=? AND (OrderStatus = \"pending\" OR OrderStatus = \"confirmed\")";
                     PreparedStatement preparedStatement = connection.prepareStatement(sql);
                     preparedStatement.setString(1, CurrentUser.getCurrentUser().getUserID());
                     ResultSet ordersResults = preparedStatement.executeQuery();

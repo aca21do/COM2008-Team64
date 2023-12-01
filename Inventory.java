@@ -27,7 +27,7 @@ public class Inventory {
                     RollingStock product = (RollingStock) inventoryItem.getProduct();
                     sql = "INSERT INTO Eras (ProductCode, EraCode) VALUES (?,?)";
                     preparedStatement = connection.prepareStatement(sql);
-                    preparedStatement.setString(1, product.getEraCode());
+                    preparedStatement.setString(1, product.getProductCode());
                     preparedStatement.setString(2, product.getEraCode());
                     rowsAffected = preparedStatement.executeUpdate();
                     System.out.println(rowsAffected + " row(s) inserted successfully.");
@@ -36,15 +36,15 @@ public class Inventory {
                     Locomotive product = (Locomotive) inventoryItem.getProduct();
                     sql = "INSERT INTO Eras (ProductCode, EraCode) VALUES (?,?)";
                     preparedStatement = connection.prepareStatement(sql);
-                    preparedStatement.setString(1, product.getEraCode());
+                    preparedStatement.setString(1, product.getProductCode());
                     preparedStatement.setString(2, product.getEraCode());
                     rowsAffected = preparedStatement.executeUpdate();
                     System.out.println(rowsAffected + " row(s) inserted successfully.");
 
                     sql = "INSERT INTO DCCCodes (ProductCode, DCCCode) VALUES (?,?)";
                     preparedStatement = connection.prepareStatement(sql);
-                    preparedStatement.setString(1, product.getEraCode());
-                    preparedStatement.setString(2, product.getEraCode());
+                    preparedStatement.setString(1, product.getProductCode());
+                    preparedStatement.setString(2, product.getDCCCode());
                     rowsAffected = preparedStatement.executeUpdate();
                     System.out.println(rowsAffected + " row(s) inserted successfully.");
                 }
@@ -97,7 +97,7 @@ public class Inventory {
             preparedStatement.setString(1, inventoryItem.getProduct().getProductCode());
             resultSet = preparedStatement.executeQuery();
             if (!resultSet.next()) {
-                sql = "INSERT INTO Inventory (ProductKey, BrandName, ProductName, Price, Quantity) VALUES (?, ?, ?, ?, ?)";
+                sql = "INSERT INTO Inventory (ProductCode, BrandName, ProductName, Price, Quantity) VALUES (?, ?, ?, ?, ?)";
                 preparedStatement = connection.prepareStatement(sql);
                 preparedStatement.setString(1, inventoryItem.getProduct().getProductCode());
                 preparedStatement.setString(2, inventoryItem.getProduct().getBrandName());

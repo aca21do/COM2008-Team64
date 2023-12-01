@@ -32,9 +32,10 @@ public class ViewProduct extends JFrame {
         // make manager button invisible by default
         managerViewButton.setVisible(false);
 
-        // TODO: if manager
-        managerViewButton.setVisible(true);
-        managerViewButton.setEnabled(true);
+        if (CurrentUser.getCurrentUser().getIsManager()) {
+            managerViewButton.setVisible(true);
+            managerViewButton.setEnabled(true);
+        }
 
         productCodeTextField.setText(productCode);
         // TODO: setText in the rest of the Fields using productCode
@@ -60,19 +61,22 @@ public class ViewProduct extends JFrame {
         accountButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                new AccountDetails(connection).setVisible(true);
+                setVisible(false);
             }
         });
         customerViewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                new CatalogueCustomer(connection).setVisible(true);
+                setVisible(false);
             }
         });
         managerViewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                new ViewUsers(connection).setVisible(true);
+                setVisible(false);
             }
         });
     }
