@@ -55,12 +55,33 @@ public class ViewUsers extends JFrame {
         promoteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                try {
+                    String sql = "UPDATE Users SET isStaff = false WHERE Email = ?";
+                    PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                    preparedStatement.setString(1, promoteTextField.getText());
+                    int rowsAffected = preparedStatement.executeUpdate();
+                    System.out.println(rowsAffected + " row(s) updated successfully");
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+
                 populateStaffTable(connection);
             }
         });
         demoteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                try {
+                    String sql = "UPDATE Users SET isStaff = false WHERE Email = ?";
+                    PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                    preparedStatement.setString(1, promoteTextField.getText());
+                    int rowsAffected = preparedStatement.executeUpdate();
+                    System.out.println(rowsAffected + " row(s) updated successfully");
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+
                 populateStaffTable(connection);
             }
         });
