@@ -12,7 +12,6 @@ public class UserHasPayment {
         this.user = user;
         this.paymentMethod = method;
         user.setHasPayment(this);
-        System.out.println("Created UserHasPayment");
     }
 
     public PaymentMethod getPaymentMethod(){
