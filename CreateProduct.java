@@ -3,7 +3,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 
-public class ViewProduct extends JFrame {
+public class CreateProduct extends JFrame {
     private JTextField productCodeTextField;
     private JTextField brandNameTextField;
     private JTextField productNameTextField;
@@ -11,20 +11,19 @@ public class ViewProduct extends JFrame {
     private JTextField quantityTextField;
     private JTextField gaugeCodeTextField;
     private JTextField eraCodeTextField;
-    private JButton updateInfoButton;
-    private JLabel updateMessageLabel;
-    private JPanel viewProductPanel;
+    private JButton createButton;
     private JTextField dccCodeTextField;
     private JButton backButton;
-    private JButton deleteProductButton;
+    private JLabel updateMessageLabel;
+    private JPanel createProductPanel;
     private JButton accountButton;
     private JButton customerViewButton;
     private JButton managerViewButton;
 
-    public ViewProduct (Connection connection, String productCode) {
+    public CreateProduct (Connection connection) {
         // panel setup
-        setContentPane(viewProductPanel);
-        setTitle("View Product");
+        setContentPane(createProductPanel);
+        setTitle("Create Product");
         setSize(400, 600);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
@@ -35,16 +34,7 @@ public class ViewProduct extends JFrame {
         // TODO: if manager
         managerViewButton.setVisible(true);
         managerViewButton.setEnabled(true);
-
-        productCodeTextField.setText(productCode);
-        // TODO: setText in the rest of the Fields using productCode
-        updateInfoButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-        deleteProductButton.addActionListener(new ActionListener() {
+        createButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
@@ -53,8 +43,7 @@ public class ViewProduct extends JFrame {
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new CatalogueStaff(connection).setVisible(true);
-                setVisible(false);
+
             }
         });
         accountButton.addActionListener(new ActionListener() {

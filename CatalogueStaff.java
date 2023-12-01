@@ -15,6 +15,7 @@ public class CatalogueStaff extends JFrame {
     private JTable catalogueTable;
     private JButton viewProductButton;
     private JPanel catalogueStaffPanel;
+    private JButton createNewProductButton;
 
     public CatalogueStaff (Connection connection) {
         // panel setup
@@ -98,6 +99,13 @@ public class CatalogueStaff extends JFrame {
                 String productCode = catalogueTable.getModel().getValueAt(row, column).toString();
 
                 new ViewProduct(connection, productCode).setVisible(true);
+                setVisible(false);
+            }
+        });
+        createNewProductButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new CreateProduct(connection).setVisible(true);
                 setVisible(false);
             }
         });
