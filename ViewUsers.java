@@ -56,7 +56,7 @@ public class ViewUsers extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    String sql = "UPDATE Users SET isStaff = false WHERE Email = ?";
+                    String sql = "UPDATE Users SET isStaff = true WHERE Email = ?";
                     PreparedStatement preparedStatement = connection.prepareStatement(sql);
                     preparedStatement.setString(1, promoteTextField.getText());
                     int rowsAffected = preparedStatement.executeUpdate();
