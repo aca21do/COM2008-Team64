@@ -40,7 +40,7 @@ public class CatalogueCustomer extends JFrame {
                 if (productCode.toUpperCase().charAt(0) == selectedCategory) {
                     InventoryItem set = inventory.getInventoryItem(productCode, connection);
                     data = new Object[] {productCode,
-                                            productCode,
+                                            "-",
                                             set.getProduct().getBrandName(),
                                             set.getProduct().getProductName(),
                                             set.getProduct().getRetailPrice(),
@@ -92,7 +92,7 @@ public class CatalogueCustomer extends JFrame {
                                 productCode,
                                 component.getProduct().getBrandName(),
                                 component.getProduct().getProductName(),
-                                component.getProduct().getRetailPrice(),
+                                "-",
                                 componentsProductCodes.getInt("Quantity"),
                                 component.getProduct().getGaugeCode(),
                                 era,
