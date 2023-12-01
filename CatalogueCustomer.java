@@ -1,6 +1,3 @@
-import com.mysql.cj.x.protobuf.MysqlxPrepare;
-import sheffield.DatabaseConnectionHandler;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
@@ -20,6 +17,8 @@ public class CatalogueCustomer extends JFrame {
     private JButton accountButton;
     private JButton staffViewButton;
     private JButton managerViewButton;
+    private JButton addToOrderButton;
+    private JTextField quantityTextField;
 
     public DefaultTableModel returnSetOrPackDataModel(Character selectedCategory,Connection connection) throws SQLException {
         try {
