@@ -4,10 +4,12 @@ public class OrderLine {
     lineCost can probably be derived by taking the price from the db and multiplying by quantity
     this removes the need for lineCost to be involved in constructor parameters
      */
+    private int lineNumber;
     private double lineCost;
     private int quantity;
     private Product product;
 
+    public int getLineNumber() { return this.lineNumber; }
     public double getLineCost() {
         return this.lineCost;
     }
@@ -32,7 +34,8 @@ public class OrderLine {
         this.product = product;
     }
 
-    public OrderLine (double lineCost, int quantity, Product product) {
+    public OrderLine (int lineNumber, double lineCost, int quantity, Product product) {
+        this.lineNumber = lineNumber;
         this.lineCost = lineCost;
         this.quantity = quantity;
         this.product = product;

@@ -37,6 +37,7 @@ public class User {
 
     protected char[] passwordHash;
     protected String passwordSalt;
+    protected PendingOrder pendingOrder;
 
 
     //-------------------- CONSTRUCTOR METHODS ----------------

@@ -1,10 +1,13 @@
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 
 public class PendingOrder extends Order{
+    private static PendingOrder currentBasket;
+
     public PendingOrder(int orderNumber, Date orderDate, String orderStatus, ArrayList<OrderLine> orderLines) {
         super(orderNumber, orderDate, orderStatus, orderLines);
     }
@@ -57,6 +60,21 @@ public class PendingOrder extends Order{
             e.printStackTrace();
             throw e;
         }
+    }
+
+    public static PendingOrder getNewPendingOrder(User user, Connection con){
+        PendingOrder emptyPendingOrder = new PendingOrder(-1, Date.from(Instant.now()),
+                "pending", new ArrayList<OrderLine>());
+
+        PendingOrder newPendingOrder;
+        try {
+            newPendingOrder = new PendingOrder(emptyPendingOrder.dbOperations.insertOrder(user, con));
+        }
+        catch (SQLException sqlException){
+            sqlException.printStackTrace();
+            newPendingOrder = emptyPendingOrder;
+        }
+        return emptyPendingOrder;
     }
 
 }

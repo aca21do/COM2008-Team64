@@ -48,6 +48,15 @@ public class Order {
         this.dbOperations = new OrderDatabaseOperations(this);
     }
 
+    public double getTotalCost(){
+        double totalCost = 0;
+        for (OrderLine orderLine : orderLines){
+            totalCost += orderLine.getLineCost();
+        }
+
+        return totalCost;
+    }
+
     public static Order getSubclassInstance(Order order) {
         switch (order.getOrderStatus()) {
             case "pending":

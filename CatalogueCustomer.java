@@ -269,6 +269,7 @@ public class CatalogueCustomer extends JFrame {
         addToOrderButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String addToOrderMessage = "Error adding to order";
 
                 try {
                     Inventory inventory = new Inventory();
@@ -285,6 +286,10 @@ public class CatalogueCustomer extends JFrame {
                     if (quantityToAdd <= quantityInStock) {
                         UserDatabaseOperations userDBOps = new UserDatabaseOperations();
                         ArrayList<Order> usersOrders = userDBOps.getUsersOrders(CurrentUser.getCurrentUser(), connection);
+                        usersOrders.removeIf(order -> order.getOrderStatus() != "pending");
+                        PendingOrder UsersPendingOrder = new PendingOrder(usersOrders.get(0));
+
+
                         System.out.println(usersOrders.toString());
                     }
                 }
