@@ -122,13 +122,15 @@ public class CatalogueCustomer extends JFrame {
         staffViewButton.setVisible(false);
         managerViewButton.setVisible(false);
 
-        // TODO: if staff member
-        staffViewButton.setVisible(true);
-        staffViewButton.setEnabled(true);
+        if (CurrentUser.getCurrentUser().getIsStaff()) {
+            staffViewButton.setVisible(true);
+            staffViewButton.setEnabled(true);
+        }
 
-        // TODO: if manager
-        managerViewButton.setVisible(true);
-        managerViewButton.setEnabled(true);
+        if (CurrentUser.getCurrentUser().getIsManager()) {
+            managerViewButton.setVisible(true);
+            managerViewButton.setEnabled(true);
+        }
 
         try {
             DefaultTableModel defaultTableModel = returnSetOrPackDataModel('M', connection);

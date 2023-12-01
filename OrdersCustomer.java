@@ -34,14 +34,15 @@ public class OrdersCustomer extends JFrame {
         staffViewButton.setVisible(false);
         managerViewButton.setVisible(false);
 
-        // TODO: if staff member
-        staffViewButton.setVisible(true);
-        staffViewButton.setEnabled(true);
+        if (CurrentUser.getCurrentUser().getIsStaff()) {
+            staffViewButton.setVisible(true);
+            staffViewButton.setEnabled(true);
+        }
 
-        // TODO: if manager
-        managerViewButton.setVisible(true);
-        managerViewButton.setEnabled(true);
-
+        if (CurrentUser.getCurrentUser().getIsManager()) {
+            managerViewButton.setVisible(true);
+            managerViewButton.setEnabled(true);
+        }
         browseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

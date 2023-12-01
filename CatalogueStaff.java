@@ -28,9 +28,10 @@ public class CatalogueStaff extends JFrame {
         // make manager button invisible by default
         managerViewButton.setVisible(false);
 
-        // TODO: if manager
-        managerViewButton.setVisible(true);
-        managerViewButton.setEnabled(true);
+        if (CurrentUser.getCurrentUser().getIsManager()) {
+            managerViewButton.setVisible(true);
+            managerViewButton.setEnabled(true);
+        }
 
         // placeholder data
         String[] columnNames = {"First Name",
