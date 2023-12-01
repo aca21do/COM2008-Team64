@@ -1,18 +1,48 @@
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class ViewUsers extends JFrame {
     private JPanel viewUsersPanel;
     private JButton accountButton;
     private JButton staffViewButton;
     private JButton customerViewButton;
-    private JTable catalogueTable;
+    private JTable userTable;
     private JTextField promoteTextField;
     private JTextField demoteTextField;
     private JButton promoteButton;
     private JButton demoteButton;
+
+    public void populateStaffTable(Connection connection) {
+        String[] columnNames = {"UserID", "Email", "Forename", "Surname"};
+
+        DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0);
+
+        Object[] data;
+
+        try {
+            String sql = "SELECT * FROM Users WHERE isStaff = true";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                data = new Object[] {resultSet.getString("UserID"),
+                                        resultSet.getString("Email"),
+                                        resultSet.getString("Forename"),
+                                        resultSet.getString("Surname")};
+                dataModel.addRow(data);
+            }
+        }
+        catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        userTable.setModel(dataModel);
+    }
 
     public ViewUsers  (Connection connection) {
         // panel setup
@@ -21,16 +51,17 @@ public class ViewUsers extends JFrame {
         setSize(800, 400);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
+        populateStaffTable(connection);
         promoteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                populateStaffTable(connection);
             }
         });
         demoteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                populateStaffTable(connection);
             }
         });
         accountButton.addActionListener(new ActionListener() {

@@ -78,19 +78,6 @@
           <toolTipText value="staff1@email.com,staff2@email.com,staff3@email.com,etc"/>
         </properties>
       </component>
-      <scrollpane id="9ede">
-        <constraints>
-          <grid row="2" column="0" row-span="1" col-span="3" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-        <border type="none"/>
-        <children>
-          <component id="cf156" class="javax.swing.JTable" binding="catalogueTable">
-            <constraints/>
-            <properties/>
-          </component>
-        </children>
-      </scrollpane>
       <component id="30be3" class="javax.swing.JButton" binding="promoteButton" default-binding="true">
         <constraints>
           <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -107,6 +94,19 @@
           <text value="Demote"/>
         </properties>
       </component>
+      <scrollpane id="97bcd">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="3" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="86b24" class="javax.swing.JTable" binding="userTable">
+            <constraints/>
+            <properties/>
+          </component>
+        </children>
+      </scrollpane>
     </children>
   </grid>
 </form>
