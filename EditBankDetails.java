@@ -22,6 +22,7 @@ public class EditBankDetails extends JFrame {
         setTitle("Edit Bank Details");
         setSize(400, 400);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
         setVisible(true);
         updateBankDetailsButton.addActionListener(new ActionListener() {
             @Override

@@ -201,8 +201,22 @@ public class OrdersCustomer extends JFrame {
                 // TODO: check bank details
                 //  and skip straight to confirm if valid
 
-                new BankDetails(connection).setVisible(true);
-                setVisible(false);
+                UserDatabaseOperations userDBOps = new UserDatabaseOperations();
+                try {
+                    // if valid bank details exist, take user to confirm bank details
+                    if (userDBOps.getPaymentMethod(CurrentUser.getCurrentUser(), connection)) {
+                        new ConfirmBankDetails(connection).setVisible(true);
+                        setVisible(false);
+                    } else {
+                        // if no valid bank details, take user to edit tem
+                        new EditBankDetails(connection).setVisible(true);
+                        setVisible(false);
+                    }
+                }
+                catch (SQLException error){
+                    new EditBankDetails(connection).setVisible(true);
+                    setVisible(false);
+                }
             }
         });
     }

@@ -26,7 +26,7 @@ public class ConfirmBankDetails extends JFrame {
         noButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new BankDetails(connection).setVisible(true);
+                new EditBankDetails(connection).setVisible(true);
                 setVisible(false);
             }
         });

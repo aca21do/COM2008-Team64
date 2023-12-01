@@ -20,5 +20,8 @@ public class UserHasPayment {
     public User getUser(){
         return user;
     }
+    public boolean hasPayment(){
+        return (!this.userID.isBlank() && this.cardNo > 0);
+    }
 }
 

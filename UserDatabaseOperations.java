@@ -483,7 +483,9 @@ public class UserDatabaseOperations {
     }
 
     //-----------------------------payment methods/bank cards---------------------------
-    public void getPaymentMethod(User user, Connection con) throws SQLException{
+    public boolean getPaymentMethod(User user, Connection con) throws SQLException{
+        boolean foundValidPayment = false;
+
         try {
             // execute query
             System.out.println("database get payment method");
@@ -522,6 +524,7 @@ public class UserDatabaseOperations {
                     paymentMethod = new PaymentMethod(cardName, holderName, cardNo, expiryDate, securityCode);
                     userHasPayment = new UserHasPayment(user, paymentMethod);
                     user.setHasPayment(userHasPayment);
+                    foundValidPayment = true;
                 }
             }
 
@@ -529,6 +532,8 @@ public class UserDatabaseOperations {
         } catch (SQLException e) {
             e.printStackTrace();
             throw e;// Re-throw the exception to signal an error.
+        } finally {
+            return foundValidPayment;
         }
     }
 
