@@ -21,6 +21,95 @@ public class CatalogueCustomer extends JFrame {
     private JButton staffViewButton;
     private JButton managerViewButton;
 
+    public DefaultTableModel returnSetOrPackDataModel(Character selectedCategory,Connection connection) throws SQLException {
+        try {
+            String[] columnNames = {"SetProductCode", "ProductCode", "BrandName", "ProductName", "Price", "Quantity",
+                    "GaugeCode", "EraCode", "DCCCode"};
+            Object[] data;
+            String era;
+            String dccCode;
+            boolean displaySet;
+            DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0);
+            Inventory inventory = new Inventory();
+
+            String sql = "SELECT * FROM SetsAndPacks";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                String productCode = resultSet.getString("ProductCode");
+                if (productCode.toUpperCase().charAt(0) == selectedCategory) {
+                    InventoryItem set = inventory.getInventoryItem(productCode, connection);
+                    data = new Object[] {productCode,
+                                            "-",
+                                            set.getProduct().getBrandName(),
+                                            set.getProduct().getProductName(),
+                                            set.getProduct().getRetailPrice(),
+                                            set.getQuantity(),
+                                            set.getProduct().getGaugeCode(),
+                                            "",
+                                            ""};
+                    dataModel.addRow(data);
+
+                    sql = "SELECT * FROM SetAndPackComponents WHERE ProductCode = ?";
+                    preparedStatement = connection.prepareStatement(sql);
+                    preparedStatement.setString(1, productCode);
+                    ResultSet componentsProductCodes = preparedStatement.executeQuery();
+
+                    while (componentsProductCodes.next()) {
+                        productCode = componentsProductCodes.getString("ComponentProductCode");
+
+                        InventoryItem component = inventory.getInventoryItem(productCode, connection);
+
+
+                        sql = "SELECT * FROM Products WHERE ProductCode = ?";
+                        preparedStatement = connection.prepareStatement(sql);
+                        preparedStatement.setString(1, productCode);
+                        ResultSet gaugeCodes = preparedStatement.executeQuery();
+                        gaugeCodes.next();
+
+                        sql = "SELECT * FROM Eras WHERE ProductCode = ?";
+                        preparedStatement = connection.prepareStatement(sql);
+                        preparedStatement.setString(1, productCode);
+                        ResultSet eraCodes = preparedStatement.executeQuery();
+
+                        sql = "SELECT * FROM DCCCodes WHERE ProductCode = ?";
+                        preparedStatement = connection.prepareStatement(sql);
+                        preparedStatement.setString(1, productCode);
+                        ResultSet dccCodes = preparedStatement.executeQuery();
+
+                        if (eraCodes.next()) {
+                            era = eraCodes.getString("EraCode");
+                        } else {
+                            era = "";
+                        }
+                        if (dccCodes.next()) {
+                            dccCode = dccCodes.getString("DCCCode");
+                        } else {
+                            dccCode = "";
+                        }
+
+                        data = new Object[]{"",
+                                productCode,
+                                component.getProduct().getBrandName(),
+                                component.getProduct().getProductName(),
+                                "-",
+                                componentsProductCodes.getInt("Quantity"),
+                                component.getProduct().getGaugeCode(),
+                                era,
+                                dccCode};
+
+                        dataModel.addRow(data);
+                    }
+
+                }
+            }
+            return dataModel;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
     public CatalogueCustomer (Connection connection) {
         // panel setup
         setContentPane(catalogueCustomerPanel);
@@ -41,6 +130,13 @@ public class CatalogueCustomer extends JFrame {
         managerViewButton.setVisible(true);
         managerViewButton.setEnabled(true);
 
+        try {
+            DefaultTableModel defaultTableModel = returnSetOrPackDataModel('M', connection);
+            catalogueTable.setModel(defaultTableModel);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
         categoryComboBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
@@ -52,7 +148,6 @@ public class CatalogueCustomer extends JFrame {
 
                 DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0);
 
-                Inventory inventory = new Inventory();
                 Character selectedCategory = null;
                 if (categoryComboBox.getSelectedItem() == "Train Sets") {
                     selectedCategory = 'M';
@@ -73,58 +168,65 @@ public class CatalogueCustomer extends JFrame {
                     selectedCategory = 'C';
                 }
 
-                try {
-                    String sql = "SELECT * FROM Inventory";
-                    PreparedStatement preparedStatement = connection.prepareStatement(sql);
-                    ResultSet resultSet = preparedStatement.executeQuery();
-                    while (resultSet.next()) {
-                        String productCode = resultSet.getString("ProductCode");
-
-                        if (productCode.toUpperCase().charAt(0) == selectedCategory) {
-                            sql = "SELECT * FROM Products WHERE ProductCode = ?";
-                            preparedStatement = connection.prepareStatement(sql);
-                            preparedStatement.setString(1, productCode);
-                            ResultSet gaugeCodes = preparedStatement.executeQuery();
-                            gaugeCodes.next();
-
-                            sql = "SELECT * FROM Eras WHERE ProductCode = ?";
-                            preparedStatement = connection.prepareStatement(sql);
-                            preparedStatement.setString(1, productCode);
-                            ResultSet eraCodes = preparedStatement.executeQuery();
-
-                            sql = "SELECT * FROM DCCCodes WHERE ProductCode = ?";
-                            preparedStatement = connection.prepareStatement(sql);
-                            preparedStatement.setString(1, productCode);
-                            ResultSet dccCodes = preparedStatement.executeQuery();
-
-                            if (eraCodes.next()) {
-                                era = eraCodes.getString("EraCode");
-                            } else {
-                                era = "";
-                            }
-                            if (dccCodes.next()) {
-                                dccCode = dccCodes.getString("DCCCode");
-                            } else {
-                                dccCode = "";
-                            }
-
-                            data = new Object[]{productCode,
-                                    resultSet.getString("BrandName"),
-                                    resultSet.getString("ProductName"),
-                                    resultSet.getDouble("Price"),
-                                    resultSet.getInt("Quantity"),
-                                    gaugeCodes.getString("GaugeCode"),
-                                    era,
-                                    dccCode};
-
-                            dataModel.addRow(data);
-                        }
+                if (selectedCategory == 'P' || selectedCategory == 'M') {
+                    try {
+                        dataModel = returnSetOrPackDataModel(selectedCategory, connection);
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex);
                     }
                 }
-                catch (SQLException ex) {
-                    throw new RuntimeException(ex);
-                }
+                else {
+                    try {
+                        String sql = "SELECT * FROM Inventory";
+                        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                        ResultSet resultSet = preparedStatement.executeQuery();
+                        while (resultSet.next()) {
+                            String productCode = resultSet.getString("ProductCode");
 
+                            if (productCode.toUpperCase().charAt(0) == selectedCategory) {
+                                sql = "SELECT * FROM Products WHERE ProductCode = ?";
+                                preparedStatement = connection.prepareStatement(sql);
+                                preparedStatement.setString(1, productCode);
+                                ResultSet gaugeCodes = preparedStatement.executeQuery();
+                                gaugeCodes.next();
+
+                                sql = "SELECT * FROM Eras WHERE ProductCode = ?";
+                                preparedStatement = connection.prepareStatement(sql);
+                                preparedStatement.setString(1, productCode);
+                                ResultSet eraCodes = preparedStatement.executeQuery();
+
+                                sql = "SELECT * FROM DCCCodes WHERE ProductCode = ?";
+                                preparedStatement = connection.prepareStatement(sql);
+                                preparedStatement.setString(1, productCode);
+                                ResultSet dccCodes = preparedStatement.executeQuery();
+
+                                if (eraCodes.next()) {
+                                    era = eraCodes.getString("EraCode");
+                                } else {
+                                    era = "";
+                                }
+                                if (dccCodes.next()) {
+                                    dccCode = dccCodes.getString("DCCCode");
+                                } else {
+                                    dccCode = "";
+                                }
+
+                                data = new Object[]{productCode,
+                                        resultSet.getString("BrandName"),
+                                        resultSet.getString("ProductName"),
+                                        resultSet.getDouble("Price"),
+                                        resultSet.getInt("Quantity"),
+                                        gaugeCodes.getString("GaugeCode"),
+                                        era,
+                                        dccCode};
+
+                                dataModel.addRow(data);
+                            }
+                        }
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
                 catalogueTable.setModel(dataModel);
             }
         });
