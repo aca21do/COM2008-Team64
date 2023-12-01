@@ -61,19 +61,22 @@ public class ViewProduct extends JFrame {
         accountButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                new AccountDetails(connection).setVisible(true);
+                setVisible(false);
             }
         });
         customerViewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                new CatalogueCustomer(connection).setVisible(true);
+                setVisible(false);
             }
         });
         managerViewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                new ViewUsers(connection).setVisible(true);
+                setVisible(false);
             }
         });
     }
