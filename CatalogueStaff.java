@@ -19,7 +19,7 @@ public class CatalogueStaff extends JFrame {
     public CatalogueStaff (Connection connection) {
         // panel setup
         setContentPane(catalogueStaffPanel);
-        setTitle("Catalogue");
+        setTitle("Catalogue (Staff)");
         setSize(800, 400);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
@@ -95,9 +95,10 @@ public class CatalogueStaff extends JFrame {
                 // get data in first column of selected row
                 int column = 0;
                 int row = catalogueTable.getSelectedRow();
-                String value = catalogueTable.getModel().getValueAt(row, column).toString();
+                String productCode = catalogueTable.getModel().getValueAt(row, column).toString();
 
-                System.out.println("Selected item = " + value);
+                new ViewProduct(connection, productCode).setVisible(true);
+                setVisible(false);
             }
         });
     }

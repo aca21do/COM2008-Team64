@@ -39,8 +39,8 @@ public class OrdersCustomer extends JFrame {
         staffViewButton.setEnabled(true);
 
         // TODO: if manager
-//        managerViewButton.setVisible(true);
-//        managerViewButton.setEnabled(true);
+        managerViewButton.setVisible(true);
+        managerViewButton.setEnabled(true);
 
         browseButton.addActionListener(new ActionListener() {
             @Override
@@ -59,13 +59,15 @@ public class OrdersCustomer extends JFrame {
         staffViewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                new CatalogueStaff(connection).setVisible(true);
+                setVisible(false);
             }
         });
         managerViewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                new ViewUsers(connection).setVisible(true);
+                setVisible(false);
             }
         });
         ordersHistoryButton.addActionListener(new ActionListener() {

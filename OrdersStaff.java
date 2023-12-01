@@ -18,7 +18,7 @@ public class OrdersStaff extends JFrame {
     public OrdersStaff (Connection connection) {
         // panel setup
         setContentPane(ordersStaffPanel);
-        setTitle("Orders");
+        setTitle("Orders (Staff)");
         setSize(800, 400);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
