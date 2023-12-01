@@ -11,7 +11,6 @@ public class PaymentMethod{
         this.cardNumber = cardNo;
         this.expiryDate = exDate;
         this.securityCode = secCode;
-        System.out.println("created pay meth");
     }
 
     public int getCardNumber(){

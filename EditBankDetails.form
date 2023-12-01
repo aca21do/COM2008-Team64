@@ -48,7 +48,7 @@
           <text value="Card Holder Name"/>
         </properties>
       </component>
-      <component id="c4c75" class="javax.swing.JTextField" binding="cardHolderName">
+      <component id="c4c75" class="javax.swing.JTextField" binding="cardHolderNameTextFeild">
         <constraints>
           <grid row="7" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -119,6 +119,14 @@
           </grid>
         </constraints>
       </vspacer>
+      <component id="568af" class="javax.swing.JLabel" binding="updateMessageLabel">
+        <constraints>
+          <grid row="12" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value=""/>
+        </properties>
+      </component>
     </children>
   </grid>
 </form>

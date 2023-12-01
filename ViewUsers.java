@@ -7,7 +7,7 @@ public class ViewUsers extends JFrame {
     private JPanel viewUsersPanel;
     private JButton accountButton;
     private JButton staffViewButton;
-    private JButton userViewButton;
+    private JButton customerViewButton;
     private JTable catalogueTable;
     private JTextField promoteTextField;
     private JTextField demoteTextField;
@@ -40,7 +40,7 @@ public class ViewUsers extends JFrame {
                 setVisible(false);
             }
         });
-        userViewButton.addActionListener(new ActionListener() {
+        customerViewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 new CatalogueCustomer(connection).setVisible(true);

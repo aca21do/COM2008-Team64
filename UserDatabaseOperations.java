@@ -532,7 +532,7 @@ public class UserDatabaseOperations {
         }
     }
 
-    public void insertPaymentMethod(UserHasPayment hasPayment, Connection con) throws SQLException {
+    public int insertPaymentMethod(UserHasPayment hasPayment, Connection con) throws SQLException {
         try {
             String insPayMeth = "INSERT INTO BankCards (CardNumber, BankCardName, CardHolderName, ExpiryDate, SecurityCode) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement cardStatement = con.prepareStatement(insPayMeth);
@@ -557,9 +557,37 @@ public class UserDatabaseOperations {
             int hasPayMethRowsUpdated = hasPStatement.executeUpdate();
             System.out.println("HasPaymentMethod inserted rows: " + String.valueOf(hasPayMethRowsUpdated));
             System.out.println("PaymentCard inserted rows : " + cardRowsUpdated);
+            return cardRowsUpdated + hasPayMethRowsUpdated;
         }
         catch(SQLException e){
             throw new SQLException("Error adding payment method");
+        }
+    }
+
+    /**
+     * Deletes a user's payment method (Ass
+     * @param user
+     * @param con
+     * @throws SQLException
+     */
+    public int deletePaymentMethod(User user, Connection con) throws SQLException{
+        // find the current payment method
+        getPaymentMethod(user, con);
+
+        // delete the current payment method
+        String delHasPaySQL = "DELETE FROM HasPayment WHERE UserID = ?";
+        PreparedStatement delHasPayState = con.prepareStatement(delHasPaySQL);
+        delHasPayState.setString(1, user.getUserID());
+        delHasPayState.executeUpdate();
+
+        //delete current payment card from linker table
+        String delCardSQL = "DELETE FROM BankCards WHERE CardNumber = ?";
+        PreparedStatement delCardState = con.prepareStatement(delCardSQL);
+        if (user.getHasPayment() != null) {
+            delCardState.setString(1, user.getHasPayment().getPaymentMethod().getCardName());
+            return delCardState.executeUpdate();
+        } else {
+            return 0;
         }
     }
 
