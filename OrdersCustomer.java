@@ -84,7 +84,6 @@ public class OrdersCustomer extends JFrame {
                         "ProductCode", "Quantity", "LineCost"};
 
                 DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0);
-                //Object[][] = {{"on", "xbox"},{"on1","xbox1"}};
 
                 try {
                     String sql = "SELECT * FROM Orders WHERE UserID=?";
@@ -146,7 +145,6 @@ public class OrdersCustomer extends JFrame {
                                             "ProductCode", "Quantity", "LineCost"};
 
                 DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0);
-                //Object[][] = {{"on", "xbox"},{"on1","xbox1"}};
 
                 try {
                     String sql = "SELECT * FROM Orders WHERE UserID=? AND (OrderStatus = \"pending\" OR OrderStatus = \"confirmed\")";
