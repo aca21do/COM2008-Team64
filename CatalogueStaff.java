@@ -125,30 +125,12 @@ public class CatalogueStaff extends JFrame {
             managerViewButton.setEnabled(true);
         }
 
-        // placeholder data
-        String[] columnNames = {"First Name",
-                "Last Name"};
-
-        Object[][] data = {
-                {"Kathy", "Smith"},
-                {"John", "Doe"},
-                {"Sue", "Black"},
-                {"Jane", "White"},
-                {"Joe", "Brown"}
-        };
-
-        DefaultTableModel dataModel = new DefaultTableModel(data, columnNames){
-            // make table not able to be selected
-            @Override
-            public boolean isCellEditable(int i, int i1) {
-                return false;
-            }
-        };
-        catalogueTable.setModel(dataModel);
-
-        // select first row automatically
-        catalogueTable.setRowSelectionInterval(0, 0);
-
+        try {
+            DefaultTableModel defaultTableModel = returnSetOrPackDataModel('M', connection);
+            catalogueTable.setModel(defaultTableModel);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         categoryComboBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
@@ -246,6 +228,9 @@ public class CatalogueStaff extends JFrame {
                     }
                 }
                 catalogueTable.setModel(dataModel);
+
+                // select first row automatically
+                catalogueTable.setRowSelectionInterval(0, 0);
             }
         });
         ordersButton.addActionListener(new ActionListener() {
