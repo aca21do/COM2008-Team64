@@ -77,6 +77,57 @@ public class OrdersCustomer extends JFrame {
                 myOrdersButton.setEnabled(true);
                 placeOrdersButton.setEnabled(false);
                 tableLabel.setText("Order History Items");
+
+                String[] columnNames = {"OrderID", "Date", "TotalCost", "Status", "ProductNo",
+                        "ProductCode", "Quantity", "LineCost"};
+
+                DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0);
+                //Object[][] = {{"on", "xbox"},{"on1","xbox1"}};
+
+                try {
+                    String sql = "SELECT * FROM Orders WHERE UserID=?";
+                    PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                    preparedStatement.setString(1, CurrentUser.getCurrentUser().getUserID());
+                    ResultSet ordersResults = preparedStatement.executeQuery();
+                    boolean displayOrder = true;
+                    Object[] data;
+
+                    while (ordersResults.next()) {
+                        sql = "SELECT * FROM OrderLines WHERE OrderNumber=?";
+                        preparedStatement = connection.prepareStatement(sql);
+                        preparedStatement.setInt(1, ordersResults.getInt("OrderNumber"));
+                        ResultSet orderLinesResults = preparedStatement.executeQuery();
+                        while(orderLinesResults.next()) {
+                            if (displayOrder) {
+                                data = new Object[]{ordersResults.getInt("OrderNumber"),
+                                        ordersResults.getDate("OrderDate"),
+                                        ordersResults.getDouble("TotalCost"),
+                                        ordersResults.getString("OrderStatus"),
+                                        orderLinesResults.getString("OrderLineNumber"),
+                                        orderLinesResults.getString("ProductCode"),
+                                        orderLinesResults.getInt("Quantity"),
+                                        orderLinesResults.getDouble("LineCost")};
+
+                                displayOrder = false;
+                            }
+                            else {
+                                data = new Object[]{"", "", "", "",
+                                        orderLinesResults.getString("OrderLineNumber"),
+                                        orderLinesResults.getString("ProductCode"),
+                                        orderLinesResults.getInt("Quantity"),
+                                        orderLinesResults.getDouble("LineCost")};
+
+                            }
+                            dataModel.addRow(data);
+                        }
+                        displayOrder = true;
+                    }
+
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+
+                ordersTable.setModel(dataModel);
             }
         });
         myOrdersButton.addActionListener(new ActionListener() {
