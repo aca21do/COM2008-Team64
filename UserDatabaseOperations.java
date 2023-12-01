@@ -103,10 +103,20 @@ public class UserDatabaseOperations {
                 boolean isManager = resultSet.getBoolean("isManager");
                 String forename = resultSet.getString("Forename");
                 String surname = resultSet.getString("Surname");
-                User user = new User(id, email, forename, surname);
-
-                loadAddress(user, con);
-                return user;
+                
+                if (isManager) {
+                    Manager manager = new Manager(id, email, forename, surname);
+                    loadAddress(manager, con);
+                    return manager;
+                } else if (isStaff) {
+                    Staff staff = new Staff(id, email, forename, surname);
+                    loadAddress(staff, con);
+                    return staff;
+                } else {
+                    User user = new User(id, email, forename, surname);
+                    loadAddress(user, con);
+                    return user;
+                }
             } else{
                 throw new SQLException("User not found in database");
             }
