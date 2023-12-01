@@ -48,13 +48,47 @@ public class Inventory {
                     rowsAffected = preparedStatement.executeUpdate();
                     System.out.println(rowsAffected + " row(s) inserted successfully.");
                 }
-                else if (inventoryItem.getProduct().getProductCode().charAt(0) == 'M'
-                            || inventoryItem.getProduct().getProductCode().charAt(0) == 'P') {
+                else if (inventoryItem.getProduct().getProductCode().charAt(0) == 'M') {
                     sql = "INSERT INTO SetsAndPacks (ProductCode) VALUES (?)";
                     preparedStatement = connection.prepareStatement(sql);
                     preparedStatement.setString(1, inventoryItem.getProduct().getProductCode());
                     rowsAffected = preparedStatement.executeUpdate();
                     System.out.println(rowsAffected + " row(s) inserted successfully.");
+
+                    Set product = (Set) inventoryItem.getProduct();
+
+                    sql = "INSERT INTO SetAndPackComponents (ProductCode, ComponentProductCode, Quantity) VALUES (?,?,?)";
+                    for (int i = 0; i < product.getComponentProductCodes().getRowCount(); i++) {
+                        preparedStatement = connection.prepareStatement(sql);
+                        preparedStatement.setString(1, inventoryItem.getProduct().getProductCode());
+                        preparedStatement.setString(2, (String) product.getComponentProductCodes()
+                                                                                            .getValueAt(i, 0));
+                        preparedStatement.setInt(3, (Integer) product.getComponentProductCodes()
+                                                                                            .getValueAt(i, 1));
+                        rowsAffected = preparedStatement.executeUpdate();
+                        System.out.println(rowsAffected + " row(s) inserted successfully.");
+                    }
+                }
+                else if (inventoryItem.getProduct().getProductCode().charAt(0) == 'P') {
+                    sql = "INSERT INTO SetsAndPacks (ProductCode) VALUES (?)";
+                    preparedStatement = connection.prepareStatement(sql);
+                    preparedStatement.setString(1, inventoryItem.getProduct().getProductCode());
+                    rowsAffected = preparedStatement.executeUpdate();
+                    System.out.println(rowsAffected + " row(s) inserted successfully.");
+
+                    Pack product = (Pack) inventoryItem.getProduct();
+
+                    sql = "INSERT INTO SetAndPackComponents (ProductCode, ComponentProductCode, Quantity) VALUES (?,?,?)";
+                    for (int i = 0; i < product.getComponentProductCodes().getRowCount(); i++) {
+                        preparedStatement = connection.prepareStatement(sql);
+                        preparedStatement.setString(1, inventoryItem.getProduct().getProductCode());
+                        preparedStatement.setString(2, (String) product.getComponentProductCodes()
+                                .getValueAt(i, 0));
+                        preparedStatement.setInt(3, (Integer) product.getComponentProductCodes()
+                                .getValueAt(i, 1));
+                        rowsAffected = preparedStatement.executeUpdate();
+                        System.out.println(rowsAffected + " row(s) inserted successfully.");
+                    }
                 }
             }
 

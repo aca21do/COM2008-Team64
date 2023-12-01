@@ -31,7 +31,6 @@ public class CatalogueCustomer extends JFrame {
             String dccCode;
             boolean displaySet;
             DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0);
-            Inventory inventory = new Inventory();
 
             String sql = "SELECT * FROM SetsAndPacks";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -39,7 +38,7 @@ public class CatalogueCustomer extends JFrame {
             while (resultSet.next()) {
                 String productCode = resultSet.getString("ProductCode");
                 if (productCode.toUpperCase().charAt(0) == selectedCategory) {
-                    InventoryItem set = inventory.getInventoryItem(productCode, connection);
+                    InventoryItem set = InventoryManager.getInventory().getInventoryItem(productCode, connection);
                     data = new Object[] {productCode,
                                             "-",
                                             set.getProduct().getBrandName(),
@@ -59,7 +58,7 @@ public class CatalogueCustomer extends JFrame {
                     while (componentsProductCodes.next()) {
                         productCode = componentsProductCodes.getString("ComponentProductCode");
 
-                        InventoryItem component = inventory.getInventoryItem(productCode, connection);
+                        InventoryItem component = InventoryManager.getInventory().getInventoryItem(productCode, connection);
 
 
                         sql = "SELECT * FROM Products WHERE ProductCode = ?";
