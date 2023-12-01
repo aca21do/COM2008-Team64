@@ -12,8 +12,9 @@ public class OrdersStaff extends JFrame {
     private JLabel tableLabel;
     private JButton currentOrdersButton;
     private JButton ordersArchiveButton;
-    private JButton viewOrderButton;
     private JTable ordersTable;
+    private JButton fulfillNextOrderButton;
+    private JButton deleteNextOrderButton;
 
     public OrdersStaff (Connection connection) {
         // panel setup
@@ -23,13 +24,8 @@ public class OrdersStaff extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
 
-        // make staff buttons invisible by default
-        customerViewButton.setVisible(false);
+        // make manager button invisible by default
         managerViewButton.setVisible(false);
-
-        // TODO: if staff member
-        customerViewButton.setVisible(true);
-        customerViewButton.setEnabled(true);
 
         // TODO: if manager
         managerViewButton.setVisible(true);
@@ -67,7 +63,8 @@ public class OrdersStaff extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 currentOrdersButton.setEnabled(false);
                 ordersArchiveButton.setEnabled(true);
-                viewOrderButton.setEnabled(true);
+                fulfillNextOrderButton.setEnabled(true);
+                deleteNextOrderButton.setEnabled(true);
                 tableLabel.setText("Current Orders");
             }
         });
@@ -76,11 +73,18 @@ public class OrdersStaff extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 ordersArchiveButton.setEnabled(false);
                 currentOrdersButton.setEnabled(true);
-                viewOrderButton.setEnabled(false);
+                fulfillNextOrderButton.setEnabled(false);
+                deleteNextOrderButton.setEnabled(false);
                 tableLabel.setText("Orders Archive");
             }
         });
-        viewOrderButton.addActionListener(new ActionListener() {
+        fulfillNextOrderButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        deleteNextOrderButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
