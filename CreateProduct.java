@@ -1,7 +1,9 @@
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class CreateProduct extends JFrame {
     private JTextField productCodeTextField;
@@ -38,7 +40,72 @@ public class CreateProduct extends JFrame {
         createButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                InventoryItem inventoryItem = null;
+                try {
+                    inventoryItem = InventoryManager.getInventory().getInventoryItem("L11111", connection);
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+                if (productCodeTextField.getText().charAt(0) == 'L') {
+                    Locomotive product = new Locomotive(brandNameTextField.getText(),
+                                                        productNameTextField.getText(),
+                                                        productCodeTextField.getText(),
+                                                        Double.parseDouble(priceTextField.getText()),
+                                                        Gauge.valueOf(gaugeCodeTextField.getText()),
+                                                        eraCodeTextField.getText(),
+                                                        dccCodeTextField.getText());
+                    inventoryItem = new InventoryItem(product, Integer.parseInt(quantityTextField.getText()));
+                }
+                else if (productCodeTextField.getText().charAt(0) == 'S') {
+                    RollingStock product = new RollingStock(brandNameTextField.getText(),
+                            productNameTextField.getText(),
+                            productCodeTextField.getText(),
+                            Double.parseDouble(priceTextField.getText()),
+                            Gauge.valueOf(gaugeCodeTextField.getText()),
+                            eraCodeTextField.getText());
+                    inventoryItem = new InventoryItem(product, Integer.parseInt(quantityTextField.getText()));
+                }
+                else if (productCodeTextField.getText().charAt(0) == 'C') {
+                    Controller product = new Controller(brandNameTextField.getText(),
+                            productNameTextField.getText(),
+                            productCodeTextField.getText(),
+                            Double.parseDouble(priceTextField.getText()),
+                            Gauge.valueOf(gaugeCodeTextField.getText()));
+                    inventoryItem = new InventoryItem(product, Integer.parseInt(quantityTextField.getText()));
+                }
+                else if (productCodeTextField.getText().charAt(0) == 'R') {
+                    TrackPiece product = new TrackPiece(brandNameTextField.getText(),
+                            productNameTextField.getText(),
+                            productCodeTextField.getText(),
+                            Double.parseDouble(priceTextField.getText()),
+                            Gauge.valueOf(gaugeCodeTextField.getText()));
+                    inventoryItem = new InventoryItem(product, Integer.parseInt(quantityTextField.getText()));
+                }
+                else if (productCodeTextField.getText().charAt(0) == 'P') {
+                    DefaultTableModel defaultTableModel = new DefaultTableModel();
+                    Pack product = new Pack(brandNameTextField.getText(),
+                            productNameTextField.getText(),
+                            productCodeTextField.getText(),
+                            Double.parseDouble(priceTextField.getText()),
+                            Gauge.valueOf(gaugeCodeTextField.getText()),
+                            defaultTableModel);
+                    inventoryItem = new InventoryItem(product, Integer.parseInt(quantityTextField.getText()));
+                }
+                else if (productCodeTextField.getText().charAt(0) == 'M') {
+                    DefaultTableModel defaultTableModel = new DefaultTableModel();
+                    Set product = new Set(brandNameTextField.getText(),
+                            productNameTextField.getText(),
+                            productCodeTextField.getText(),
+                            Double.parseDouble(priceTextField.getText()),
+                            Gauge.valueOf(gaugeCodeTextField.getText()),
+                            defaultTableModel);
+                    inventoryItem = new InventoryItem(product, Integer.parseInt(quantityTextField.getText()));
+                }
+                try {
+                    InventoryManager.getInventory().insertItem(inventoryItem, connection);
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
         backButton.addActionListener(new ActionListener() {
