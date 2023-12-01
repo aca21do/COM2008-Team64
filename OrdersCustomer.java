@@ -74,8 +74,6 @@ public class OrdersCustomer extends JFrame {
         ordersHistoryButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO: change table contents
-
                 ordersHistoryButton.setEnabled(false);
                 myOrdersButton.setEnabled(true);
                 placeOrdersButton.setEnabled(false);
@@ -135,8 +133,6 @@ public class OrdersCustomer extends JFrame {
         myOrdersButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO: change table contents
-
                 myOrdersButton.setEnabled(false);
                 ordersHistoryButton.setEnabled(true);
                 placeOrdersButton.setEnabled(true);
