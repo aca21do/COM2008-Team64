@@ -9,10 +9,57 @@ import java.util.Locale;
 public class Inventory {
     public void insertItem(InventoryItem inventoryItem, Connection connection) throws SQLException {
         try {
-            String sql = "SELECT * FROM Inventory WHERE ProductCode = ?";
+            String sql = "SELECT * FROM Products WHERE ProductCode = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, inventoryItem.getProduct().getProductCode());
             ResultSet resultSet = preparedStatement.executeQuery();
+            if (!resultSet.next()) {
+                sql = "INSERT INTO Products (ProductCode, GaugeCode) VALUES (?, ?)";
+                preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1, inventoryItem.getProduct().getProductCode());
+                preparedStatement.setString(2, String.valueOf(inventoryItem.getProduct().getGaugeCode()));
+                int rowsAffected = preparedStatement.executeUpdate();
+                System.out.println(rowsAffected + " row(s) inserted successfully.");
+
+                if (inventoryItem.getProduct().getProductCode().charAt(0) == 'S') {
+                    RollingStock product = (RollingStock) inventoryItem.getProduct();
+                    sql = "INSERT INTO Eras (ProductCode, EraCode) VALUES (?,?)";
+                    preparedStatement = connection.prepareStatement(sql);
+                    preparedStatement.setString(1, product.getEraCode());
+                    preparedStatement.setString(2, product.getEraCode());
+                    rowsAffected = preparedStatement.executeUpdate();
+                    System.out.println(rowsAffected + " row(s) inserted successfully.");
+                }
+                else if (inventoryItem.getProduct().getProductCode().charAt(0) == 'L') {
+                    Locomotive product = (Locomotive) inventoryItem.getProduct();
+                    sql = "INSERT INTO Eras (ProductCode, EraCode) VALUES (?,?)";
+                    preparedStatement = connection.prepareStatement(sql);
+                    preparedStatement.setString(1, product.getEraCode());
+                    preparedStatement.setString(2, product.getEraCode());
+                    rowsAffected = preparedStatement.executeUpdate();
+                    System.out.println(rowsAffected + " row(s) inserted successfully.");
+
+                    sql = "INSERT INTO DCCCodes (ProductCode, DCCCode) VALUES (?,?)";
+                    preparedStatement = connection.prepareStatement(sql);
+                    preparedStatement.setString(1, product.getEraCode());
+                    preparedStatement.setString(2, product.getEraCode());
+                    rowsAffected = preparedStatement.executeUpdate();
+                    System.out.println(rowsAffected + " row(s) inserted successfully.");
+                }
+                else if (inventoryItem.getProduct().getProductCode().charAt(0) == 'M'
+                            || inventoryItem.getProduct().getProductCode().charAt(0) == 'P') {
+                    sql = "INSERT INTO SetsAndPacks (ProductCode) VALUES (?)";
+                    preparedStatement = connection.prepareStatement(sql);
+                    preparedStatement.setString(1, inventoryItem.getProduct().getProductCode());
+                    rowsAffected = preparedStatement.executeUpdate();
+                    System.out.println(rowsAffected + " row(s) inserted successfully.");
+                }
+            }
+
+            sql = "SELECT * FROM Inventory WHERE ProductCode = ?";
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, inventoryItem.getProduct().getProductCode());
+            resultSet = preparedStatement.executeQuery();
             if (!resultSet.next()) {
                 sql = "INSERT INTO Inventory (ProductKey, BrandName, ProductName, Price, Quantity) VALUES (?, ?, ?, ?, ?)";
                 preparedStatement = connection.prepareStatement(sql);
