@@ -39,6 +39,7 @@ public class AccountDetails extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 UserDatabaseOperations userDatabaseOperations = new UserDatabaseOperations();
                 String errorMessage = "error updating user";
+                int updatedEntries = -1;
 
                 try {
                     // get text area values and set a unique ID
@@ -71,9 +72,12 @@ public class AccountDetails extends JFrame {
                     }
 
                     // insert user into database (including address)
-                    userDatabaseOperations.updateUser(updatedUser, connection);
+                    updatedEntries = userDatabaseOperations.updateUser(updatedUser, connection);
 
                     errorMessage = "details updated";
+                    if (updatedEntries == 0){
+                        errorMessage = "nothing to update";
+                    }
 
                 }
                 catch (SQLException error) {

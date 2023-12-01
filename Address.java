@@ -25,4 +25,12 @@ public class Address {
     public void setRoadName(String newRName) {this.roadName = newRName; }
     public void setCityName(String newCName) {this.cityName = newCName;}
     public void setPostcode(String newPostcode) {this.postcode = newPostcode;}
+
+    // ----- METHODS -----
+    public String toString(){
+        return (String.valueOf(this.houseNumber) + " " +
+                this.roadName + " " +
+                this.cityName + " " +
+                this.postcode);
+    }
 }

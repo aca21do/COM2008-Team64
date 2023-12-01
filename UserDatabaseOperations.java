@@ -186,60 +186,114 @@ public class UserDatabaseOperations {
      * @param con the database connection
      * @throws SQLException
      */
-    public void updateUser(User updatedUser, Connection con) throws SQLException{
+    public int updateUser(User updatedUser, Connection con) throws SQLException{
+        int attributesUpdated = 0;
+        int addressUpdated = 0;
         try {
             User storedUser = getUserFromID(updatedUser.getUserID(), con);
             String id = storedUser.getUserID();
 
             // update user attributes if different to what is stored in database
-            if (storedUser.getEmail() != updatedUser.getEmail()) {
-                updateUserAttribute("Email", updatedUser.getEmail(), id, con);
+            if (! storedUser.getEmail().equals(updatedUser.getEmail()) ) {
+                attributesUpdated += updateUserAttribute("Email", updatedUser.getEmail(), id, con);
             }
-            if (storedUser.getForename() != updatedUser.getForename()) {
-                updateUserAttribute("Forename", updatedUser.getForename(), id, con);
+            if (! storedUser.getForename().equals(updatedUser.getForename()) ) {
+                attributesUpdated += updateUserAttribute("Forename", updatedUser.getForename(), id, con);
             }
-            if (storedUser.getSurname() != updatedUser.getSurname()) {
-                updateUserAttribute("Surname", updatedUser.getSurname(), id, con);
+            if (! storedUser.getSurname().equals(updatedUser.getSurname()) ){
+                attributesUpdated += updateUserAttribute("Surname", updatedUser.getSurname(), id, con);
             }
-            if (storedUser.getIsStaff() != updatedUser.getIsStaff()) {
-                updateUserAttribute("isStaff", updatedUser.getIsStaff(), id, con);
+            if (! storedUser.getIsStaff() == updatedUser.getIsStaff()){
+                attributesUpdated += updateUserAttribute("isStaff", updatedUser.getIsStaff(), id, con);
             }
-            if (storedUser.getIsManager() != updatedUser.getIsManager()) {
-                updateUserAttribute("isManager", updatedUser.getIsManager(), id, con);
+            if (! storedUser.getIsManager() == updatedUser.getIsManager()) {
+                attributesUpdated += updateUserAttribute("isManager", updatedUser.getIsManager(), id, con);
             }
 
-            // update address
-            Address updatedAddress = updatedUser.getAddress();
-            Address storedAddress = storedUser.getAddress();
+            // -------------update address---------------
+            try {
+                Address updatedAddress = updatedUser.getAddress();
+                Address storedAddress = storedUser.getAddress();
 
-            if (updatedAddress.getHouseNumber() == -1) {updatedAddress.setHouseNumber(storedAddress.getHouseNumber());}
-            if (updatedAddress.getPostcode() == null) {updatedAddress.setPostcode(storedAddress.getPostcode());}
-            if (updatedAddress.getRoadName() == null) {updatedAddress.setRoadName(storedAddress.getRoadName());}
-            if (updatedAddress.getCityName() == null) {updatedAddress.setCityName(storedAddress.getCityName());}
+                // if address values not entered, set them to the stored values
+                if (updatedAddress.getHouseNumber() == -1) {
+                    updatedAddress.setHouseNumber(storedAddress.getHouseNumber());
+                    System.out.println("house no. null");
+                }
+                if (updatedAddress.getPostcode() == null) {
+                    updatedAddress.setPostcode(storedAddress.getPostcode());
+                    System.out.println("postcode null");
+                }
+                if (updatedAddress.getRoadName() == null) {
+                    updatedAddress.setRoadName(storedAddress.getRoadName());
+                    System.out.println("address null");
+                }
+                if (updatedAddress.getCityName() == null) {
+                    updatedAddress.setCityName(storedAddress.getCityName());
+                    System.out.println("city null");
+                }
 
-            if (!updatedAddress.equals(storedAddress)){
-                String updateUserAttributeString =
-                        "UPDATE Addresses Set HouseNumber = ?, PostCode = ?, RoadName = ?, CityName = ? "
-                        + "WHERE HouseNumber = ? AND Postcode = ?";
-                PreparedStatement statement = con.prepareStatement(updateUserAttributeString);
-                statement.setInt(1, updatedAddress.getHouseNumber());
-                statement.setString(2, updatedAddress.getPostcode());
-                statement.setString(3, updatedAddress.getRoadName());
-                statement.setString(4, updatedAddress.getCityName());
-                statement.setInt(5, storedAddress.getHouseNumber());
-                statement.setString(6, storedAddress.getPostcode());
-                statement.executeUpdate();
+                // if the address has been updated
+                if (! (storedAddress.toString().equals(updatedAddress.toString()))) {
+                    String checkAddressSql = "SELECT * FROM Addresses WHERE HouseNumber = ? AND Postcode = ?";
+                    PreparedStatement checkAddressStatement = con.prepareStatement(checkAddressSql);
+                    checkAddressStatement.setInt(1, updatedAddress.getHouseNumber());
+                    checkAddressStatement.setString(2, updatedAddress.getPostcode());
+                    ResultSet checkAddressResults = checkAddressStatement.executeQuery();
+
+                    // if the new address already exists, update just the linker table
+                    if (checkAddressResults.next()) {
+                        // insert new address linker
+                        String hasAddressString = "INSERT INTO HasAddress (UserID, HouseNumber, Postcode) VALUES (?, ?, ?)";
+                        PreparedStatement hasAddressStatement = con.prepareStatement(hasAddressString);
+                        hasAddressStatement.setString(1, id);
+                        hasAddressStatement.setInt(2, updatedAddress.getHouseNumber());
+                        hasAddressStatement.setString(3, updatedAddress.getPostcode());
+                        addressUpdated += hasAddressStatement.executeUpdate();
+                    }
+                    // if the address does not already exist, insert address and add to linker
+                    else {
+                        insertAddress(updatedUser, con);
+                        addressUpdated += 1;
+                    }
+                    // delete old address linker
+                    String removedHasAddressSQL =
+                            "DELETE FROM HasAddress WHERE UserID = ? AND HouseNumber = ? AND Postcode = ?";
+                    PreparedStatement removeHasAddress = con.prepareStatement(removedHasAddressSQL);
+                    removeHasAddress.setString(1, id);
+                    removeHasAddress.setInt(2, storedAddress.getHouseNumber());
+                    removeHasAddress.setString(3, storedAddress.getPostcode());
+                    attributesUpdated += removeHasAddress.executeUpdate();
+                }
+            }
+            catch (SQLException addressException){
+                if (addressException.getMessage().substring(0,9).equals("Duplicate")){
+                    if (attributesUpdated == 0) {
+                        throw new SQLException("Address already updated");
+                    }
+                } else {
+                    throw new SQLException("error updating Address");
+                }
             }
         }
         catch(SQLException exception){
-            exception.printStackTrace();
-            throw new SQLException("error updating user");
+            // if exception created manually, throw it, else set generic error message
+            if (exception.getMessage().equals("error updating Address") ||
+                    exception.getMessage().equals("Address already updated")){
+                throw exception;
+            } else {
+                throw new SQLException("error updating user");
+            }
+        }
+        finally {
+            System.out.println("Updated " +attributesUpdated +" attributes and " +addressUpdated +" address records");
+            return attributesUpdated+addressUpdated;
         }
     }
 
 
 
-    private void updateUserAttribute(String attribute, String value, String userID, Connection con)
+    private int updateUserAttribute(String attribute, String value, String userID, Connection con)
     throws SQLException{
         try {
             String updateUserAttributeString = "UPDATE Users SET " + attribute + "=? WHERE UserID = ?";
@@ -247,21 +301,23 @@ public class UserDatabaseOperations {
             statement.setString(1, value);
             statement.setString(2, userID);
             System.out.println(String.valueOf(statement));
-            statement.executeUpdate();
+            System.out.println(attribute + " updated to " + value);
+            return statement.executeUpdate();
         }
         catch(SQLException e){
             e.printStackTrace();
             throw new SQLException(("problem updating "+ attribute));
         }
     }
-    private void updateUserAttribute(String attribute, boolean value, String userID, Connection con)
+    private int updateUserAttribute(String attribute, boolean value, String userID, Connection con)
             throws SQLException{
         try {
-            String updateUserAttributeString = "UPDATE Users SET ? = ? WHERE UserID = ?";
+            String updateUserAttributeString = "UPDATE Users SET " + attribute + " = ? WHERE UserID = ?";
             PreparedStatement statement = con.prepareStatement(updateUserAttributeString);
             statement.setBoolean(1, value);
             statement.setString(2, userID);
-            statement.executeUpdate();
+            System.out.println(attribute + " updated to " + String.valueOf(value));
+            return statement.executeUpdate();
         }
         catch(SQLException e){
             throw new SQLException(("problem updating "+ attribute));
@@ -505,9 +561,7 @@ public class UserDatabaseOperations {
         try{
             User user = this.getUserFromEmail(email, con);
             if (user != null) {
-                System.out.println("(user not null)");
                 if (!user.getIsBlocked(this, con)){
-                    System.out.println("user not blocked");
                     if (this.verifyPassword(con, enteredPassword, user)){
                         errorMessage = "success";
                     }
