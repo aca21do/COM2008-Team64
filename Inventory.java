@@ -216,7 +216,7 @@ public class Inventory {
         }
     }
 
-    public void UpdateItem (InventoryItem inventoryItem, Connection connection) throws SQLException {
+    public void updateItem (InventoryItem inventoryItem, Connection connection) throws SQLException {
         try {
             String sql = "UPDATE Inventory SET BrandName=?, ProductName=?, Price=?, Quantity=? WHERE ProductCode=?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
