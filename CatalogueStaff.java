@@ -31,6 +31,7 @@ public class CatalogueStaff extends JFrame {
         managerViewButton.setVisible(true);
         managerViewButton.setEnabled(true);
 
+        // placeholder data
         String[] columnNames = {"First Name",
                 "Last Name"};
 
@@ -42,15 +43,17 @@ public class CatalogueStaff extends JFrame {
                 {"Joe", "Brown"}
         };
 
-        DefaultTableModel dataModel = new DefaultTableModel(data, columnNames);
+        DefaultTableModel dataModel = new DefaultTableModel(data, columnNames){
+            // make table not able to be selected
+            @Override
+            public boolean isCellEditable(int i, int i1) {
+                return false;
+            }
+        };
         catalogueTable.setModel(dataModel);
 
+        // select first row automatically
         catalogueTable.setRowSelectionInterval(0, 0);
-
-        // get data in first column of selected row
-        //int column = 0;
-        //int row = table.getSelectedRow();
-        //String value = table.getModel().getValueAt(row, column).toString();
 
         categoryComboBox.addItemListener(new ItemListener() {
             @Override
@@ -61,7 +64,7 @@ public class CatalogueStaff extends JFrame {
         ordersButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new OrdersCustomer(connection).setVisible(true);
+                new OrdersStaff(connection).setVisible(true);
                 setVisible(false);
             }
         });
@@ -84,6 +87,17 @@ public class CatalogueStaff extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 new ViewUsers(connection).setVisible(true);
                 setVisible(false);
+            }
+        });
+        viewProductButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // get data in first column of selected row
+                int column = 0;
+                int row = catalogueTable.getSelectedRow();
+                String value = catalogueTable.getModel().getValueAt(row, column).toString();
+
+                System.out.println("Selected item = " + value);
             }
         });
     }
