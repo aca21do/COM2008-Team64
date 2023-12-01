@@ -198,9 +198,6 @@ public class OrdersCustomer extends JFrame {
         placeOrdersButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO: check bank details
-                //  and skip straight to confirm if valid
-
                 UserDatabaseOperations userDBOps = new UserDatabaseOperations();
                 try {
                     // if valid bank details exist, take user to confirm bank details

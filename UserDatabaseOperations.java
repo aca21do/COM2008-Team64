@@ -3,6 +3,7 @@ import com.mysql.cj.util.StringUtils;
 import java.io.CharArrayReader;
 import java.io.Reader;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class UserDatabaseOperations {
@@ -657,6 +658,62 @@ public class UserDatabaseOperations {
         catch (SQLException e){
             return false;
         }
+    }
+
+    // --------------------Orders---------------
+    public ArrayList<Order> getUsersOrders(User user, Connection con){
+        try {
+            ArrayList<Order> usersOrders = new ArrayList<Order>();
+
+            // find orders belonging to user
+            String usersOrdersSQL = "Select * FROM Orders WHERE UserID = ?";
+            PreparedStatement usersOrdersState = con.prepareStatement(usersOrdersSQL);
+            usersOrdersState.setString(1, user.getUserID());
+            ResultSet usersOrdersResults = usersOrdersState.executeQuery();
+
+            // for each order
+            while (usersOrdersResults.next()) {
+                //get attributes
+                int orderNumber = usersOrdersResults.getInt("OrderNumber");
+                Date orderDate = usersOrdersResults.getDate("OrderDate");
+                String orderStatus = usersOrdersResults.getString("OrderStatus");
+
+
+                ArrayList<OrderLine> orderLines = new ArrayList<OrderLine>();
+                String getLinesSQL = "SELECT * FROM OrderLines WHERE OrderNumber = ?";
+                PreparedStatement getLinesState = con.prepareStatement(getLinesSQL);
+                getLinesState.setInt(1, orderNumber);
+                ResultSet getLinesResults = getLinesState.executeQuery();
+
+                // add each orderLine to order
+                while (getLinesResults.next()) {
+                    int orderLineNumber = getLinesResults.getInt("OrderLineNumber");
+                    String productCode = getLinesResults.getString("ProductCode");
+                    int quantity = getLinesResults.getInt("Quantity");
+                    double lineCost = getLinesResults.getDouble("LineCost");
+
+                    InventoryItem inventoryItem = InventoryManager.getInventory().getInventoryItem(productCode, con);
+                    Product product = inventoryItem.getProduct();
+                    OrderLine newOrderline = new OrderLine(lineCost, quantity, product);
+                    orderLines.add(newOrderline);
+                }
+
+                Order newOrder = new Order(orderNumber, orderDate, orderStatus, orderLines);
+                usersOrders.add(newOrder);
+            }
+
+            // convert each order to an object of the correct class
+            for (int i = 0; i < usersOrders.size(); i++) {
+                Order orderInList = usersOrders.get(i);
+                usersOrders.set(i, Order.getSubclassInstance(orderInList));
+                }
+
+            return usersOrders;
+        }
+        catch (SQLException error){
+            return new ArrayList<Order>();
+        }
+
     }
 
 }

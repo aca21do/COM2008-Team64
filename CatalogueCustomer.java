@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class CatalogueCustomer extends JFrame {
     private JPanel catalogueCustomerPanel;
@@ -18,6 +19,7 @@ public class CatalogueCustomer extends JFrame {
     private JButton staffViewButton;
     private JButton managerViewButton;
     private JButton addToOrderButton;
+    private JComboBox quantityComboBox;
     private JTextField quantityTextField;
 
     public DefaultTableModel returnSetOrPackDataModel(Character selectedCategory,Connection connection) throws SQLException {
@@ -145,7 +147,13 @@ public class CatalogueCustomer extends JFrame {
                 String era;
                 String dccCode;
 
-                DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0);
+                DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0){
+                    @Override
+                    public boolean isCellEditable(int i, int i1) {
+                        return false;
+                    }
+                };
+
 
                 Character selectedCategory = null;
                 if (categoryComboBox.getSelectedItem() == "Train Sets") {
@@ -255,6 +263,35 @@ public class CatalogueCustomer extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 new ViewUsers(connection).setVisible(true);
                 setVisible(false);
+            }
+        });
+
+        // add to order
+        addToOrderButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                try {
+                    Inventory inventory = new Inventory();
+                    // get data in first column of selected row
+                    int column = 0;
+                    int row = catalogueTable.getSelectedRow();
+                    String productCode = catalogueTable.getModel().getValueAt(row, column).toString();
+                    System.out.println("product code is " + productCode);
+                    InventoryItem inventoryItem = inventory.getInventoryItem(productCode, connection);
+                    int quantityInStock = inventoryItem.getQuantity();
+
+                    // get the quantity to add to order
+                    int quantityToAdd = quantityComboBox.getSelectedIndex();
+                    if (quantityToAdd <= quantityInStock) {
+                        UserDatabaseOperations userDBOps = new UserDatabaseOperations();
+                        ArrayList<Order> usersOrders = userDBOps.getUsersOrders(CurrentUser.getCurrentUser(), connection);
+                        System.out.println(usersOrders.toString());
+                    }
+                }
+                catch(Exception exception){
+                    exception.printStackTrace();
+                }
             }
         });
     }

@@ -47,4 +47,17 @@ public class Order {
         this.orderLines = orderLines;
         this.dbOperations = new OrderDatabaseOperations(this);
     }
+
+    public static Order getSubclassInstance(Order order) {
+        switch (order.getOrderStatus()) {
+            case "pending":
+                return new PendingOrder(order);
+            case "confirmed":
+                return new ConfirmedOrder(order);
+            case "fulfilled":
+                return new FulfilledOrder(order);
+            default:
+                return order;
+        }
+    }
 }

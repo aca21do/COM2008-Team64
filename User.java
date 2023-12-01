@@ -1,5 +1,6 @@
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class User {
 
@@ -85,6 +86,7 @@ public class User {
     public boolean getIsBlocked(UserDatabaseOperations userDatabaseOperations, Connection con) throws SQLException{
         return userDatabaseOperations.userIsBlocked(this, con);
     }
+
 
 
 

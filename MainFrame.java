@@ -11,6 +11,8 @@ public class MainFrame extends JFrame {
     public MainFrame () {
         DatabaseConnectionHandler databaseConnectionHandler = new DatabaseConnectionHandler();
 
+        InventoryManager.setInventory(new Inventory());
+
         // panel setup
         setContentPane(mainPanel);
         setTitle("Welcome");

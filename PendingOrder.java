@@ -9,6 +9,10 @@ public class PendingOrder extends Order{
         super(orderNumber, orderDate, orderStatus, orderLines);
     }
 
+    public PendingOrder(Order order){
+        super(order.getOrderNumber(), order.getOrderDate(), "pending", order.getOrderLines());
+    }
+
     public void addOrderLine(OrderLine orderLine, Connection connection) throws SQLException {
         try {
             orderLines.add(orderLine);
