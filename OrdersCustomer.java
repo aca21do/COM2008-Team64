@@ -190,9 +190,7 @@ public class OrdersCustomer extends JFrame {
                 }
 
                 ordersTable.setModel(dataModel);
-
-
-
+                
             }
         });
         placeOrdersButton.addActionListener(new ActionListener() {
