@@ -1,9 +1,11 @@
 import sheffield.DatabaseConnectionHandler;
 
+import javax.swing.table.DefaultTableModel;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Locale;
 
 public class Inventory {
@@ -211,23 +213,52 @@ public class Inventory {
             else if (firstLetter == 'M') {
                 Gauge gaugeType = Gauge.valueOf(resultSet1.getString("GaugeCode"));
 
+                DefaultTableModel components = new DefaultTableModel();
+                components.addColumn("ProductCode");
+                components.addColumn("Quantity");
+
+                sql = "SELECT * FROM SetAndPackComponents WHERE ProductCode=?";
+                preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1,resultSet.getString("ProductCode"));
+                ResultSet setComponents = preparedStatement.executeQuery();
+
+                while (setComponents.next()) {
+                    components.addRow(new Object[]{setComponents.getString("ComponentProductCode"),
+                            setComponents.getInt("Quantity")});
+                }
+
                 Set set = new Set(
                         resultSet.getString("BrandName"),
                         resultSet.getString("ProductName"),
                         resultSet.getString("ProductCode"),
                         resultSet.getDouble("Price"),
-                        gaugeType);
+                        gaugeType,
+                        components);
                 return set;
             }
             else if (firstLetter == 'P') {
                 Gauge gaugeType = Gauge.valueOf(resultSet1.getString("GaugeCode"));
+                DefaultTableModel components = new DefaultTableModel();
+                components.addColumn("ProductCode");
+                components.addColumn("Quantity");
+
+                sql = "SELECT * FROM SetAndPackComponents WHERE ProductCode=?";
+                preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1,resultSet.getString("ProductCode"));
+                ResultSet setComponents = preparedStatement.executeQuery();
+
+                while (setComponents.next()) {
+                    components.addRow(new Object[]{setComponents.getString("ComponentProductCode"),
+                                                    setComponents.getInt("Quantity")});
+                }
 
                 Pack pack = new Pack(
                         resultSet.getString("BrandName"),
                         resultSet.getString("ProductName"),
                         resultSet.getString("ProductCode"),
                         resultSet.getDouble("Price"),
-                        gaugeType);
+                        gaugeType,
+                        components);
                 return pack;
             }
             else {
