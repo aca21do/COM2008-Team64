@@ -149,7 +149,7 @@ public class OrdersCustomer extends JFrame {
                 //Object[][] = {{"on", "xbox"},{"on1","xbox1"}};
 
                 try {
-                    String sql = "SELECT * FROM Orders WHERE UserID=? AND OrderStatus = \"pending\"";
+                    String sql = "SELECT * FROM Orders WHERE UserID=? AND (OrderStatus = \"pending\" OR OrderStatus = \"confirmed\")";
                     PreparedStatement preparedStatement = connection.prepareStatement(sql);
                     preparedStatement.setString(1, CurrentUser.getCurrentUser().getUserID());
                     ResultSet ordersResults = preparedStatement.executeQuery();
