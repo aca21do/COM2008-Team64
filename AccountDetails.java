@@ -26,6 +26,16 @@ public class AccountDetails extends JFrame {
         setTitle("Account Details");
         setSize(400, 500);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+        // fill in text fields with data from database
+        forenameTextField.setText(CurrentUser.getCurrentUser().getForename());
+        surnameTextField.setText(CurrentUser.getCurrentUser().getSurname());
+        houseNumberTextField.setText(String.valueOf(CurrentUser.getCurrentUser().getAddress().getHouseNumber()));
+        roadNameTextField.setText(CurrentUser.getCurrentUser().getAddress().getRoadName());
+        cityNameTextField.setText(CurrentUser.getCurrentUser().getAddress().getCityName());
+        postcodeTextField.setText(CurrentUser.getCurrentUser().getAddress().getPostcode());
+        emailTextField.setText(CurrentUser.getCurrentUser().getEmail());
+
         setVisible(true);
         browseButton.addActionListener(new ActionListener() {
             @Override
