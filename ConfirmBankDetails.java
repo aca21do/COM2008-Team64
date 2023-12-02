@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class ConfirmBankDetails extends JFrame {
     private JPanel confirmBankDetailsPanel;
@@ -11,6 +12,7 @@ public class ConfirmBankDetails extends JFrame {
     private JButton accountButton;
     private JButton staffViewButton;
     private JButton managerViewButton;
+    private JLabel errorLabel;
 
     public ConfirmBankDetails (Connection connection) {
         // panel setup
@@ -51,6 +53,20 @@ public class ConfirmBankDetails extends JFrame {
         yesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String errorMessage = "error confirming order";
+
+                // try to confirm order, if error then display error message
+                try {
+                    CurrentUser.getBasket().confirmOrder(connection);
+                    CurrentUser.resetBasket(connection);
+
+                    new OrdersCustomer(connection).setVisible(true);
+                    setVisible(false);
+                }
+                catch (SQLException sqlException){
+                    errorLabel.setText(errorMessage);
+                    errorLabel.updateUI();
+                }
                 new CatalogueCustomer(connection).setVisible(true);
                 setVisible(false);
             }

@@ -40,6 +40,18 @@ public class DatabaseConnectionHandler {
             }
         }
     }
+    public void closeConnection (Connection c) {
+        // Close the connection in a separate method to ensure proper resource
+        // management.
+        if (c != null) {
+            try {
+                c.close();
+                System.out.println("connection terminated");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public Connection getConnection() {
         return this.connection;

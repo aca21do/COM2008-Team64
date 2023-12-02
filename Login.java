@@ -26,6 +26,7 @@ public class Login extends JFrame {
         homeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                new DatabaseConnectionHandler().closeConnection(connection);
                 new MainFrame().setVisible(true);
                 setVisible(false);
             }

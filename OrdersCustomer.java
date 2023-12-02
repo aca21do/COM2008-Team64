@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class OrdersCustomer extends JFrame {
     private JButton browseButton;
@@ -21,6 +22,8 @@ public class OrdersCustomer extends JFrame {
     private JButton placeOrdersButton;
     private JComboBox deleteLineComboBox;
     private JLabel removeOrderLineLabel;
+    private JButton deleteLineButton;
+    private JButton clearPendingButton;
 
     public OrdersCustomer (Connection connection) {
         // panel setup
@@ -33,6 +36,10 @@ public class OrdersCustomer extends JFrame {
         // make staff buttons invisible by default
         staffViewButton.setVisible(false);
         managerViewButton.setVisible(false);
+        removeOrderLineLabel.setVisible(false);
+        deleteLineButton.setVisible(false);
+        deleteLineComboBox.setVisible(false);
+        clearPendingButton.setVisible(false);
 
         if (CurrentUser.getCurrentUser().getIsStaff()) {
             staffViewButton.setVisible(true);
@@ -77,10 +84,14 @@ public class OrdersCustomer extends JFrame {
                 ordersHistoryButton.setEnabled(false);
                 pendingOrderButton.setEnabled(true);
                 placeOrdersButton.setEnabled(false);
+                removeOrderLineLabel.setVisible(false);
+                deleteLineButton.setVisible(false);
+                deleteLineComboBox.setVisible(false);
+                clearPendingButton.setVisible(false);
                 tableLabel.setText("Order History Items");
 
-                String[] columnNames = {"OrderID", "Date", "TotalCost", "Status", "ProductNo",
-                        "ProductCode", "Quantity", "LineCost"};
+                String[] columnNames = {"OrderID", "Date", "TotalCost", "Status", "Order Line No.",
+                        "Product Code", "Quantity", "Line Cost"};
 
                 DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0);
 
@@ -97,7 +108,7 @@ public class OrdersCustomer extends JFrame {
                         preparedStatement = connection.prepareStatement(sql);
                         preparedStatement.setInt(1, ordersResults.getInt("OrderNumber"));
                         ResultSet orderLinesResults = preparedStatement.executeQuery();
-                        while(orderLinesResults.next()) {
+                        while (orderLinesResults.next()) {
                             if (displayOrder) {
                                 data = new Object[]{ordersResults.getInt("OrderNumber"),
                                         ordersResults.getDate("OrderDate"),
@@ -109,8 +120,7 @@ public class OrdersCustomer extends JFrame {
                                         orderLinesResults.getDouble("LineCost")};
 
                                 displayOrder = false;
-                            }
-                            else {
+                            } else {
                                 data = new Object[]{"", "", "", "",
                                         orderLinesResults.getString("OrderLineNumber"),
                                         orderLinesResults.getString("ProductCode"),
@@ -136,10 +146,17 @@ public class OrdersCustomer extends JFrame {
                 pendingOrderButton.setEnabled(false);
                 ordersHistoryButton.setEnabled(true);
                 placeOrdersButton.setEnabled(true);
+                removeOrderLineLabel.setVisible(true);
+                deleteLineButton.setVisible(true);
+                deleteLineComboBox.setVisible(true);
+                clearPendingButton.setVisible(true);
                 tableLabel.setText("Order Items");
 
+                UserDatabaseOperations userDBOps = new UserDatabaseOperations();
+                CurrentUser.updateBasketFromDB(userDBOps, connection);
+
                 String[] columnNames = {"OrderID", "Date", "TotalCost", "Status", "Order Line No.",
-                                            "ProductCode", "Quantity", "LineCost"};
+                        "Product Code", "Quantity", "Line Cost"};
 
                 DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0);
 
@@ -156,7 +173,7 @@ public class OrdersCustomer extends JFrame {
                         preparedStatement = connection.prepareStatement(sql);
                         preparedStatement.setInt(1, ordersResults.getInt("OrderNumber"));
                         ResultSet orderLinesResults = preparedStatement.executeQuery();
-                        while(orderLinesResults.next()) {
+                        while (orderLinesResults.next()) {
                             if (displayOrder) {
                                 data = new Object[]{ordersResults.getInt("OrderNumber"),
                                         ordersResults.getDate("OrderDate"),
@@ -168,8 +185,7 @@ public class OrdersCustomer extends JFrame {
                                         orderLinesResults.getDouble("LineCost")};
 
                                 displayOrder = false;
-                            }
-                            else {
+                            } else {
                                 data = new Object[]{"", "", "", "",
                                         orderLinesResults.getString("OrderLineNumber"),
                                         orderLinesResults.getString("ProductCode"),
@@ -189,9 +205,43 @@ public class OrdersCustomer extends JFrame {
                 ordersTable.setModel(dataModel);
                 populateDeleteLineComboBox();
                 deleteLineComboBox.setVisible(true);
-                
             }
         });
+
+        deleteLineButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String lineNoStr = String.valueOf(deleteLineComboBox.getSelectedItem());
+                int lineNo = Integer.valueOf(lineNoStr);
+                ArrayList<OrderLine> usersOrderLines = CurrentUser.getBasket().getOrderLines();
+
+                OrderLine lineToRemove = null;
+                System.out.println("finding order line");
+                try {
+                    for (OrderLine line : usersOrderLines) {
+                        if (line.getLineNumber() == lineNo) {
+                            System.out.println(lineNo);
+                            lineToRemove = line;
+                        }
+                    }
+                    if (lineToRemove != null) {
+                        CurrentUser.getBasket().removeOrderLine(lineToRemove, connection);
+                        System.out.println("removed");
+                    } else {
+                        System.out.println("error deleting - could not find order line " + lineNo);
+                    }
+                } catch (SQLException exception) {
+                    exception.printStackTrace();
+                    System.out.println("Couldn't remove order line");
+                } finally {
+                    System.out.println("refresh");
+                    pendingOrderButton.setEnabled(true);
+                    pendingOrderButton.doClick();
+                }
+            }
+        });
+
+
         placeOrdersButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -206,15 +256,23 @@ public class OrdersCustomer extends JFrame {
                         new EditBankDetails(connection).setVisible(true);
                         setVisible(false);
                     }
-                }
-                catch (SQLException error){
+                } catch (SQLException error) {
                     new EditBankDetails(connection).setVisible(true);
                     setVisible(false);
                 }
             }
         });
-    }
 
+
+        clearPendingButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CurrentUser.resetBasket(connection);
+                pendingOrderButton.setEnabled(true);
+                pendingOrderButton.doClick();
+            }
+        });
+    }
 
     private void populateDeleteLineComboBox() {
         TableModel dataModel = ordersTable.getModel();

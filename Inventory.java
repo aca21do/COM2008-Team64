@@ -11,7 +11,7 @@ import java.util.Locale;
 public class Inventory {
     public void insertItem(InventoryItem inventoryItem, Connection connection) throws SQLException {
         try {
-            //Processes an SQL theory to check if a product already exists
+            //Processes an SQL theory to check if a product already exists in products Table
             String sql = "SELECT * FROM Products WHERE ProductCode = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, inventoryItem.getProduct().getProductCode());
@@ -60,7 +60,7 @@ public class Inventory {
                     rowsAffected = preparedStatement.executeUpdate();
                     System.out.println(rowsAffected + " row(s) inserted successfully.");
 
-                    Set product = (Set) inventoryItem.getProduct();
+                    /*Set product = (Set) inventoryItem.getProduct();
 
                     sql = "INSERT INTO SetAndPackComponents (ProductCode, ComponentProductCode, Quantity) VALUES (?,?,?)";
                     for (int i = 0; i < product.getComponentProductCodes().getRowCount(); i++) {
@@ -72,7 +72,7 @@ public class Inventory {
                                                                                             .getValueAt(i, 1));
                         rowsAffected = preparedStatement.executeUpdate();
                         System.out.println(rowsAffected + " row(s) inserted successfully.");
-                    }
+                    }*/
                 }
                 else if (inventoryItem.getProduct().getProductCode().charAt(0) == 'P') {
                     sql = "INSERT INTO SetsAndPacks (ProductCode) VALUES (?)";
@@ -81,7 +81,7 @@ public class Inventory {
                     rowsAffected = preparedStatement.executeUpdate();
                     System.out.println(rowsAffected + " row(s) inserted successfully.");
 
-                    Pack product = (Pack) inventoryItem.getProduct();
+                    /*Pack product = (Pack) inventoryItem.getProduct();
 
                     sql = "INSERT INTO SetAndPackComponents (ProductCode, ComponentProductCode, Quantity) VALUES (?,?,?)";
                     for (int i = 0; i < product.getComponentProductCodes().getRowCount(); i++) {
@@ -93,7 +93,7 @@ public class Inventory {
                                 .getValueAt(i, 1));
                         rowsAffected = preparedStatement.executeUpdate();
                         System.out.println(rowsAffected + " row(s) inserted successfully.");
-                    }
+                    }*/
                 }
             }
 

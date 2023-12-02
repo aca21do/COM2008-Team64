@@ -28,9 +28,9 @@ public class Address {
 
     // ----- METHODS -----
     public String toString(){
-        return (String.valueOf(this.houseNumber) + " " +
-                this.roadName + " " +
-                this.cityName + " " +
+        return (String.valueOf(this.houseNumber) + ", " +
+                this.roadName + ", " +
+                this.cityName + ", " +
                 this.postcode);
     }
 }

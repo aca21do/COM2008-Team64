@@ -1,19 +1,26 @@
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class OrderDatabaseOperations {
     protected Order order;
 
     // constructor passes in order so it can be accessed by the class
-    public OrderDatabaseOperations(Order order){
+    public OrderDatabaseOperations(Order order) {
         this.order = order;
     }
 
-    public Order insertOrder(User user, Connection con) throws SQLException{
+    public Order insertOrder(User user, Connection con) throws SQLException {
         int maxOrderNo = 0;
         int updatedRows = 0;
+
+        // if adding a new pending order, remove the user's old pending order
+        if (order.getOrderStatus().equals("pending")) {
+            removeExistingPending(con);
+        }
+
         ResultSet maxOrderNoResult = con.prepareStatement("SELECT MAX(OrderNumber) FROM Orders").executeQuery();
-        if (maxOrderNoResult.next()){
+        if (maxOrderNoResult.next()) {
             maxOrderNo = maxOrderNoResult.getInt(1);
         }
         order.setOrderNumber(maxOrderNo + 1);
@@ -39,6 +46,7 @@ public class OrderDatabaseOperations {
 
     /**
      * Automatically inserts order lines for a order which has not been added to the database yet.
+     *
      * @param con
      * @return
      * @throws SQLException
@@ -78,11 +86,11 @@ public class OrderDatabaseOperations {
         // set line number and cost
         String maxLineNoSQL = "SELECT MAX(OrderLineNumber) FROM OrderLines";
         ResultSet maxOrderLineNoResult = con.prepareStatement(maxLineNoSQL).executeQuery();
-        if (maxOrderLineNoResult.next()){
+        if (maxOrderLineNoResult.next()) {
             maxLineNo = maxOrderLineNoResult.getInt(1);
         }
 
-        int lineNumber= maxLineNo + 1;
+        int lineNumber = maxLineNo + 1;
         double lineCost = product.getRetailPrice() * quantity;
 
         // insert attributes into statement
@@ -105,5 +113,90 @@ public class OrderDatabaseOperations {
         setQuantityStatement.setInt(1, newQuantityInStock);
         setQuantityStatement.setString(2, product.getProductCode());
         setQuantityStatement.executeUpdate();
+    }
+
+    public void removeExistingPending(Connection con) throws SQLException{
+    UserDatabaseOperations userDBops = new UserDatabaseOperations();
+
+    PendingOrder pendingOrder = userDBops.getUsersPendingOrder(CurrentUser.getCurrentUser(), con);
+    int i=0;
+    while (pendingOrder != null && i<100){
+        // remove lines of pending order
+        String removePendingLines = "DELETE FROM OrderLines WHERE OrderNumber = ?";
+        PreparedStatement removeLinePrep = con.prepareStatement(removePendingLines);
+        removeLinePrep.setInt(1, pendingOrder.getOrderNumber());
+        removeLinePrep.executeUpdate();
+
+        // remove pending order
+        String removePendingSQL = "DELETE FROM Orders WHERE OrderStatus = 'pending' AND UserID = ?";
+        PreparedStatement removePendingStatement = con.prepareStatement(removePendingSQL);
+        removePendingStatement.setString(1, CurrentUser.getCurrentUser().getUserID());
+        removePendingStatement.executeUpdate();
+
+        // cleanup any possible other pending orders
+        pendingOrder = userDBops.getUsersPendingOrder(CurrentUser.getCurrentUser(), con);
+        i++;
         }
     }
+
+    protected ConfirmedOrder confirmOrder(Connection con) throws SQLException{
+        String confirmSQL = "UPDATE Orders SET OrderStatus = 'confirmed' WHERE OrderNumber = ?";
+        PreparedStatement confirmState = con.prepareStatement(confirmSQL);
+        confirmState.setInt(1, order.orderNumber);
+        confirmState.executeUpdate();
+
+        ConfirmedOrder confirmedOrder = new ConfirmedOrder(order);
+        return confirmedOrder;
+    }
+
+    protected FulfilledOrder fulfillOrder(Connection con) throws SQLException{
+        String fulfillSQL = "UPDATE Orders SET OrderStatus = 'fulfilled' WHERE OrderNumber = ?";
+        PreparedStatement fulfillState = con.prepareStatement(fulfillSQL);
+        fulfillState.setInt(1, order.orderNumber);
+        fulfillState.executeUpdate();
+
+        FulfilledOrder fulfilledOrder = new FulfilledOrder(order);
+        return fulfilledOrder;
+    }
+
+    public static int fulfillOrderFromOrderNumber(int orderNo, Connection con) throws SQLException{
+        String fulfillSQL = "UPDATE Orders SET OrderStatus = 'fulfilled' WHERE OrderNumber = ?";
+        PreparedStatement fulfillState = con.prepareStatement(fulfillSQL);
+        fulfillState.setInt(1, orderNo);
+        return fulfillState.executeUpdate();
+    }
+
+    public static int deleteOrderFromOrderNumber(int orderNo, Connection con) throws SQLException{
+        // delete related order lines
+        String deleteLinesSQL = "DELETE FROM OrderLines WHERE OrderNumber = ?";
+        PreparedStatement deleteLinesStatement = con.prepareStatement(deleteLinesSQL);
+        deleteLinesStatement.setInt(1, orderNo);
+        deleteLinesStatement.executeUpdate();
+        
+        //delete order
+        String deleteSQL = "DELETE FROM Orders WHERE OrderNumber = ?";
+        PreparedStatement deletestatement = con.prepareStatement(deleteSQL);
+        deletestatement.setInt(1, orderNo);
+        return deletestatement.executeUpdate();
+    }
+
+    /*
+    public static Order getOrderFromNumber(int orderNumber, Connection con){
+        Order orderFromNumber = null;
+        String getSQL = "SELECT * FROM Orders WHERE OrderNumber = ?";
+        PreparedStatement preparedStatement = con.prepareStatement(getSQL);
+        ResultSet orderResults = preparedStatement.executeQuery();
+
+        if (orderResults.next()){
+            int orderNo = orderResults.getInt("OrderNumber");
+            Date orderDate = orderResults.getDate("OrderDate");
+            double totalCost = orderResults.getDouble("TotalCost");
+            String status = orderResults.getString("OrderStatus");
+            String userID = orderResults.getString("UserID");
+
+            orderFromNumber = new Order(orderNo, orderDate, status, )
+        }
+    }
+
+     */
+}

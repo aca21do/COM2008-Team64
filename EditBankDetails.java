@@ -8,7 +8,7 @@ public class EditBankDetails extends JFrame {
     private JPanel editBankDetailsPanel;
     private JTextField cardNumberTextField;
     private JTextField bankCardNameTextField;
-    private JTextField cardHolderNameTextFeild;
+    private JTextField cardHolderNameTextField;
     private JTextField expiryDateTextField;
     private JTextField securityCodeTextField;
     private JButton updateBankDetailsButton;
@@ -38,7 +38,7 @@ public class EditBankDetails extends JFrame {
                     // check all fields not empty
                     if (! ( cardNumberTextField.getText().isBlank() &&
                             bankCardNameTextField.getText().isBlank() &&
-                            cardHolderNameTextFeild.getText().isBlank() &&
+                            cardHolderNameTextField.getText().isBlank() &&
                             expiryDateTextField.getText().isBlank() &&
                             securityCodeTextField.getText().isBlank() )){
 
@@ -46,7 +46,7 @@ public class EditBankDetails extends JFrame {
                         User user = CurrentUser.getCurrentUser();
                         PaymentMethod newPayment = new PaymentMethod(
                                 bankCardNameTextField.getText(),
-                                cardHolderNameTextFeild.getText(),
+                                cardHolderNameTextField.getText(),
                                 Integer.valueOf(cardNumberTextField.getText()),
                                 expiryDateTextField.getText().toCharArray(),
                                 Integer.valueOf(securityCodeTextField.getText()));
@@ -90,7 +90,7 @@ public class EditBankDetails extends JFrame {
         logoutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                CurrentUser.logout();
+                CurrentUser.logout(connection);
                 new MainFrame().setVisible(true);
                 setVisible(false);
             }
