@@ -87,6 +87,9 @@ public class User {
     public boolean getIsBlocked(UserDatabaseOperations userDatabaseOperations, Connection con) throws SQLException{
         return userDatabaseOperations.userIsBlocked(this, con);
     }
+    public String getCombinedName(){
+        return (this.personalRecord.forename + this.personalRecord.surname);
+    }
 
 
 
