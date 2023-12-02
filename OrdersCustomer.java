@@ -1,5 +1,4 @@
 import javax.swing.*;
-import javax.swing.event.ListDataListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import java.awt.event.ActionEvent;
@@ -18,7 +17,7 @@ public class OrdersCustomer extends JFrame {
     private JPanel ordersCustomerPanel;
     private JLabel tableLabel;
     private JButton ordersHistoryButton;
-    private JButton myOrdersButton;
+    private JButton pendingOrderBugtton;
     private JButton placeOrdersButton;
     private JComboBox deleteLineComboBox;
 
@@ -75,7 +74,7 @@ public class OrdersCustomer extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ordersHistoryButton.setEnabled(false);
-                myOrdersButton.setEnabled(true);
+                pendingOrderButton.setEnabled(true);
                 placeOrdersButton.setEnabled(false);
                 tableLabel.setText("Order History Items");
 
@@ -130,10 +129,10 @@ public class OrdersCustomer extends JFrame {
                 ordersTable.setModel(dataModel);
             }
         });
-        myOrdersButton.addActionListener(new ActionListener() {
+        pendingOrderButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                myOrdersButton.setEnabled(false);
+                pendingOrderButton.setEnabled(false);
                 ordersHistoryButton.setEnabled(true);
                 placeOrdersButton.setEnabled(true);
                 populateDeleteLineComboBox();

@@ -58,13 +58,14 @@
           <text value="Select Order List"/>
         </properties>
       </component>
-      <component id="72b3d" class="javax.swing.JButton" binding="myOrdersButton">
+      <component id="72b3d" class="javax.swing.JButton" binding="pendingOrderButton">
         <constraints>
           <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <enabled value="true"/>
-          <text value="My Orders"/>
+          <label value="Pending Order"/>
+          <text value="Pending Order"/>
         </properties>
       </component>
       <component id="908d7" class="javax.swing.JButton" binding="ordersHistoryButton">
