@@ -40,7 +40,7 @@ public class OrdersStaff extends JFrame {
         UserDatabaseOperations userDBOps = new UserDatabaseOperations();
         CurrentUser.updateBasketFromDB(userDBOps, connection);
 
-
+        //---------------------------------- generate table (start) -----------------------------
         // set column names for table and create initial object
         String[] columnNames = {"OrderNumber", "Date", "TotalCost", "Status",
                 "Name", "Email", "Address", "payment valid",
@@ -112,6 +112,7 @@ public class OrdersStaff extends JFrame {
         }
 
         ordersTable.setModel(dataModel);
+        //---------------------------------- generate table (finish) -----------------------------
 
         browseButton.addActionListener(new ActionListener() {
             @Override
@@ -159,8 +160,87 @@ public class OrdersStaff extends JFrame {
                 fulfillNextOrderButton.setEnabled(false);
                 deleteNextOrderButton.setEnabled(false);
                 tableLabel.setText("Orders Archive");
+
+
+                //---------------------------------- generate table (start) -----------------------------
+                // set column names for table and create initial object
+                String[] columnNames = {"OrderNumber", "Date", "TotalCost", "Status",
+                        "Name", "Email", "Address", "payment valid",
+                        "Order Line No.", "ProductCode", "Quantity", "LineCost"};
+                DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0);
+
+                // add data to model
+                try {
+                    // get confirmed orders
+                    String sql = "SELECT * FROM Orders WHERE OrderStatus = \"fulfilled\"";
+                    PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                    ResultSet ordersResults = preparedStatement.executeQuery();
+                    boolean displayOrder = true;// true represents an order, false an order line
+                    Object[] data;
+
+                    // for every confirmed order
+                    while (ordersResults.next()) {
+                        // get the order lines
+                        sql = "SELECT * FROM OrderLines WHERE OrderNumber=?";
+                        preparedStatement = connection.prepareStatement(sql);
+                        preparedStatement.setInt(1, ordersResults.getInt("OrderNumber"));
+                        ResultSet orderLinesResults = preparedStatement.executeQuery();
+
+                        // get the user
+                        String userID = ordersResults.getString("UserID");
+                        User ordersUser = userDBOps.getUserFromID(userID, connection);
+                        String ordersUserPayment = "no";
+                        if (ordersUser.getHasPayment() != null){ ordersUserPayment = "yes";}
+
+                        // for each order line, add to table
+                        while (orderLinesResults.next()) {
+                            // if first line in order, show order details and order line
+                            if (displayOrder) {
+                                data = new Object[]{
+                                        // Order info
+                                        ordersResults.getInt("OrderNumber"),
+                                        ordersResults.getDate("OrderDate"),
+                                        ordersResults.getDouble("TotalCost"),
+                                        ordersResults.getString("OrderStatus"),
+                                        // order's user info
+                                        ordersUser.getCombinedName(),
+                                        ordersUser.getEmail(),
+                                        ordersUser.getAddress().toString(),
+                                        ordersUserPayment,
+                                        // order line info
+                                        orderLinesResults.getString("OrderLineNumber"),
+                                        orderLinesResults.getString("ProductCode"),
+                                        orderLinesResults.getInt("Quantity"),
+                                        orderLinesResults.getDouble("LineCost")};
+
+                                displayOrder = false;
+                            }
+                            // if not first line in order, just show order line
+                            else {
+                                data = new Object[]{"", "", "", "", "", "", "", "",
+                                        orderLinesResults.getString("OrderLineNumber"),
+                                        orderLinesResults.getString("ProductCode"),
+                                        orderLinesResults.getInt("Quantity"),
+                                        orderLinesResults.getDouble("LineCost")};
+
+                            }
+                            dataModel.addRow(data); // add to model
+                        }
+                        displayOrder = true;
+                    }
+
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+
+                ordersTable.setModel(dataModel);
+                //---------------------------------- generate table (finish) -----------------------------
             }
         });
+
+
+
+
         fulfillNextOrderButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
