@@ -116,10 +116,6 @@ public class ViewProduct extends JFrame {
                         if (!eraCodeTextField.getText().isBlank()) {rollingStock.setEraCode(eraCodeTextField.getText());}
                     }
 
-                    System.out.println(eraCodeTextField.getText());
-                    if (updatedInventoryItem.getProduct() instanceof Locomotive locomotive) {
-                        System.out.println(locomotive.getEraCode());
-                    }
                     inventory.updateItem(updatedInventoryItem, connection);
                     updateMessage = "Product Updated";
 
@@ -134,7 +130,19 @@ public class ViewProduct extends JFrame {
         deleteProductButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String deleteMessage = "";
+                try {
+                    InventoryItem inventoryItem = inventory.getInventoryItem(productCode, connection);
+                    inventoryItem.setQuantity(0);
 
+                    inventory.updateItem(inventoryItem, connection);
+                    deleteMessage = "Product Deleted";
+
+                } catch (SQLException exception) {
+                    deleteMessage = exception.getMessage();
+                } finally {
+                    updateMessageLabel.setText(deleteMessage);
+                }
             }
         });
         backButton.addActionListener(new ActionListener() {
