@@ -96,5 +96,14 @@ public class OrderDatabaseOperations {
 
         OrderLine newOrderLine = new OrderLine(lineNumber, lineCost, quantity, product);
         order.orderLines.add(newOrderLine);
+
+        InventoryItem inventoryItem = InventoryManager.getInventory().getInventoryItem(product.getProductCode(), con);
+        int newQuantityInStock = inventoryItem.getQuantity() - quantity;
+
+        String setQuantitySQL = "UPDATE Inventory SET Quantity = ? WHERE ProductCode = ?";
+        PreparedStatement setQuantityStatement = con.prepareStatement(setQuantitySQL);
+        setQuantityStatement.setInt(1, newQuantityInStock);
+        setQuantityStatement.setString(2, product.getProductCode());
+        setQuantityStatement.executeUpdate();
         }
     }
