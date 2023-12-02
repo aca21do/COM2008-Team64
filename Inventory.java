@@ -11,11 +11,15 @@ import java.util.Locale;
 public class Inventory {
     public void insertItem(InventoryItem inventoryItem, Connection connection) throws SQLException {
         try {
+            //Processes an SQL theory to check if a product already exists
             String sql = "SELECT * FROM Products WHERE ProductCode = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, inventoryItem.getProduct().getProductCode());
             ResultSet resultSet = preparedStatement.executeQuery();
+
+            //if it doesn't already exist add it to the db tables
             if (!resultSet.next()) {
+                //Adds all products to products table no matter what type it is
                 sql = "INSERT INTO Products (ProductCode, GaugeCode) VALUES (?, ?)";
                 preparedStatement = connection.prepareStatement(sql);
                 preparedStatement.setString(1, inventoryItem.getProduct().getProductCode());
@@ -23,6 +27,7 @@ public class Inventory {
                 int rowsAffected = preparedStatement.executeUpdate();
                 System.out.println(rowsAffected + " row(s) inserted successfully.");
 
+                //checks which type of product it is and changes the relevant tables as necessary
                 if (inventoryItem.getProduct().getProductCode().charAt(0) == 'S') {
                     RollingStock product = (RollingStock) inventoryItem.getProduct();
                     sql = "INSERT INTO Eras (ProductCode, EraCode) VALUES (?,?)";
@@ -92,10 +97,13 @@ public class Inventory {
                 }
             }
 
+            //checks if the item being inserted is in inventory or not
             sql = "SELECT * FROM Inventory WHERE ProductCode = ?";
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, inventoryItem.getProduct().getProductCode());
             resultSet = preparedStatement.executeQuery();
+
+            //if not inserts a new record into the inventory otherwise updates the value
             if (!resultSet.next()) {
                 sql = "INSERT INTO Inventory (ProductCode, BrandName, ProductName, Price, Quantity) VALUES (?, ?, ?, ?, ?)";
                 preparedStatement = connection.prepareStatement(sql);
@@ -131,6 +139,7 @@ public class Inventory {
         }
     }
 
+    //function to change the quantity of stock of a product in the database
     public void updateStock(Product product, int quantity, Connection connection) throws SQLException{
         try {
             String sql = "UPDATE Inventory SET quantity=? WHERE ProductCode=?";
@@ -154,16 +163,19 @@ public class Inventory {
     }
 
 
-
+    //function to return the correct class for the different products to get access to methods and attributes
     public Product returnProductSubClass(String productCode, Connection connection) throws SQLException {
         try {
+            //gets the first letter of the product code to identify which type it is
             Character firstLetter = productCode.toUpperCase().charAt(0);
 
+            //gets the records from inventory to insert the attributes into the objects
             String sql = "SELECT * FROM Inventory WHERE ProductCode = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, productCode);
             ResultSet resultSet = preparedStatement.executeQuery();
 
+            //gets the records from products to insert gaugeCodes
             sql = "SELECT * FROM Products WHERE ProductCode=?";
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, productCode);
@@ -172,6 +184,7 @@ public class Inventory {
             resultSet.next();
             resultSet1.next();
 
+            //returns the correct classes with the correct attributes based on the productCode first letter
             if (firstLetter == 'L') {
 
                 sql = "SELECT * FROM Eras WHERE ProductCode = ?";
@@ -305,8 +318,10 @@ public class Inventory {
         }
     }
 
+    //function to get an InventoryItem class object based on the productCode
     public InventoryItem getInventoryItem(String productCode, Connection connection) throws SQLException {
         try {
+            //gets that product data from the database
             String sql = "SELECT * FROM Inventory WHERE ProductCode = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, productCode);
@@ -314,11 +329,14 @@ public class Inventory {
 
             resultSet.next();
 
+            //gets the correct type of product using the previous function
             Product product = returnProductSubClass(productCode, connection);
             if (product == null) {
                 System.out.println("Invalid Product Code");
                 return null;
             }
+
+            //creates the InventoryItem object with the product and the quantity
             InventoryItem inventoryItem = new InventoryItem(product, resultSet.getInt("Quantity"));
             return inventoryItem;
         }
@@ -328,8 +346,10 @@ public class Inventory {
         }
     }
 
+    //function to update the database for a specific item
     public void updateItem (InventoryItem inventoryItem, Connection connection) throws SQLException {
         try {
+            //Creates an SQL statement based on the items being updated and changes the values in the database
             String sql = "UPDATE Inventory SET BrandName=?, ProductName=?, Price=?, Quantity=? WHERE ProductCode=?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, inventoryItem.getProduct().getBrandName());
@@ -339,6 +359,7 @@ public class Inventory {
             preparedStatement.setString(5, inventoryItem.getProduct().getProductCode());
             insertItem(inventoryItem, connection);
 
+            //updates extra values based on the type of item the product is
             Character firstletter = inventoryItem.getProduct().getProductCode().toUpperCase().charAt(0);
             if (firstletter == 'S') {
                 sql = "UPDATE Eras SET EraCode=? WHERE ProductCode=?";

@@ -20,6 +20,7 @@ public class CatalogueCustomer extends JFrame {
     private JButton managerViewButton;
     private JButton addToOrderButton;
     private JComboBox quantityComboBox;
+    private JLabel errorLabel;
     private JTextField quantityTextField;
 
     public DefaultTableModel returnSetOrPackDataModel(Character selectedCategory,Connection connection) throws SQLException {
@@ -110,6 +111,103 @@ public class CatalogueCustomer extends JFrame {
             throw e;
         }
     }
+
+    public void populateTable(Connection connection) {
+        String[] columnNames = {"ProductCode", "BrandName", "ProductName", "Price", "Quantity",
+                "GaugeCode", "EraCode", "DCCCode"};
+        Object[] data;
+        String era;
+        String dccCode;
+
+        DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0){
+            @Override
+            public boolean isCellEditable(int i, int i1) {
+                return false;
+            }
+        };
+
+
+        Character selectedCategory = null;
+        if (categoryComboBox.getSelectedItem() == "Train Sets") {
+            selectedCategory = 'M';
+        }
+        else if (categoryComboBox.getSelectedItem() == "Train Packs") {
+            selectedCategory = 'P';
+        }
+        else if (categoryComboBox.getSelectedItem() == "Locomotives") {
+            selectedCategory = 'L';
+        }
+        else if (categoryComboBox.getSelectedItem() == "Rolling Stocks") {
+            selectedCategory = 'S';
+        }
+        else if (categoryComboBox.getSelectedItem() == "Tracks") {
+            selectedCategory = 'R';
+        }
+        else if (categoryComboBox.getSelectedItem() == "Controllers") {
+            selectedCategory = 'C';
+        }
+
+        if (selectedCategory == 'P' || selectedCategory == 'M') {
+            try {
+                dataModel = returnSetOrPackDataModel(selectedCategory, connection);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        else {
+            try {
+                String sql = "SELECT * FROM Inventory";
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                while (resultSet.next()) {
+                    String productCode = resultSet.getString("ProductCode");
+
+                    if (productCode.toUpperCase().charAt(0) == selectedCategory) {
+                        sql = "SELECT * FROM Products WHERE ProductCode = ?";
+                        preparedStatement = connection.prepareStatement(sql);
+                        preparedStatement.setString(1, productCode);
+                        ResultSet gaugeCodes = preparedStatement.executeQuery();
+                        gaugeCodes.next();
+
+                        sql = "SELECT * FROM Eras WHERE ProductCode = ?";
+                        preparedStatement = connection.prepareStatement(sql);
+                        preparedStatement.setString(1, productCode);
+                        ResultSet eraCodes = preparedStatement.executeQuery();
+
+                        sql = "SELECT * FROM DCCCodes WHERE ProductCode = ?";
+                        preparedStatement = connection.prepareStatement(sql);
+                        preparedStatement.setString(1, productCode);
+                        ResultSet dccCodes = preparedStatement.executeQuery();
+
+                        if (eraCodes.next()) {
+                            era = eraCodes.getString("EraCode");
+                        } else {
+                            era = "";
+                        }
+                        if (dccCodes.next()) {
+                            dccCode = dccCodes.getString("DCCCode");
+                        } else {
+                            dccCode = "";
+                        }
+
+                        data = new Object[]{productCode,
+                                resultSet.getString("BrandName"),
+                                resultSet.getString("ProductName"),
+                                resultSet.getDouble("Price"),
+                                resultSet.getInt("Quantity"),
+                                gaugeCodes.getString("GaugeCode"),
+                                era,
+                                dccCode};
+
+                        dataModel.addRow(data);
+                    }
+                }
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        catalogueTable.setModel(dataModel);
+    }
     public CatalogueCustomer (Connection connection) {
         // panel setup
         setContentPane(catalogueCustomerPanel);
@@ -142,100 +240,7 @@ public class CatalogueCustomer extends JFrame {
         categoryComboBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                String[] columnNames = {"ProductCode", "BrandName", "ProductName", "Price", "Quantity",
-                                            "GaugeCode", "EraCode", "DCCCode"};
-                Object[] data;
-                String era;
-                String dccCode;
-
-                DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0){
-                    @Override
-                    public boolean isCellEditable(int i, int i1) {
-                        return false;
-                    }
-                };
-
-
-                Character selectedCategory = null;
-                if (categoryComboBox.getSelectedItem() == "Train Sets") {
-                    selectedCategory = 'M';
-                }
-                else if (categoryComboBox.getSelectedItem() == "Train Packs") {
-                    selectedCategory = 'P';
-                }
-                else if (categoryComboBox.getSelectedItem() == "Locomotives") {
-                    selectedCategory = 'L';
-                }
-                else if (categoryComboBox.getSelectedItem() == "Rolling Stocks") {
-                    selectedCategory = 'S';
-                }
-                else if (categoryComboBox.getSelectedItem() == "Tracks") {
-                    selectedCategory = 'R';
-                }
-                else if (categoryComboBox.getSelectedItem() == "Controllers") {
-                    selectedCategory = 'C';
-                }
-
-                if (selectedCategory == 'P' || selectedCategory == 'M') {
-                    try {
-                        dataModel = returnSetOrPackDataModel(selectedCategory, connection);
-                    } catch (SQLException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-                else {
-                    try {
-                        String sql = "SELECT * FROM Inventory";
-                        PreparedStatement preparedStatement = connection.prepareStatement(sql);
-                        ResultSet resultSet = preparedStatement.executeQuery();
-                        while (resultSet.next()) {
-                            String productCode = resultSet.getString("ProductCode");
-
-                            if (productCode.toUpperCase().charAt(0) == selectedCategory) {
-                                sql = "SELECT * FROM Products WHERE ProductCode = ?";
-                                preparedStatement = connection.prepareStatement(sql);
-                                preparedStatement.setString(1, productCode);
-                                ResultSet gaugeCodes = preparedStatement.executeQuery();
-                                gaugeCodes.next();
-
-                                sql = "SELECT * FROM Eras WHERE ProductCode = ?";
-                                preparedStatement = connection.prepareStatement(sql);
-                                preparedStatement.setString(1, productCode);
-                                ResultSet eraCodes = preparedStatement.executeQuery();
-
-                                sql = "SELECT * FROM DCCCodes WHERE ProductCode = ?";
-                                preparedStatement = connection.prepareStatement(sql);
-                                preparedStatement.setString(1, productCode);
-                                ResultSet dccCodes = preparedStatement.executeQuery();
-
-                                if (eraCodes.next()) {
-                                    era = eraCodes.getString("EraCode");
-                                } else {
-                                    era = "";
-                                }
-                                if (dccCodes.next()) {
-                                    dccCode = dccCodes.getString("DCCCode");
-                                } else {
-                                    dccCode = "";
-                                }
-
-                                data = new Object[]{productCode,
-                                        resultSet.getString("BrandName"),
-                                        resultSet.getString("ProductName"),
-                                        resultSet.getDouble("Price"),
-                                        resultSet.getInt("Quantity"),
-                                        gaugeCodes.getString("GaugeCode"),
-                                        era,
-                                        dccCode};
-
-                                dataModel.addRow(data);
-                            }
-                        }
-                    } catch (SQLException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-                catalogueTable.setModel(dataModel);
+                populateTable(connection);
             }
         });
         ordersButton.addActionListener(new ActionListener() {
@@ -271,6 +276,7 @@ public class CatalogueCustomer extends JFrame {
         addToOrderButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String addToOrderMessage = "Error adding to order";
 
                 try {
                     Inventory inventory = new Inventory();
@@ -280,18 +286,28 @@ public class CatalogueCustomer extends JFrame {
                     String productCode = catalogueTable.getModel().getValueAt(row, column).toString();
                     System.out.println("product code is " + productCode);
                     InventoryItem inventoryItem = inventory.getInventoryItem(productCode, connection);
+                    Product product = inventoryItem.getProduct();
                     int quantityInStock = inventoryItem.getQuantity();
 
                     // get the quantity to add to order
-                    int quantityToAdd = quantityComboBox.getSelectedIndex();
+                    int quantityToAdd = quantityComboBox.getSelectedIndex() + 1;
                     if (quantityToAdd <= quantityInStock) {
-                        UserDatabaseOperations userDBOps = new UserDatabaseOperations();
-                        ArrayList<Order> usersOrders = userDBOps.getUsersOrders(CurrentUser.getCurrentUser(), connection);
-                        System.out.println(usersOrders.toString());
+                        CurrentUser.getBasket().addOrderLine(product, quantityToAdd, connection);
+
+                        addToOrderMessage = ("added " + String.valueOf(quantityToAdd) + " " +
+                                inventoryItem.getProduct().getProductName());
+                    }
+                    else {
+                        addToOrderMessage = "item not added: not enough in stock";
                     }
                 }
                 catch(Exception exception){
                     exception.printStackTrace();
+                }
+                finally {
+                    errorLabel.setText(addToOrderMessage);
+                    errorLabel.updateUI();
+                    populateTable(connection);
                 }
             }
         });

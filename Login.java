@@ -54,6 +54,12 @@ public class Login extends JFrame {
                     if (loginMessage.equals("success")){
                         User userToLogin = userDatabaseOperations.getUserFromEmail(email, connection);
                         CurrentUser.setCurrentUser(userToLogin);
+                        PendingOrder basket =
+                                userDatabaseOperations.getUsersPendingOrder(CurrentUser.getCurrentUser(), connection);
+                        if (basket == null){
+                            basket = PendingOrder.getNewPendingOrder(CurrentUser.getCurrentUser(), connection);
+                        }
+                        CurrentUser.setBasket(basket);
                     }
                 }
                 catch (SQLException exception){

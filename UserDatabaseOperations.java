@@ -74,6 +74,7 @@ public class UserDatabaseOperations {
         hasAddressStatement.setInt(2, usersAddress.getHouseNumber());
         hasAddressStatement.setString(3, usersAddress.getPostcode());
         hasAddressStatement.executeUpdate();
+
     }
 
 
@@ -694,7 +695,7 @@ public class UserDatabaseOperations {
 
                     InventoryItem inventoryItem = InventoryManager.getInventory().getInventoryItem(productCode, con);
                     Product product = inventoryItem.getProduct();
-                    OrderLine newOrderline = new OrderLine(lineCost, quantity, product);
+                    OrderLine newOrderline = new OrderLine(orderLineNumber, lineCost, quantity, product);
                     orderLines.add(newOrderline);
                 }
 
@@ -715,5 +716,54 @@ public class UserDatabaseOperations {
         }
 
     }
+
+    public PendingOrder getUsersPendingOrder(User user, Connection con){
+        try {
+            PendingOrder usersPendingOrder = null;
+
+            // find orders belonging to user
+            String usersOrdersSQL = "Select * FROM Orders WHERE OrderStatus = 'pending' AND UserID = ?";
+            PreparedStatement usersOrdersState = con.prepareStatement(usersOrdersSQL);
+            usersOrdersState.setString(1, user.getUserID());
+            ResultSet usersOrdersResults = usersOrdersState.executeQuery();
+
+            if (usersOrdersResults.next()) {
+                //get attributes
+                int orderNumber = usersOrdersResults.getInt("OrderNumber");
+                Date orderDate = usersOrdersResults.getDate("OrderDate");
+                String orderStatus = usersOrdersResults.getString("OrderStatus");
+
+                // get order lines
+                ArrayList<OrderLine> orderLines = new ArrayList<OrderLine>();
+                String getLinesSQL = "SELECT * FROM OrderLines WHERE OrderNumber = ?";
+                PreparedStatement getLinesState = con.prepareStatement(getLinesSQL);
+                getLinesState.setInt(1, orderNumber);
+                ResultSet getLinesResults = getLinesState.executeQuery();
+
+                // add each orderLine to order
+                while (getLinesResults.next()) {
+                    int orderLineNumber = getLinesResults.getInt("OrderLineNumber");
+                    String productCode = getLinesResults.getString("ProductCode");
+                    int quantity = getLinesResults.getInt("Quantity");
+                    double lineCost = getLinesResults.getDouble("LineCost");
+
+                    InventoryItem inventoryItem = InventoryManager.getInventory().getInventoryItem(productCode, con);
+                    Product product = inventoryItem.getProduct();
+                    OrderLine newOrderline = new OrderLine(orderLineNumber, lineCost, quantity, product);
+                    orderLines.add(newOrderline);
+                }
+
+                usersPendingOrder = new PendingOrder(orderNumber, orderDate, orderStatus, orderLines);
+            }
+            return usersPendingOrder;
+        }
+        catch (SQLException error){
+            error.printStackTrace();
+            return null;
+        }
+
+    }
+
+
 
 }

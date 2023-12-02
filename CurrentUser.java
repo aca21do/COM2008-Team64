@@ -1,7 +1,9 @@
 public class CurrentUser {
     // stores a single user, which is logged in
     private static User currentUser;
+    private static PendingOrder basket;
 
+    // --------CURRENT USER-------
     // constructor
     private CurrentUser() {
         // can't be instantiated
@@ -13,8 +15,20 @@ public class CurrentUser {
     public static void setCurrentUser(User user) {
         currentUser = user;
     }
-    public static void logout(){ currentUser = null;}
+    public static void logout(){
+        currentUser = null;
+        basket = null;
+    }
     public static boolean isLoggedIn(){
         return currentUser != null;
+    }
+
+    // -------basket------
+
+    public static PendingOrder getBasket() {
+        return basket;
+    }
+    public static void setBasket(PendingOrder newBasket) {
+        basket = newBasket;
     }
 }

@@ -90,6 +90,7 @@ public class EditBankDetails extends JFrame {
         logoutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                CurrentUser.logout();
                 new MainFrame().setVisible(true);
                 setVisible(false);
             }
