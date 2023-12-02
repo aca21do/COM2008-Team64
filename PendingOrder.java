@@ -77,4 +77,8 @@ public class PendingOrder extends Order{
         return emptyPendingOrder;
     }
 
+    public void addOrderLine(Product p, int quantity, Connection con) throws SQLException{
+        dbOperations.insertOrderLine(p, quantity, con);
+    }
+
 }

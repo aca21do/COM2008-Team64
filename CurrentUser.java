@@ -26,7 +26,7 @@ public class CurrentUser {
     // -------basket------
 
     public static PendingOrder getBasket() {
-        return getBasket();
+        return basket;
     }
     public static void setBasket(PendingOrder newBasket) {
         basket = newBasket;

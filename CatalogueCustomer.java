@@ -20,6 +20,7 @@ public class CatalogueCustomer extends JFrame {
     private JButton managerViewButton;
     private JButton addToOrderButton;
     private JComboBox quantityComboBox;
+    private JLabel errorLabel;
     private JTextField quantityTextField;
 
     public DefaultTableModel returnSetOrPackDataModel(Character selectedCategory,Connection connection) throws SQLException {
@@ -281,22 +282,27 @@ public class CatalogueCustomer extends JFrame {
                     String productCode = catalogueTable.getModel().getValueAt(row, column).toString();
                     System.out.println("product code is " + productCode);
                     InventoryItem inventoryItem = inventory.getInventoryItem(productCode, connection);
+                    Product product = inventoryItem.getProduct();
                     int quantityInStock = inventoryItem.getQuantity();
 
                     // get the quantity to add to order
-                    int quantityToAdd = quantityComboBox.getSelectedIndex();
+                    int quantityToAdd = quantityComboBox.getSelectedIndex() + 1;
                     if (quantityToAdd <= quantityInStock) {
-                        UserDatabaseOperations userDBOps = new UserDatabaseOperations();
-                        ArrayList<Order> usersOrders = userDBOps.getUsersOrders(CurrentUser.getCurrentUser(), connection);
-                        usersOrders.removeIf(order -> order.getOrderStatus() != "pending");
-                        PendingOrder UsersPendingOrder = new PendingOrder(usersOrders.get(0));
+                        CurrentUser.getBasket().addOrderLine(product, quantityToAdd, connection);
 
-
-                        System.out.println(usersOrders.toString());
+                        addToOrderMessage = ("added " + String.valueOf(quantityToAdd) + " " +
+                                inventoryItem.getProduct().getProductName());
+                    }
+                    else {
+                        addToOrderMessage = "item not added: not enough in stock";
                     }
                 }
                 catch(Exception exception){
                     exception.printStackTrace();
+                }
+                finally {
+                    errorLabel.setText(addToOrderMessage);
+                    errorLabel.updateUI();
                 }
             }
         });

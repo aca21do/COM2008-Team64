@@ -16,7 +16,7 @@ public class OrderDatabaseOperations {
         if (maxOrderNoResult.next()){
             maxOrderNo = maxOrderNoResult.getInt(1);
         }
-                order.setOrderNumber(maxOrderNo + 1);
+        order.setOrderNumber(maxOrderNo + 1);
         String insertOrderSQL =
                 "INSERT INTO Orders (OrderNumber, OrderDate, TotalCost, OrderStatus, UserID)" +
                         " VALUES (?, ?, ?, ?, ?)";
@@ -37,7 +37,13 @@ public class OrderDatabaseOperations {
         return order;
     }
 
-    public int insertOrderLines(Connection con) throws SQLException {
+    /**
+     * Automatically inserts order lines for a order which has not been added to the database yet.
+     * @param con
+     * @return
+     * @throws SQLException
+     */
+    private int insertOrderLines(Connection con) throws SQLException {
         int linesAdded = 0;
         ArrayList<OrderLine> lines = order.getOrderLines();
 
@@ -60,5 +66,35 @@ public class OrderDatabaseOperations {
         return linesAdded;
     }
 
+    public void insertOrderLine(Product product, int quantity, Connection con) throws SQLException {
+        int maxLineNo = 0;
+        int linesAdded = 0;
 
-}
+        String insertOrderLineSQL =
+                "INSERT INTO OrderLines (OrderNumber,OrderLineNumber, ProductCode, Quantity, LineCost)" +
+                        " VALUES (?, ?, ?, ?, ?)";
+        PreparedStatement insertLineState = con.prepareStatement(insertOrderLineSQL);
+
+        // set line number and cost
+        String maxLineNoSQL = "SELECT MAX(OrderLineNumber) FROM OrderLines";
+        ResultSet maxOrderLineNoResult = con.prepareStatement(maxLineNoSQL).executeQuery();
+        if (maxOrderLineNoResult.next()){
+            maxLineNo = maxOrderLineNoResult.getInt(1);
+        }
+
+        int lineNumber= maxLineNo + 1;
+        double lineCost = product.getRetailPrice() * quantity;
+
+        // insert attributes into statement
+        insertLineState.setInt(1, order.getOrderNumber());
+        insertLineState.setInt(2, lineNumber);
+        insertLineState.setString(3, product.getProductCode());
+        insertLineState.setInt(4, quantity);
+        insertLineState.setDouble(5, lineCost);
+
+        linesAdded += insertLineState.executeUpdate();
+
+        OrderLine newOrderLine = new OrderLine(lineNumber, lineCost, quantity, product);
+        order.orderLines.add(newOrderLine);
+        }
+    }
