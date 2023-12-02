@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class CreateProductSet extends JFrame {
@@ -18,9 +20,18 @@ public class CreateProductSet extends JFrame {
     private JTextField productToRemoveTextField;
     private JTextField productToAddTextField;
     private JComboBox removeQuantityComboBox;
-    private JButton createSetButton;
-    private JLabel errorLabel;
     private JButton confirmButton;
+
+    public void populateTable(Connection connection) {
+        String productCode = setCodeTextField.getText();
+        try {
+            Pack product = (Pack) InventoryManager.getInventory().getInventoryItem(productCode, connection)
+                    .getProduct();
+            productTable.setModel(product.getComponentProductCodes());
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
     public CreateProductSet (Connection connection) {
         // panel setup
@@ -71,22 +82,81 @@ public class CreateProductSet extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String setProductCode = setCodeTextField.getText();
                 InventoryItem inventoryItem;
+                String sql;
                 try {
                     inventoryItem = InventoryManager.getInventory().getInventoryItem(setProductCode,
                             connection);
+                    boolean present = false;
+                    int quantityAdd = 0;
+                    if (setProductCode.charAt(0) == 'M') {
+                        Set product = (Set) inventoryItem.getProduct();
+
+                        sql = "SELECT * FROM SetAndPackComponents WHERE ProductCode=?";
+                        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                        preparedStatement.setString(1, setProductCode);
+                        ResultSet resultSet = preparedStatement.executeQuery();
+
+                        while (resultSet.next()) {
+                            if (resultSet.getString("ComponentProductCode") == productToAddTextField.getText()) {
+                                present = true;
+                                quantityAdd = resultSet.getInt("Quantity");
+                            }
+                        }
+                        if (present) {
+                            sql = "UPDATE SetAndPackComponents SET Quantity=? WHERE ComponentProductCode=?";
+                            preparedStatement = connection.prepareStatement(sql);
+                            preparedStatement.setInt(1, quantityAdd + Integer.valueOf(
+                                                                addQuantityComboBox.getSelectedItem().toString()));
+                            preparedStatement.setString(2, productToAddTextField.getText());
+                        }
+                        else {
+                            sql = "INSERT INTO SetAndPackComponents (ProductCode, ComponentProductCode, Quantity) VALUES (?, ?, ?)";
+                            preparedStatement = connection.prepareStatement(sql);
+                            preparedStatement.setString(1, product.getProductCode());
+                            preparedStatement.setString(2, productToAddTextField.getText());
+                            preparedStatement.setInt(3, Integer.valueOf(
+                                                                    addQuantityComboBox.getSelectedItem().toString()));
+                            int rowsAffected = preparedStatement.executeUpdate();
+                            System.out.println(rowsAffected + " row(s) inserted successfully.");
+                        }
+                    }
+                    else if (setProductCode.charAt(0) == 'P') {
+                        Pack product = (Pack) inventoryItem.getProduct();
+
+                        sql = "SELECT * FROM SetAndPackComponents WHERE ProductCode=?";
+                        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                        preparedStatement.setString(1, setProductCode);
+                        ResultSet resultSet = preparedStatement.executeQuery();
+
+                        while (resultSet.next()) {
+                            if (resultSet.getString("ComponentProductCode") == productToAddTextField.getText()) {
+                                present = true;
+                                quantityAdd = resultSet.getInt("Quantity");
+                            }
+                        }
+                        if (present) {
+                            sql = "UPDATE SetAndPackComponents SET Quantity=? WHERE ComponentProductCode=?";
+                            preparedStatement = connection.prepareStatement(sql);
+                            preparedStatement.setInt(1, quantityAdd + Integer.valueOf(
+                                    addQuantityComboBox.getSelectedItem().toString()));
+                            preparedStatement.setString(2, productToAddTextField.getText());
+                        }
+                        else {
+                            sql = "INSERT INTO SetAndPackComponents (ProductCode, ComponentProductCode, Quantity) VALUES (?, ?, ?)";
+                            preparedStatement = connection.prepareStatement(sql);
+                            preparedStatement.setString(1, product.getProductCode());
+                            preparedStatement.setString(2, productToAddTextField.getText());
+                            preparedStatement.setInt(3, Integer.valueOf(
+                                    addQuantityComboBox.getSelectedItem().toString()));
+                            int rowsAffected = preparedStatement.executeUpdate();
+                            System.out.println(rowsAffected + " row(s) inserted successfully.");
+                        }
+                    }
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);
                 }
-                if (setProductCode.charAt(0) == 'M') {
-                    Set product = (Set) inventoryItem.getProduct();
-                    Object[] component = new Object[] {productToAddTextField.getText(), addQuantityComboBox.getSelectedItem()};
-                    product.getComponentProductCodes().addRow(component);
-                }
-                else if (setProductCode.charAt(0) == 'P') {
-                    Pack product = (Pack) inventoryItem.getProduct();
-                    Object[] component = new Object[] {productToAddTextField.getText(), addQuantityComboBox.getSelectedItem()};
-                    product.getComponentProductCodes().addRow(component);
-                }
+
+                populateTable(connection);
             }
         });
         removeButton.addActionListener(new ActionListener() {
@@ -95,16 +165,11 @@ public class CreateProductSet extends JFrame {
 
             }
         });
-        createSetButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
 
-            }
-        });
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                populateTable(connection);
             }
         });
     }
