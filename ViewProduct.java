@@ -53,8 +53,12 @@ public class ViewProduct extends JFrame {
                 eraCodeTextField.setText(locomotive.getEraCode());
                 dccCodeTextField.setText(locomotive.getDCCCode());
             } else if (product instanceof RollingStock rollingStock) {
+                dccCodeTextField.setEditable(false);
+                dccCodeTextField.setText("");
                 eraCodeTextField.setText(rollingStock.getEraCode());
             } else {
+                eraCodeTextField.setEditable(false);
+                dccCodeTextField.setEditable(false);
                 eraCodeTextField.setText("");
                 dccCodeTextField.setText("");
             }
@@ -67,13 +71,78 @@ public class ViewProduct extends JFrame {
         updateInfoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String updateMessage = "";
 
+                try {
+                    InventoryItem updatedInventoryItem = inventory.getInventoryItem(productCode, connection);
+
+                    if (!brandNameTextField.getText().isBlank()) {updatedInventoryItem.getProduct().
+                            setBrandName(brandNameTextField.getText());}
+                    if (!productNameTextField.getText().isBlank()) {updatedInventoryItem.getProduct().
+                            setProductName(productNameTextField.getText());}
+
+                    if (!priceTextField.getText().isBlank()) {
+                        try {  // no need to handle null exception as it's not blank
+
+                            updatedInventoryItem.getProduct().setRetailPrice(Double.parseDouble(priceTextField.getText()));
+                        } catch (NumberFormatException numberFormatException) {
+                            updatedInventoryItem.getProduct().setRetailPrice(InventoryManager.getInventory().
+                                    getInventoryItem(productCode, connection).getProduct().getRetailPrice());
+                        }
+                    }
+
+                    if (!quantityTextField.getText().isBlank()) {
+                        try {
+                            updatedInventoryItem.setQuantity(Integer.parseInt(quantityTextField.getText()));
+                        } catch (NumberFormatException numberFormatException) {
+                            updatedInventoryItem.setQuantity(InventoryManager.getInventory().
+                                            getInventoryItem(productCode, connection).getQuantity());
+                        }
+                    }
+
+                    if (!gaugeCodeTextField.getText().isBlank()) {
+                        try {
+                            updatedInventoryItem.getProduct().setGaugeCode(Gauge.valueOf(gaugeCodeTextField.getText()));
+                        } catch (IllegalArgumentException illegalArgumentException) {
+                            updatedInventoryItem.getProduct().setGaugeCode(InventoryManager.getInventory().
+                                    getInventoryItem(productCode, connection).getProduct().getGaugeCode());
+                        }
+                    }
+
+                    if (updatedInventoryItem.getProduct() instanceof Locomotive locomotive) {
+                        if (!eraCodeTextField.getText().isBlank()) {locomotive.setEraCode(eraCodeTextField.getText());}
+                        if (!dccCodeTextField.getText().isBlank()) {locomotive.setDCCCode(dccCodeTextField.getText());}
+                    } else if (updatedInventoryItem.getProduct() instanceof RollingStock rollingStock) {
+                        if (!eraCodeTextField.getText().isBlank()) {rollingStock.setEraCode(eraCodeTextField.getText());}
+                    }
+
+                    inventory.updateItem(updatedInventoryItem, connection);
+                    updateMessage = "Product Updated";
+
+                } catch (SQLException exception){
+                    updateMessage = exception.getMessage();
+                } finally {
+                    updateMessageLabel.setText(updateMessage);
+                    updateMessageLabel.updateUI();
+                }
             }
         });
         deleteProductButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String deleteMessage = "";
+                try {
+                    InventoryItem inventoryItem = inventory.getInventoryItem(productCode, connection);
+                    inventoryItem.setQuantity(0);
 
+                    inventory.updateItem(inventoryItem, connection);
+                    deleteMessage = "Product Deleted";
+
+                } catch (SQLException exception) {
+                    deleteMessage = exception.getMessage();
+                } finally {
+                    updateMessageLabel.setText(deleteMessage);
+                }
             }
         });
         backButton.addActionListener(new ActionListener() {

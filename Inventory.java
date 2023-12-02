@@ -116,13 +116,30 @@ public class Inventory {
                 System.out.println(rowsAffected + " row(s) inserted successfully.");
             }
             else {
-                int quantity = resultSet.getInt("quantity") + inventoryItem.getQuantity();
-                sql = "UPDATE Inventory SET quantity=? WHERE ProductCode=?";
+                String brandName = inventoryItem.getProduct().getBrandName();
+                String productName = inventoryItem.getProduct().getProductName();
+                double price = inventoryItem.getProduct().getRetailPrice();
+                int quantity = inventoryItem.getQuantity();
+
+                //sql = "UPDATE Inventory SET (BrandName, ProductName, Price, Quantity) VALUES (?, ?, ?, ?) WHERE ProductCode=?";
+                sql = "UPDATE Inventory SET BrandName=?, ProductName=?, Price=?, Quantity=? WHERE ProductCode=?";
                 preparedStatement = connection.prepareStatement(sql);
-                preparedStatement.setInt(1, quantity);
-                preparedStatement.setString(2, inventoryItem.getProduct().getProductCode());
+                preparedStatement.setString(1, brandName);
+                preparedStatement.setString(2, productName);
+                preparedStatement.setDouble(3, price);
+                preparedStatement.setInt(4, quantity);
+                preparedStatement.setString(5, inventoryItem.getProduct().getProductCode());
 
                 int rowsAffected = preparedStatement.executeUpdate();
+
+                Gauge gauge = inventoryItem.getProduct().getGaugeCode();
+
+                sql = "UPDATE Products SET GaugeCode=? WHERE ProductCode=?";
+                preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1, String.valueOf(gauge));
+                preparedStatement.setString(2, inventoryItem.getProduct().getProductCode());
+
+                rowsAffected += preparedStatement.executeUpdate();
 
                 if (rowsAffected > 0) {
                     System.out.println(rowsAffected + " row(s) updated successfully");
@@ -361,12 +378,11 @@ public class Inventory {
 
             //updates extra values based on the type of item the product is
             Character firstletter = inventoryItem.getProduct().getProductCode().toUpperCase().charAt(0);
-            if (firstletter == 'S') {
+            if (inventoryItem.getProduct() instanceof RollingStock rollingStock) {
                 sql = "UPDATE Eras SET EraCode=? WHERE ProductCode=?";
                 preparedStatement = connection.prepareStatement(sql);
-                RollingStock product = (RollingStock) returnProductSubClass(inventoryItem.getProduct().getProductCode(),
-                                                                                                            connection);
-                preparedStatement.setString(1, product.getEraCode());
+
+                preparedStatement.setString(1, rollingStock.getEraCode());
                 preparedStatement.setString(2, inventoryItem.getProduct().getProductCode());
                 int rowsAffected = preparedStatement.executeUpdate();
 
@@ -374,28 +390,27 @@ public class Inventory {
                     System.out.println(rowsAffected + " row(s) updated successfully");
                 }
                 else {
-                    System.out.println("No rows were updated for ProductCode: " + product.getProductCode());
+                    System.out.println("No rows were updated for ProductCode: " + rollingStock.getProductCode());
                 }
             }
-            else if (firstletter == 'L') {
+            else if (inventoryItem.getProduct() instanceof Locomotive locomotive) {
+                sql = "UPDATE Eras SET EraCode=? WHERE ProductCode=?";
                 preparedStatement = connection.prepareStatement(sql);
-                Locomotive product = (Locomotive) returnProductSubClass(inventoryItem.getProduct().getProductCode(),
-                                                                                                            connection);
-                preparedStatement.setString(1, product.getEraCode());
+
+                preparedStatement.setString(1, locomotive.getEraCode());
                 preparedStatement.setString(2, inventoryItem.getProduct().getProductCode());
                 int rowsAffected = preparedStatement.executeUpdate();
 
                 sql = "UPDATE DCCCodes SET DCCCode=? WHERE ProductCode=?";
                 preparedStatement = connection.prepareStatement(sql);
-                preparedStatement.setString(1, product.getDCCCode());
-                preparedStatement.setString(2, product.getProductCode());
+                preparedStatement.setString(1, locomotive.getDCCCode());
+                preparedStatement.setString(2, locomotive.getProductCode());
                 rowsAffected += preparedStatement.executeUpdate();
 
                 if (rowsAffected > 0) {
                     System.out.println(rowsAffected + " row(s) updated successfully");
-                }
-                else {
-                    System.out.println("No rows were updated for ProductCode: " + product.getProductCode());
+                } else {
+                    System.out.println("No rows were updated for ProductCode: " + locomotive.getProductCode());
                 }
             }
 
