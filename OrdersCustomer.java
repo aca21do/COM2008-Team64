@@ -1,8 +1,7 @@
-import com.mysql.cj.x.protobuf.MysqlxCrud;
-import com.mysql.cj.x.protobuf.MysqlxPrepare;
-
 import javax.swing.*;
+import javax.swing.event.ListDataListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
@@ -21,6 +20,7 @@ public class OrdersCustomer extends JFrame {
     private JButton ordersHistoryButton;
     private JButton myOrdersButton;
     private JButton placeOrdersButton;
+    private JComboBox deleteLineComboBox;
 
     public OrdersCustomer (Connection connection) {
         // panel setup
@@ -136,6 +136,8 @@ public class OrdersCustomer extends JFrame {
                 myOrdersButton.setEnabled(false);
                 ordersHistoryButton.setEnabled(true);
                 placeOrdersButton.setEnabled(true);
+                populateDeleteLineComboBox();
+                deleteLineComboBox.setVisible(true);
                 tableLabel.setText("Order Items");
 
                 String[] columnNames = {"OrderID", "Date", "TotalCost", "Status", "ProductNo",
@@ -211,5 +213,14 @@ public class OrdersCustomer extends JFrame {
                 }
             }
         });
+    }
+
+
+    private void populateDeleteLineComboBox() {
+        TableModel dataModel = ordersTable.getModel();
+        int noOfRows = dataModel.getRowCount();
+        for (int i = 0; i<= noOfRows; i++) {
+            deleteLineComboBox.addItem(dataModel.getValueAt(i, 4));
+        }
     }
 }
