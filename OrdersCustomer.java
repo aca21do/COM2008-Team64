@@ -90,8 +90,8 @@ public class OrdersCustomer extends JFrame {
                 clearPendingButton.setVisible(false);
                 tableLabel.setText("Order History Items");
 
-                String[] columnNames = {"OrderID", "Date", "TotalCost", "Status", "ProductNo",
-                        "ProductCode", "Quantity", "LineCost"};
+                String[] columnNames = {"OrderID", "Date", "TotalCost", "Status", "Order Line No.",
+                        "Product Code", "Quantity", "Line Cost"};
 
                 DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0);
 
@@ -156,7 +156,7 @@ public class OrdersCustomer extends JFrame {
                 CurrentUser.updateBasketFromDB(userDBOps, connection);
 
                 String[] columnNames = {"OrderID", "Date", "TotalCost", "Status", "Order Line No.",
-                        "ProductCode", "Quantity", "LineCost"};
+                        "Product Code", "Quantity", "Line Cost"};
 
                 DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0);
 
