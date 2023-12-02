@@ -20,6 +20,7 @@ public class OrdersCustomer extends JFrame {
     private JButton pendingOrderButton;
     private JButton placeOrdersButton;
     private JComboBox deleteLineComboBox;
+    private JLabel removeOrderLineLabel;
 
     public OrdersCustomer (Connection connection) {
         // panel setup
@@ -137,7 +138,7 @@ public class OrdersCustomer extends JFrame {
                 placeOrdersButton.setEnabled(true);
                 tableLabel.setText("Order Items");
 
-                String[] columnNames = {"OrderID", "Date", "TotalCost", "Status", "ProductNo",
+                String[] columnNames = {"OrderID", "Date", "TotalCost", "Status", "Order Line No.",
                                             "ProductCode", "Quantity", "LineCost"};
 
                 DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0);
