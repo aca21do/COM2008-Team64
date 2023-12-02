@@ -113,9 +113,6 @@ public class CreateProductSet extends JFrame {
                             if (rowsAffected > 0) {
                                 System.out.println(rowsAffected + " row(s) updated successfully");
                             }
-                            else {
-                                System.out.println("No rows were updated for ProductCode: " + inventoryItem.getProduct().getProductCode());
-                            }
                         }
                         else {
                             sql = "INSERT INTO SetAndPackComponents (ProductCode, ComponentProductCode, Quantity) VALUES (?, ?, ?)";
@@ -153,9 +150,6 @@ public class CreateProductSet extends JFrame {
                             if (rowsAffected > 0) {
                                 System.out.println(rowsAffected + " row(s) updated successfully");
                             }
-                            else {
-                                System.out.println("No rows were updated for ProductCode: " + inventoryItem.getProduct().getProductCode());
-                            }
                         }
                         else {
                             sql = "INSERT INTO SetAndPackComponents (ProductCode, ComponentProductCode, Quantity) VALUES (?, ?, ?)";
@@ -178,7 +172,44 @@ public class CreateProductSet extends JFrame {
         removeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                try {
+                    String setProductCode = setCodeTextField.getText();
+                    String productCode = productToRemoveTextField.getText();
+                    int removeQuantity = Integer.valueOf(removeQuantityComboBox.getSelectedItem().toString());
+                    String sql = "SELECT * FROM SetAndPackComponents WHERE ProductCode = ?";
+                    PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                    preparedStatement.setString(1, setProductCode);
+                    ResultSet resultSet = preparedStatement.executeQuery();
+                    while (resultSet.next()) {
+                        if (resultSet.getString("ComponentProductCode").equals(productCode)) {
+                            if (resultSet.getInt("Quantity") - removeQuantity > 0) {
+                                sql =  "UPDATE SetAndPackComponents SET Quantity=? WHERE ComponentProductCode=?";
+                                preparedStatement = connection.prepareStatement(sql);
+                                preparedStatement.setInt(1,
+                                                        resultSet.getInt("Quantity") - removeQuantity);
+                                preparedStatement.setString(2, productCode);
+                                int rowsAffected = preparedStatement.executeUpdate();
 
+                                if (rowsAffected > 0) {
+                                    System.out.println(rowsAffected + " row(s) updated successfully");
+                                }
+                            }
+
+                            else {
+                                sql = "DELETE FROM SetAndPackComponents WHERE ProductCode = ? AND ComponentProductCode=?";
+                                preparedStatement = connection.prepareStatement(sql);
+                                preparedStatement.setString(1, setProductCode);
+                                preparedStatement.setString(2, productCode);
+                                int rowsAffected = preparedStatement.executeUpdate();
+                                System.out.println(rowsAffected + " row(s) deleted successfully.");
+                            }
+                        }
+                    }
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+
+                populateTable(connection);
             }
         });
 
