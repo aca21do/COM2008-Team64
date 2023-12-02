@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class ViewProduct extends JFrame {
     private JTextField productCodeTextField;
@@ -21,7 +22,7 @@ public class ViewProduct extends JFrame {
     private JButton customerViewButton;
     private JButton managerViewButton;
 
-    public ViewProduct (Connection connection, String productCode) {
+    public ViewProduct (Connection connection, String productCode) throws SQLException {
         // panel setup
         setContentPane(viewProductPanel);
         setTitle("View Product");
@@ -37,7 +38,31 @@ public class ViewProduct extends JFrame {
             managerViewButton.setEnabled(true);
         }
 
+        Inventory inventory = InventoryManager.getInventory();
         productCodeTextField.setText(productCode);
+        try {
+            Product product = inventory.returnProductSubClass(productCode, connection);
+
+            brandNameTextField.setText(product.getBrandName());
+            productNameTextField.setText(product.getProductName());
+            priceTextField.setText(String.valueOf(product.getRetailPrice()));
+            quantityTextField.setText(String.valueOf(inventory.getInventoryItem(productCode, connection).getQuantity()));
+            gaugeCodeTextField.setText(product.getGaugeCode().toString());
+
+            if (product instanceof Locomotive locomotive) {
+                eraCodeTextField.setText(locomotive.getEraCode());
+                dccCodeTextField.setText(locomotive.getDCCCode());
+            } else if (product instanceof RollingStock rollingStock) {
+                eraCodeTextField.setText(rollingStock.getEraCode());
+            } else {
+                eraCodeTextField.setText("");
+                dccCodeTextField.setText("");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
         // TODO: setText in the rest of the Fields using productCode
         updateInfoButton.addActionListener(new ActionListener() {
             @Override
