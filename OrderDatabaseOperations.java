@@ -139,7 +139,7 @@ public class OrderDatabaseOperations {
         }
     }
 
-    public ConfirmedOrder confirmOrder(Connection con) throws SQLException{
+    protected ConfirmedOrder confirmOrder(Connection con) throws SQLException{
         String confirmSQL = "UPDATE Orders SET OrderStatus = 'confirmed' WHERE OrderNumber = ?";
         PreparedStatement confirmState = con.prepareStatement(confirmSQL);
         confirmState.setInt(1, order.orderNumber);
@@ -148,4 +148,41 @@ public class OrderDatabaseOperations {
         ConfirmedOrder confirmedOrder = new ConfirmedOrder(order);
         return confirmedOrder;
     }
+
+    protected FulfilledOrder fulfillOrder(Connection con) throws SQLException{
+        String fulfillSQL = "UPDATE Orders SET OrderStatus = 'fulfilled' WHERE OrderNumber = ?";
+        PreparedStatement fulfillState = con.prepareStatement(fulfillSQL);
+        fulfillState.setInt(1, order.orderNumber);
+        fulfillState.executeUpdate();
+
+        FulfilledOrder fulfilledOrder = new FulfilledOrder(order);
+        return fulfilledOrder;
+    }
+
+    public static int fulfillOrderFromOrderNumber(int orderNo, Connection con) throws SQLException{
+        String fulfillSQL = "UPDATE Orders SET OrderStatus = 'fulfilled' WHERE OrderNumber = ?";
+        PreparedStatement fulfillState = con.prepareStatement(fulfillSQL);
+        fulfillState.setInt(1, orderNo);
+        return fulfillState.executeUpdate();
+    }
+
+    /*
+    public static Order getOrderFromNumber(int orderNumber, Connection con){
+        Order orderFromNumber = null;
+        String getSQL = "SELECT * FROM Orders WHERE OrderNumber = ?";
+        PreparedStatement preparedStatement = con.prepareStatement(getSQL);
+        ResultSet orderResults = preparedStatement.executeQuery();
+
+        if (orderResults.next()){
+            int orderNo = orderResults.getInt("OrderNumber");
+            Date orderDate = orderResults.getDate("OrderDate");
+            double totalCost = orderResults.getDouble("TotalCost");
+            String status = orderResults.getString("OrderStatus");
+            String userID = orderResults.getString("UserID");
+
+            orderFromNumber = new Order(orderNo, orderDate, status, )
+        }
+    }
+
+     */
 }
