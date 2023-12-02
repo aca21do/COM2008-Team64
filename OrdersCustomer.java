@@ -85,7 +85,7 @@ public class OrdersCustomer extends JFrame {
                 DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0);
 
                 try {
-                    String sql = "SELECT * FROM Orders WHERE UserID=?";
+                    String sql = "SELECT * FROM Orders WHERE UserID=? AND OrderStatus != \"pending\"";
                     PreparedStatement preparedStatement = connection.prepareStatement(sql);
                     preparedStatement.setString(1, CurrentUser.getCurrentUser().getUserID());
                     ResultSet ordersResults = preparedStatement.executeQuery();
@@ -146,7 +146,7 @@ public class OrdersCustomer extends JFrame {
                 DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0);
 
                 try {
-                    String sql = "SELECT * FROM Orders WHERE UserID=? AND (OrderStatus = \"pending\" OR OrderStatus = \"confirmed\")";
+                    String sql = "SELECT * FROM Orders WHERE UserID=? AND OrderStatus = \"pending\"";
                     PreparedStatement preparedStatement = connection.prepareStatement(sql);
                     preparedStatement.setString(1, CurrentUser.getCurrentUser().getUserID());
                     ResultSet ordersResults = preparedStatement.executeQuery();
