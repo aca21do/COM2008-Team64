@@ -341,7 +341,22 @@ public class OrdersStaff extends JFrame {
         deleteNextOrderButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                String message = "error deleting order";
+                String orderNo = dataModel.getValueAt(0,0).toString();
+                System.out.println(orderNo);
+                try {
+                    OrderDatabaseOperations.deleteOrderFromOrderNumber(Integer.valueOf(orderNo), connection);
+                    message = "order deleted";
+                }
+                catch(SQLException exception) {
+                    message = "error deleting order";
+                }
+                finally {
+                    // display message
+                    System.out.println(message);
+                    currentOrdersButton.setEnabled(true);
+                    currentOrdersButton.doClick();
+                }
             }
         });
     }

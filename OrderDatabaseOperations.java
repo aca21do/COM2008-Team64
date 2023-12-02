@@ -166,6 +166,20 @@ public class OrderDatabaseOperations {
         return fulfillState.executeUpdate();
     }
 
+    public static int deleteOrderFromOrderNumber(int orderNo, Connection con) throws SQLException{
+        // delete related order lines
+        String deleteLinesSQL = "DELETE FROM OrderLines WHERE OrderNumber = ?";
+        PreparedStatement deleteLinesStatement = con.prepareStatement(deleteLinesSQL);
+        deleteLinesStatement.setInt(1, orderNo);
+        deleteLinesStatement.executeUpdate();
+        
+        //delete order
+        String deleteSQL = "DELETE FROM Orders WHERE OrderNumber = ?";
+        PreparedStatement deletestatement = con.prepareStatement(deleteSQL);
+        deletestatement.setInt(1, orderNo);
+        return deletestatement.executeUpdate();
+    }
+
     /*
     public static Order getOrderFromNumber(int orderNumber, Connection con){
         Order orderFromNumber = null;
