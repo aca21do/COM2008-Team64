@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class OrdersCustomer extends JFrame {
     private JButton browseButton;
@@ -21,6 +22,7 @@ public class OrdersCustomer extends JFrame {
     private JButton placeOrdersButton;
     private JComboBox deleteLineComboBox;
     private JLabel removeOrderLineLabel;
+    private JButton deleteLineButton;
 
     public OrdersCustomer (Connection connection) {
         // panel setup
@@ -138,6 +140,9 @@ public class OrdersCustomer extends JFrame {
                 placeOrdersButton.setEnabled(true);
                 tableLabel.setText("Order Items");
 
+                UserDatabaseOperations userDBOps = new UserDatabaseOperations();
+                CurrentUser.updateBasketFromDB(userDBOps, connection);
+
                 String[] columnNames = {"OrderID", "Date", "TotalCost", "Status", "Order Line No.",
                                             "ProductCode", "Quantity", "LineCost"};
 
@@ -189,9 +194,45 @@ public class OrdersCustomer extends JFrame {
                 ordersTable.setModel(dataModel);
                 populateDeleteLineComboBox();
                 deleteLineComboBox.setVisible(true);
-                
             }
         });
+
+        deleteLineButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String lineNoStr = String.valueOf(deleteLineComboBox.getSelectedItem());
+                int lineNo = Integer.valueOf(lineNoStr);
+                ArrayList<OrderLine> usersOrderLines = CurrentUser.getBasket().getOrderLines();
+
+                OrderLine lineToRemove = null;
+                System.out.println("finding order line");
+                try {
+                    for (OrderLine line : usersOrderLines) {
+                        if (line.getLineNumber() == lineNo) {
+                            System.out.println(lineNo);
+                            lineToRemove = line;
+                        }
+                    }
+                    if (lineToRemove != null) {
+                        CurrentUser.getBasket().removeOrderLine(lineToRemove, connection);
+                        System.out.println("removed");
+                    } else{
+                        System.out.println("error deleting - could not find order line " + lineNo);
+                    }
+                }
+                catch (SQLException exception){
+                    exception.printStackTrace();
+                    System.out.println("Couldn't remove order line");
+                }
+                finally {
+                    System.out.println("refresh");
+                    pendingOrderButton.setEnabled(true);
+                    pendingOrderButton.doClick();
+                }
+            }
+        });
+
+
         placeOrdersButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

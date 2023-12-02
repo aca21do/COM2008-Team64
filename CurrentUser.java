@@ -1,3 +1,5 @@
+import java.sql.Connection;
+
 public class CurrentUser {
     // stores a single user, which is logged in
     private static User currentUser;
@@ -30,5 +32,8 @@ public class CurrentUser {
     }
     public static void setBasket(PendingOrder newBasket) {
         basket = newBasket;
+    }
+    public static void updateBasketFromDB(UserDatabaseOperations userDBops, Connection con){
+        CurrentUser.setBasket( userDBops.getUsersPendingOrder(CurrentUser.getCurrentUser(), con ) );
     }
 }
