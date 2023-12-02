@@ -135,8 +135,6 @@ public class OrdersCustomer extends JFrame {
                 pendingOrderButton.setEnabled(false);
                 ordersHistoryButton.setEnabled(true);
                 placeOrdersButton.setEnabled(true);
-                populateDeleteLineComboBox();
-                deleteLineComboBox.setVisible(true);
                 tableLabel.setText("Order Items");
 
                 String[] columnNames = {"OrderID", "Date", "TotalCost", "Status", "ProductNo",
@@ -188,6 +186,8 @@ public class OrdersCustomer extends JFrame {
                 }
 
                 ordersTable.setModel(dataModel);
+                populateDeleteLineComboBox();
+                deleteLineComboBox.setVisible(true);
                 
             }
         });
@@ -218,7 +218,8 @@ public class OrdersCustomer extends JFrame {
     private void populateDeleteLineComboBox() {
         TableModel dataModel = ordersTable.getModel();
         int noOfRows = dataModel.getRowCount();
-        for (int i = 0; i<= noOfRows; i++) {
+        System.out.println(noOfRows);
+        for (int i = 0; i< noOfRows; i++) {
             deleteLineComboBox.addItem(dataModel.getValueAt(i, 4));
         }
     }
