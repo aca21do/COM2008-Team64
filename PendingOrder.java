@@ -81,4 +81,8 @@ public class PendingOrder extends Order{
         dbOperations.insertOrderLine(p, quantity, con);
     }
 
+    public ConfirmedOrder confirmOrder(Connection con) throws SQLException{
+        return dbOperations.confirmOrder(con);
+    }
+
 }
