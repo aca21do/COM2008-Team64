@@ -23,6 +23,7 @@ public class OrdersCustomer extends JFrame {
     private JComboBox deleteLineComboBox;
     private JLabel removeOrderLineLabel;
     private JButton deleteLineButton;
+    private JButton clearPendingButton;
 
     public OrdersCustomer (Connection connection) {
         // panel setup
@@ -99,7 +100,7 @@ public class OrdersCustomer extends JFrame {
                         preparedStatement = connection.prepareStatement(sql);
                         preparedStatement.setInt(1, ordersResults.getInt("OrderNumber"));
                         ResultSet orderLinesResults = preparedStatement.executeQuery();
-                        while(orderLinesResults.next()) {
+                        while (orderLinesResults.next()) {
                             if (displayOrder) {
                                 data = new Object[]{ordersResults.getInt("OrderNumber"),
                                         ordersResults.getDate("OrderDate"),
@@ -111,8 +112,7 @@ public class OrdersCustomer extends JFrame {
                                         orderLinesResults.getDouble("LineCost")};
 
                                 displayOrder = false;
-                            }
-                            else {
+                            } else {
                                 data = new Object[]{"", "", "", "",
                                         orderLinesResults.getString("OrderLineNumber"),
                                         orderLinesResults.getString("ProductCode"),
@@ -144,7 +144,7 @@ public class OrdersCustomer extends JFrame {
                 CurrentUser.updateBasketFromDB(userDBOps, connection);
 
                 String[] columnNames = {"OrderID", "Date", "TotalCost", "Status", "Order Line No.",
-                                            "ProductCode", "Quantity", "LineCost"};
+                        "ProductCode", "Quantity", "LineCost"};
 
                 DefaultTableModel dataModel = new DefaultTableModel(columnNames, 0);
 
@@ -161,7 +161,7 @@ public class OrdersCustomer extends JFrame {
                         preparedStatement = connection.prepareStatement(sql);
                         preparedStatement.setInt(1, ordersResults.getInt("OrderNumber"));
                         ResultSet orderLinesResults = preparedStatement.executeQuery();
-                        while(orderLinesResults.next()) {
+                        while (orderLinesResults.next()) {
                             if (displayOrder) {
                                 data = new Object[]{ordersResults.getInt("OrderNumber"),
                                         ordersResults.getDate("OrderDate"),
@@ -173,8 +173,7 @@ public class OrdersCustomer extends JFrame {
                                         orderLinesResults.getDouble("LineCost")};
 
                                 displayOrder = false;
-                            }
-                            else {
+                            } else {
                                 data = new Object[]{"", "", "", "",
                                         orderLinesResults.getString("OrderLineNumber"),
                                         orderLinesResults.getString("ProductCode"),
@@ -216,15 +215,13 @@ public class OrdersCustomer extends JFrame {
                     if (lineToRemove != null) {
                         CurrentUser.getBasket().removeOrderLine(lineToRemove, connection);
                         System.out.println("removed");
-                    } else{
+                    } else {
                         System.out.println("error deleting - could not find order line " + lineNo);
                     }
-                }
-                catch (SQLException exception){
+                } catch (SQLException exception) {
                     exception.printStackTrace();
                     System.out.println("Couldn't remove order line");
-                }
-                finally {
+                } finally {
                     System.out.println("refresh");
                     pendingOrderButton.setEnabled(true);
                     pendingOrderButton.doClick();
@@ -247,15 +244,23 @@ public class OrdersCustomer extends JFrame {
                         new EditBankDetails(connection).setVisible(true);
                         setVisible(false);
                     }
-                }
-                catch (SQLException error){
+                } catch (SQLException error) {
                     new EditBankDetails(connection).setVisible(true);
                     setVisible(false);
                 }
             }
         });
-    }
 
+
+        clearPendingButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CurrentUser.resetBasket(connection);
+                pendingOrderButton.setEnabled(true);
+                pendingOrderButton.doClick();
+            }
+        });
+    }
 
     private void populateDeleteLineComboBox() {
         TableModel dataModel = ordersTable.getModel();

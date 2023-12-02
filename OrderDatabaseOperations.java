@@ -1,5 +1,6 @@
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class OrderDatabaseOperations {
     protected Order order;
@@ -12,6 +13,12 @@ public class OrderDatabaseOperations {
     public Order insertOrder(User user, Connection con) throws SQLException{
         int maxOrderNo = 0;
         int updatedRows = 0;
+
+        // if adding a new pending order, remove the user's old pending order
+        if (order.getOrderStatus().equals("pending")){
+            removeExistingPending(con);
+        }
+
         ResultSet maxOrderNoResult = con.prepareStatement("SELECT MAX(OrderNumber) FROM Orders").executeQuery();
         if (maxOrderNoResult.next()){
             maxOrderNo = maxOrderNoResult.getInt(1);
@@ -106,4 +113,28 @@ public class OrderDatabaseOperations {
         setQuantityStatement.setString(2, product.getProductCode());
         setQuantityStatement.executeUpdate();
         }
+
+        public void removeExistingPending(Connection con) throws SQLException{
+        UserDatabaseOperations userDBops = new UserDatabaseOperations();
+
+        PendingOrder pendingOrder = userDBops.getUsersPendingOrder(CurrentUser.getCurrentUser(), con);
+        int i=0;
+        while (pendingOrder != null && i<100){
+            // remove lines of pending order
+            String removePendingLines = "DELETE FROM OrderLines WHERE OrderNumber = ?";
+            PreparedStatement removeLinePrep = con.prepareStatement(removePendingLines);
+            removeLinePrep.setInt(1, pendingOrder.getOrderNumber());
+            removeLinePrep.executeUpdate();
+
+            // remove pending order
+            String removePendingSQL = "DELETE FROM Orders WHERE OrderStatus = 'pending' AND UserID = ?";
+            PreparedStatement removePendingStatement = con.prepareStatement(removePendingSQL);
+            removePendingStatement.setString(1, CurrentUser.getCurrentUser().getUserID());
+            removePendingStatement.executeUpdate();
+
+            // cleanup any possible other pending orders
+            pendingOrder = userDBops.getUsersPendingOrder(CurrentUser.getCurrentUser(), con);
+            i++;
+        }
     }
+}
