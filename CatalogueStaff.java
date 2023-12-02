@@ -274,7 +274,11 @@ public class CatalogueStaff extends JFrame {
                 String productCode = catalogueTable.getModel().getValueAt(row, column).toString();
 
                 if (!Objects.equals(productCode, "")) {
-                    new ViewProduct(connection, productCode).setVisible(true);
+                    try {
+                        new ViewProduct(connection, productCode).setVisible(true);
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
                     setVisible(false);
                 }
             }
