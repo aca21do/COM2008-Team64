@@ -1,3 +1,5 @@
+import sheffield.DatabaseConnectionHandler;
+
 import java.sql.Connection;
 
 public class CurrentUser {
@@ -20,6 +22,11 @@ public class CurrentUser {
     public static void logout(){
         currentUser = null;
         basket = null;
+    }
+    public static void logout(Connection connection){
+        currentUser = null;
+        basket = null;
+        new DatabaseConnectionHandler().closeConnection(connection);
     }
     public static boolean isLoggedIn(){
         return currentUser != null;
