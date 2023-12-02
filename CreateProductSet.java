@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class CreateProductSet extends JFrame {
     private JButton backButton;
@@ -67,7 +68,24 @@ public class CreateProductSet extends JFrame {
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                String setProductCode = setCodeTextField.getText();
+                InventoryItem inventoryItem;
+                try {
+                    inventoryItem = InventoryManager.getInventory().getInventoryItem(setProductCode,
+                            connection);
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+                if (setProductCode.charAt(0) == 'M') {
+                    Set product = (Set) inventoryItem.getProduct();
+                    Object[] component = new Object[] {productToAddTextField.getText(), addQuantityComboBox.getSelectedItem()};
+                    product.getComponentProductCodes().addRow(component);
+                }
+                else if (setProductCode.charAt(0) == 'P') {
+                    Pack product = (Pack) inventoryItem.getProduct();
+                    Object[] component = new Object[] {productToAddTextField.getText(), addQuantityComboBox.getSelectedItem()};
+                    product.getComponentProductCodes().addRow(component);
+                }
             }
         });
         removeButton.addActionListener(new ActionListener() {
