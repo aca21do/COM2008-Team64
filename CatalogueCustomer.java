@@ -307,6 +307,7 @@ public class CatalogueCustomer extends JFrame {
                 finally {
                     errorLabel.setText(addToOrderMessage);
                     errorLabel.updateUI();
+                    populateTable(connection);
                 }
             }
         });
