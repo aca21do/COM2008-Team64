@@ -20,6 +20,7 @@ public class CreateProductSet extends JFrame {
     private JComboBox removeQuantityComboBox;
     private JButton createSetButton;
     private JLabel errorLabel;
+    private JButton confirmButton;
 
     public CreateProductSet (Connection connection) {
         // panel setup
@@ -95,6 +96,12 @@ public class CreateProductSet extends JFrame {
             }
         });
         createSetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
