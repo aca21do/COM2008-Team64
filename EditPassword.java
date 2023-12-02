@@ -65,7 +65,7 @@ public class EditPassword extends JFrame {
         logoutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                CurrentUser.logout();
+                CurrentUser.logout(connection);
                 new MainFrame().setVisible(true);
                 setVisible(false);
             }
