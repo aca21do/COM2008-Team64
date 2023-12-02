@@ -95,7 +95,7 @@ public class OrdersStaff extends JFrame {
                     }
                     // if not first line in order, just show order line
                     else {
-                        data = new Object[]{"", "", "", "",
+                        data = new Object[]{"", "", "", "", "", "", "", "",
                                 orderLinesResults.getString("OrderLineNumber"),
                                 orderLinesResults.getString("ProductCode"),
                                 orderLinesResults.getInt("Quantity"),
