@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Objects;
 
 public class CatalogueStaff extends JFrame {
     private JComboBox categoryComboBox;
@@ -125,30 +126,15 @@ public class CatalogueStaff extends JFrame {
             managerViewButton.setEnabled(true);
         }
 
-        // placeholder data
-        String[] columnNames = {"First Name",
-                "Last Name"};
-
-        Object[][] data = {
-                {"Kathy", "Smith"},
-                {"John", "Doe"},
-                {"Sue", "Black"},
-                {"Jane", "White"},
-                {"Joe", "Brown"}
-        };
-
-        DefaultTableModel dataModel = new DefaultTableModel(data, columnNames){
-            // make table not able to be selected
-            @Override
-            public boolean isCellEditable(int i, int i1) {
-                return false;
-            }
-        };
-        catalogueTable.setModel(dataModel);
+        try {
+            DefaultTableModel defaultTableModel = returnSetOrPackDataModel('M', connection);
+            catalogueTable.setModel(defaultTableModel);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
         // select first row automatically
         catalogueTable.setRowSelectionInterval(0, 0);
-
         categoryComboBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
@@ -246,6 +232,9 @@ public class CatalogueStaff extends JFrame {
                     }
                 }
                 catalogueTable.setModel(dataModel);
+
+                // select first row automatically
+                catalogueTable.setRowSelectionInterval(0, 0);
             }
         });
         ordersButton.addActionListener(new ActionListener() {
@@ -284,8 +273,10 @@ public class CatalogueStaff extends JFrame {
                 int row = catalogueTable.getSelectedRow();
                 String productCode = catalogueTable.getModel().getValueAt(row, column).toString();
 
-                new ViewProduct(connection, productCode).setVisible(true);
-                setVisible(false);
+                if (!Objects.equals(productCode, "")) {
+                    new ViewProduct(connection, productCode).setVisible(true);
+                    setVisible(false);
+                }
             }
         });
         createNewProductButton.addActionListener(new ActionListener() {
