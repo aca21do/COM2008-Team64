@@ -17,7 +17,7 @@ public class OrdersCustomer extends JFrame {
     private JPanel ordersCustomerPanel;
     private JLabel tableLabel;
     private JButton ordersHistoryButton;
-    private JButton pendingOrderBugtton;
+    private JButton pendingOrderButton;
     private JButton placeOrdersButton;
     private JComboBox deleteLineComboBox;
 
