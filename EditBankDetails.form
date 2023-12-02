@@ -48,7 +48,7 @@
           <text value="Card Holder Name"/>
         </properties>
       </component>
-      <component id="c4c75" class="javax.swing.JTextField" binding="cardHolderNameTextFeild">
+      <component id="c4c75" class="javax.swing.JTextField" binding="cardHolderNameTextField">
         <constraints>
           <grid row="7" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
