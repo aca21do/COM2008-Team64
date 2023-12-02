@@ -97,7 +97,7 @@ public class CreateProductSet extends JFrame {
                         ResultSet resultSet = preparedStatement.executeQuery();
 
                         while (resultSet.next()) {
-                            if (resultSet.getString("ComponentProductCode") == productToAddTextField.getText()) {
+                            if (resultSet.getString("ComponentProductCode").equals(productToAddTextField.getText())) {
                                 present = true;
                                 quantityAdd = resultSet.getInt("Quantity");
                             }
@@ -108,6 +108,14 @@ public class CreateProductSet extends JFrame {
                             preparedStatement.setInt(1, quantityAdd + Integer.valueOf(
                                                                 addQuantityComboBox.getSelectedItem().toString()));
                             preparedStatement.setString(2, productToAddTextField.getText());
+                            int rowsAffected = preparedStatement.executeUpdate();
+
+                            if (rowsAffected > 0) {
+                                System.out.println(rowsAffected + " row(s) updated successfully");
+                            }
+                            else {
+                                System.out.println("No rows were updated for ProductCode: " + inventoryItem.getProduct().getProductCode());
+                            }
                         }
                         else {
                             sql = "INSERT INTO SetAndPackComponents (ProductCode, ComponentProductCode, Quantity) VALUES (?, ?, ?)";
@@ -129,7 +137,7 @@ public class CreateProductSet extends JFrame {
                         ResultSet resultSet = preparedStatement.executeQuery();
 
                         while (resultSet.next()) {
-                            if (resultSet.getString("ComponentProductCode") == productToAddTextField.getText()) {
+                            if (resultSet.getString("ComponentProductCode").equals(productToAddTextField.getText())) {
                                 present = true;
                                 quantityAdd = resultSet.getInt("Quantity");
                             }
@@ -140,6 +148,14 @@ public class CreateProductSet extends JFrame {
                             preparedStatement.setInt(1, quantityAdd + Integer.valueOf(
                                     addQuantityComboBox.getSelectedItem().toString()));
                             preparedStatement.setString(2, productToAddTextField.getText());
+                            int rowsAffected = preparedStatement.executeUpdate();
+
+                            if (rowsAffected > 0) {
+                                System.out.println(rowsAffected + " row(s) updated successfully");
+                            }
+                            else {
+                                System.out.println("No rows were updated for ProductCode: " + inventoryItem.getProduct().getProductCode());
+                            }
                         }
                         else {
                             sql = "INSERT INTO SetAndPackComponents (ProductCode, ComponentProductCode, Quantity) VALUES (?, ?, ?)";
