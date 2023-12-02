@@ -36,6 +36,10 @@ public class OrdersCustomer extends JFrame {
         // make staff buttons invisible by default
         staffViewButton.setVisible(false);
         managerViewButton.setVisible(false);
+        removeOrderLineLabel.setVisible(false);
+        deleteLineButton.setVisible(false);
+        deleteLineComboBox.setVisible(false);
+        clearPendingButton.setVisible(false);
 
         if (CurrentUser.getCurrentUser().getIsStaff()) {
             staffViewButton.setVisible(true);
@@ -80,6 +84,10 @@ public class OrdersCustomer extends JFrame {
                 ordersHistoryButton.setEnabled(false);
                 pendingOrderButton.setEnabled(true);
                 placeOrdersButton.setEnabled(false);
+                removeOrderLineLabel.setVisible(false);
+                deleteLineButton.setVisible(false);
+                deleteLineComboBox.setVisible(false);
+                clearPendingButton.setVisible(false);
                 tableLabel.setText("Order History Items");
 
                 String[] columnNames = {"OrderID", "Date", "TotalCost", "Status", "ProductNo",
@@ -138,6 +146,10 @@ public class OrdersCustomer extends JFrame {
                 pendingOrderButton.setEnabled(false);
                 ordersHistoryButton.setEnabled(true);
                 placeOrdersButton.setEnabled(true);
+                removeOrderLineLabel.setVisible(true);
+                deleteLineButton.setVisible(true);
+                deleteLineComboBox.setVisible(true);
+                clearPendingButton.setVisible(true);
                 tableLabel.setText("Order Items");
 
                 UserDatabaseOperations userDBOps = new UserDatabaseOperations();
