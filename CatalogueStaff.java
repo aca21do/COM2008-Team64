@@ -20,6 +20,7 @@ public class CatalogueStaff extends JFrame {
     private JButton viewProductButton;
     private JPanel catalogueStaffPanel;
     private JButton createNewProductButton;
+    private JButton createNewProductSetButton;
 
     public DefaultTableModel returnSetOrPackDataModel(Character selectedCategory,Connection connection) throws SQLException {
         try {
@@ -287,6 +288,13 @@ public class CatalogueStaff extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 new CreateProduct(connection).setVisible(true);
+                setVisible(false);
+            }
+        });
+        createNewProductSetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new CreateProductSet(connection).setVisible(true);
                 setVisible(false);
             }
         });
